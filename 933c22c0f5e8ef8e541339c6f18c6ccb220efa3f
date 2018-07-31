@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "636af9de_4ab555a7",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "No longer needed",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5aca899_43ecb12c",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "No longer needed. Should be an account on Wikimedia Gerrit.",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49764f92_2e4a8d1b",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "Should be submitted via gerrit instead of Differential.",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f91c0c9f_7234cd8b",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "Will no longer work Soon",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67abc78f_7c16020c",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "Will no longer work Soon™",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6e81240_6b600ad1",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "arc -\u003e gerrit",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40c3adf2_1fbe4ea3",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "arc -\u003e gerrit",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d01c3021_ce472353",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-07-31T16:29:07Z",
+      "side": 1,
+      "message": "Unnecessary",
+      "revId": "933c22c0f5e8ef8e541339c6f18c6ccb220efa3f",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
