@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c097ec8_24bac927",
+        "filename": "Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-01T16:47:52Z",
+      "side": 1,
+      "message": "maybe add \u0027@\u0027 to these top 3 lines to suppress their output, makes a lot of noise",
+      "revId": "d8b25ae15b671cac727373b9456cc101de175a65",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
