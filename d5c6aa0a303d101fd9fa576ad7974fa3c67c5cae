@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1a49cab_2216335d",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-24T15:15:29Z",
+      "side": 1,
+      "message": "Feature idea: add policy yaml so that blubberoid service can enforce a policy. Could happen in a later patch set or may be a bad idea.",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23a55d91_178f60f0",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-24T15:15:29Z",
+      "side": 1,
+      "message": "Should err go to log.Println or error log?",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f7a403a_30bf8873",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-24T15:15:29Z",
+      "side": 1,
+      "message": "Would be nice if this had a newline.\n\nShould this output to stdout on the server or an error log?",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cec6b0cb_766502f5",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-24T15:15:29Z",
+      "side": 1,
+      "message": "Would be nice if this had a newline.\n\nMaybe also give the hint to ensure using --data-binary? I used -d initially.\n\nShould this output to stdout on the server or an error log?",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
