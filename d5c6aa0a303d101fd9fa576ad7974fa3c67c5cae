@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3d445afd_cb9c7418",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-08-27T17:40:19Z",
+      "side": 1,
+      "message": "Will do!",
+      "parentUuid": "d1a49cab_2216335d",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23a55d91_178f60f0",
         "filename": "cmd/blubberoid/main.go",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4dbd4685_1b737198",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-08-27T17:40:19Z",
+      "side": 1,
+      "message": "Yes. That would make sense for an internal error I think.",
+      "parentUuid": "23a55d91_178f60f0",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "057c64a2_3ea92cd7",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-08-27T17:40:19Z",
+      "side": 1,
+      "message": "Will do!\n\nIMHO, since the failure is purely on the client side (4xx), I wouldn\u0027t consider it error-log worthy. If there were a request log, it could go there.",
+      "parentUuid": "5f7a403a_30bf8873",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cec6b0cb_766502f5",
         "filename": "cmd/blubberoid/main.go",
         "patchSetId": 8
@@ -67,6 +121,24 @@
       "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89e55594_6fdda92a",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-08-27T17:40:19Z",
+      "side": 1,
+      "message": "I\u0027m not sure about mentioning curl\u0027s `--data-binary` option explicitly but I\u0027ll add a message to that effect.\n\nRe: logging, since it\u0027s a 4xx I don\u0027t think it should be logged as an error on the server. If there were a request log, it could go there.",
+      "parentUuid": "cec6b0cb_766502f5",
+      "revId": "d5c6aa0a303d101fd9fa576ad7974fa3c67c5cae",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
     }
   ]
 }
