@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "25a7dece_a37688a0",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-08-29T22:04:45Z",
+      "side": 1,
+      "message": "Fixed! It now prepends a \"/\" before passing cleaning the path.",
+      "parentUuid": "d77090f7_a0fa40d9",
+      "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f71be37_1182afeb",
         "filename": "cmd/blubberoid/main.go",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-29T20:38:55Z",
       "side": 1,
       "message": "I can\u0027t seem to trigger this :\\",
+      "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44b40eb4_b1872106",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-08-29T22:04:45Z",
+      "side": 1,
+      "message": "I was able to pass a policy that failed the example config. (Notice that the example policy rules only apply to the production variant.)\n\nThere was, however, a missing `return` statement in the error handling.",
+      "parentUuid": "6f71be37_1182afeb",
       "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": false
