@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d77090f7_a0fa40d9",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-29T20:38:55Z",
+      "side": 1,
+      "message": "when you pass an endpoint, unless it starts with a \"/\", you get nothing but 404 messages to spite the output of blubberoid saying:\n\nlistening on :8748 for requests to /test/[variant]\n\nI think if this needs to both start and end with a \"/\" it should validate that using strings.Index/strings.LastIndex.",
+      "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f71be37_1182afeb",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-29T20:38:55Z",
+      "side": 1,
+      "message": "I can\u0027t seem to trigger this :\\",
+      "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
