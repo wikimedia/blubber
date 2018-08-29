@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f78231d6_fe6cace7",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-29T22:10:03Z",
+      "side": 1,
+      "message": "endpoint is a string pointer, needs to be dereferenced. I get:\n\nrequest a variant at %!s(*string\u003d0xc4202bfb30)[variant]",
+      "revId": "e21be78361c12c1d8642137649be32879e54e04b",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}

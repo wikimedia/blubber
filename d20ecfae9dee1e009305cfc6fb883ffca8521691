@@ -69,6 +69,24 @@
       "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b599737d_b907c51f",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-08-29T22:10:03Z",
+      "side": 1,
+      "message": "ah ha! makes sense.",
+      "parentUuid": "44b40eb4_b1872106",
+      "revId": "d20ecfae9dee1e009305cfc6fb883ffca8521691",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
     }
   ]
 }
