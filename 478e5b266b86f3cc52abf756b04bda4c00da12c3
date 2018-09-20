@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c293dcde_0d223d64",
+        "filename": "cmd/blubberoid/openapi.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 824
+      },
+      "writtenOn": "2018-09-20T11:04:56Z",
+      "side": 1,
+      "message": "I would move the entire spec into a yaml file and read it once on initialization",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "478e5b266b86f3cc52abf756b04bda4c00da12c3",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a863dde4_b14b6f75",
+        "filename": "cmd/blubberoid/openapi.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 824
+      },
+      "writtenOn": "2018-09-20T11:04:56Z",
+      "side": 1,
+      "message": "Evaluating the template on every request just to inject the version is probably not worth it. I would either hardcode it in the yaml file I am suggesting above or alternatively if using the meta package is preferable, just evaluate it once on initialization of the daemon",
+      "range": {
+        "startLine": 82,
+        "startChar": 6,
+        "endLine": 82,
+        "endChar": 13
+      },
+      "revId": "478e5b266b86f3cc52abf756b04bda4c00da12c3",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
