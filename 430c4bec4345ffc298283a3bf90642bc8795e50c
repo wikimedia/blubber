@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bb26395_d4a36f77",
+        "filename": "config/variant.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-09-27T15:14:41Z",
+      "side": 1,
+      "message": "\"volume definition\"",
+      "revId": "430c4bec4345ffc298283a3bf90642bc8795e50c",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}

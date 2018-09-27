@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65b58db0_48ef47d4",
+        "filename": "config/variant.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-09-27T15:14:41Z",
+      "side": 0,
+      "message": "do we need build.Volume now? Or can we get rid of it in this patch as well?",
+      "revId": "e8f5e294e86db666411dd6bbcd67af40fbaaa121",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
