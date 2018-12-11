@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f1359fb4_2886dedd",
+        "filename": "config/policy.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-12-11T00:17:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "395f43cf_dc8c2c31",
+      "revId": "f5d776b87476004f6976f54e3a5acdc16a5f49d1",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99498853_54f0931b",
         "filename": "config/reader.go",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-12-10T23:50:07Z",
       "side": 1,
       "message": "I\u0027m not sure the YAML conversion should live in this function. IMHO, since JSON is the new canonical format, both `ReadConfig` and `ReadPolicy` should assume JSON inputs, and there should be separate functions for YAML parsing (e.g. `ReadYAMLConfig` and `ReadYAMLPolicy`) that perform the conversion before delegating to the canonical functions.",
+      "revId": "f5d776b87476004f6976f54e3a5acdc16a5f49d1",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ab09cb1_ad47a72f",
+        "filename": "config/reader.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-12-11T00:17:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99498853_54f0931b",
       "revId": "f5d776b87476004f6976f54e3a5acdc16a5f49d1",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": true
