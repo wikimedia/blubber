@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9f6cc93_ae0750dd",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-12-12T23:00:10Z",
+      "side": 1,
+      "message": "should this now be \"listening on %s for requests to /v1%s[variant]\\n\"?",
+      "revId": "8a283f3ee5bd218ca875a590b983e50ae0232b08",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
