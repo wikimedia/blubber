@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7d5a10c5_e408ebc2",
+        "filename": "cmd/blubberoid/openapi.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-12-12T20:38:55Z",
+      "side": 1,
+      "message": "Done\n\nI ended up using a go generator to do this (see scripts/generate-const.sh and cmd/blubberoid/openapi.go), since all the libraries I looked at used it under the hood.\n\nThere\u0027s also a test to ensure the generator was and that the generated openapi.go file was committed.",
+      "parentUuid": "c293dcde_0d223d64",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "478e5b266b86f3cc52abf756b04bda4c00da12c3",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a863dde4_b14b6f75",
         "filename": "cmd/blubberoid/openapi.go",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-20T11:04:56Z",
       "side": 1,
       "message": "Evaluating the template on every request just to inject the version is probably not worth it. I would either hardcode it in the yaml file I am suggesting above or alternatively if using the meta package is preferable, just evaluate it once on initialization of the daemon",
+      "range": {
+        "startLine": 82,
+        "startChar": 6,
+        "endLine": 82,
+        "endChar": 13
+      },
+      "revId": "478e5b266b86f3cc52abf756b04bda4c00da12c3",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9354e011_a7c75f85",
+        "filename": "cmd/blubberoid/openapi.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2018-12-12T20:38:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a863dde4_b14b6f75",
       "range": {
         "startLine": 82,
         "startChar": 6,
