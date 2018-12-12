@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8544133_553da7c6",
+        "filename": "cmd/blubberoid/main.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-12-12T22:24:04Z",
+      "side": 1,
+      "message": "variant names can\u0027t contain \"/\" -- seem fine",
+      "revId": "662fa3de1fe5a4c12607638e8b779a466aa2d482",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "346ec5fb_bafbcd4f",
+        "filename": "scripts/generate-const.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2018-12-12T22:24:04Z",
+      "side": 1,
+      "message": "In GNU sed 4.5 (on my machine) this needs to be `-i.sed.bak` otherwise it fails with:\n\n    sed: can\u0027t read .sed.bak: No such file or directory",
+      "revId": "662fa3de1fe5a4c12607638e8b779a466aa2d482",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
