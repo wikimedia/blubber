@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da402c22_5701c546",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "Commit message is awesome and very helpful for review",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99324d37_f5274a50",
+        "filename": "README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "this needs to be a list now, right?",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48e8c504_5c55bc0b",
+        "filename": "config/artifacts.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "\"artifactss\"\n\nnitpick/suggestion: \"(only the From field\" -\u003e \"(i.e., on the `From` field\"",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ee7adc4_f526c074",
+        "filename": "config/artifacts.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "nicely handles `copies: []`",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4952245b_03aab7a2",
+        "filename": "config/validation.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "This is neat",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7938c7ad_a61e172c",
+        "filename": "config/validation.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "nitpick: \"variantref\" isn\u0027t quite accurate anymore with the \"local\" keyword.",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "889bbb58_966a9c25",
+        "filename": "config/variant.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "nice expansion",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c4d9028_29d90320",
+        "filename": "config/variant.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 2321
+      },
+      "writtenOn": "2019-01-25T22:22:02Z",
+      "side": 1,
+      "message": "could maybe use a comment about what\u0027s happening here, took a bit of digging to grok.\n\nAlso, aside, that this happens for every phase for every variant that is being built. So in the case of the builder patter we do expansion logic 10 times.\n\nIt\u0027s not a big deal, but worth noting. We could put this in PhaseInstall and save some loops, I think(?).",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    }
+  ]
+}
