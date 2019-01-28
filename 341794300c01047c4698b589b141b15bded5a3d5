@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9784987f_dcb1f643",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2019-01-28T23:24:51Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "da402c22_5701c546",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99324d37_f5274a50",
         "filename": "README.md",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "2df66fb6_0c942ad7",
+        "filename": "README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2019-01-28T23:24:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99324d37_f5274a50",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48e8c504_5c55bc0b",
         "filename": "config/artifacts.go",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2019-01-25T22:22:02Z",
       "side": 1,
       "message": "\"artifactss\"\n\nnitpick/suggestion: \"(only the From field\" -\u003e \"(i.e., on the `From` field\"",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "089bfe1d_b0543c38",
+        "filename": "config/artifacts.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2019-01-28T23:24:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48e8c504_5c55bc0b",
       "revId": "341794300c01047c4698b589b141b15bded5a3d5",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": false
@@ -104,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "3b4f2c5f_704ccf30",
+        "filename": "config/validation.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2019-01-28T23:24:51Z",
+      "side": 1,
+      "message": "So there\u0027s a weird bug in the validator lib\u0027s `|` operator that I encountered (I think I originally did something like `variantref|localkeyword` in the validation tag. I don\u0027t remember exactly what it was but the workaround was difficult.",
+      "parentUuid": "7938c7ad_a61e172c",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "889bbb58_966a9c25",
         "filename": "config/variant.go",
         "patchSetId": 3
@@ -132,6 +204,24 @@
       "writtenOn": "2019-01-25T22:22:02Z",
       "side": 1,
       "message": "could maybe use a comment about what\u0027s happening here, took a bit of digging to grok.\n\nAlso, aside, that this happens for every phase for every variant that is being built. So in the case of the builder patter we do expansion logic 10 times.\n\nIt\u0027s not a big deal, but worth noting. We could put this in PhaseInstall and save some loops, I think(?).",
+      "revId": "341794300c01047c4698b589b141b15bded5a3d5",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "def8b7ed_79967754",
+        "filename": "config/variant.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1731
+      },
+      "writtenOn": "2019-01-28T23:24:51Z",
+      "side": 1,
+      "message": "Oh good point, though I\u0027m not sure how best to address the inefficiency.\n\nI don\u0027t think this delegation should necessarily know that `ArtifactsConfig.InstructionsForPhase` only returns instructions for `PhaseInstall`; That seems like a strong degree of coupling between config types that has been avoided so far.\n\nIt does seem inefficient that `Copies` is expanded every time this function is called. To solve that problem (without introduces the mentioned coupling) we\u0027d have to store the result of `Copies.Expand` in another field of `VariantConfig`... doable but I don\u0027t know how it should behave on subsequent calls. Should it assume if the field is set, that `Copies` has already been expanded and hasn\u0027t changed? (The hasn\u0027t changed is the tricky party; How do we know that?) Or do we attempt to do a comparison between expanded and unexpanded forms? Not sure.",
+      "parentUuid": "9c4d9028_29d90320",
       "revId": "341794300c01047c4698b589b141b15bded5a3d5",
       "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
       "unresolved": false
