@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a67806a9_4fddc6f5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6426
+      },
+      "writtenOn": "2019-02-28T12:11:04Z",
+      "side": 1,
+      "message": "Commit message doesn\u0027t mention that the commit also installs gcc, git, and make. Perhaps these were part of the old base image? Might be good to clarify that so others don\u0027t wonder.",
+      "revId": "a9e8f40b21535dfe675c490d966834a460c400f9",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
+    }
+  ]
+}
