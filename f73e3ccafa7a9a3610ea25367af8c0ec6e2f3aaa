@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d70a6a1b_1b4be373",
+        "filename": "policy.example.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 366
+      },
+      "writtenOn": "2019-06-18T16:16:08Z",
+      "side": 1,
+      "message": "Should at least our example not encourage the current stable version of Debian? ;-) (Not for this patch.)",
+      "range": {
+        "startLine": 3,
+        "startChar": 10,
+        "endLine": 3,
+        "endChar": 48
+      },
+      "revId": "f73e3ccafa7a9a3610ea25367af8c0ec6e2f3aaa",
+      "serverId": "e9e9afe9-4712-486d-8885-f54b72dd1951",
+      "unresolved": true
+    }
+  ]
+}
