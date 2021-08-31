@@ -1,0 +1,16 @@
+image: docker-registry.wikimedia.org/golang:1.13-3
+
+test:
+  script:
+    - make unit
+
+lint:
+  script:
+    - make lint
+
+build-blubberoid:
+  needs:
+    - test
+    - lint
+  script:
+    - make blubberoid
