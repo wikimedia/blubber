@@ -13,7 +13,6 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/utahta/go-openuri v0.1.0
 	github.com/wk8/go-ordered-map v0.1.0
-	golang.org/x/lint/golint v0.0.0
 	gopkg.in/go-playground/validator.v9 v9.29.0
 	gopkg.in/yaml.v2 v2.3.0
 )

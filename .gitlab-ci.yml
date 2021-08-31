@@ -12,6 +12,7 @@ unittest:
 lint:
   stage: test
   script:
+    - go get -u golang.org/x/lint/golint
     - make lint
 
 build-blubberoid:
