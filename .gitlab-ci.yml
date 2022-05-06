@@ -19,3 +19,5 @@ build-image:
         --local dockerfile=. \
         --opt filename=.pipeline/blubber.yaml \
         --opt variant=test
+
+# foo
