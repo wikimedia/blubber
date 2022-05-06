@@ -9,3 +9,5 @@ build-image:
   tags: [ buildkitd ]
   script:
     - buildctl --help
+
+# foo
