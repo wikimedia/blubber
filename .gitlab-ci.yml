@@ -5,6 +5,7 @@ build-image:
   stage: build
   image:
     name: moby/buildkit
-    entrypoint: [/bin/sh, -c]
+    entrypoint: [ /bin/sh, -c ]
+  tags: [ buildkitd ]
   script:
     - buildctl --help
