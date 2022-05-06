@@ -8,6 +8,6 @@ build-image:
     entrypoint: [ /bin/sh, -c ]
   tags: [ buildkitd ]
   script:
-    - buildctl --help
+    - ls -l "$BUILDKITD_EVAL_CLIENT_CA"
 
-# foo
+# bar
