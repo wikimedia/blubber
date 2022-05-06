@@ -8,6 +8,10 @@ build-image:
     entrypoint: [ /bin/sh, -c ]
   tags: [ buildkitd ]
   script:
-    - ls -l "$BUILDKITD_EVAL_CLIENT_CA"
-
-# bar
+    - ping -c 1 buildkitd.default.svc.cluster.local
+    #- >-
+    #  buildctl --addr tcp://127.0.0.1:1234
+    #    --tlscacert .certs/client/ca.pem
+    #    --tlscert .certs/client/cert.pem
+    #    --tlskey .certs/client/key.pem
+    #    build --frontend dockerfile.v0 --local context=/path/to/dir --local dockerfile=/path/to/dir
