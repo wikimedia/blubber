@@ -1,0 +1,10 @@
+stages:
+  - build
+
+build-image:
+  stage: build
+  image:
+    name: moby/buildkit
+    entrypoint: [/bin/sh, -c]
+  script:
+    - buildctl --help
