@@ -1,23 +1,35 @@
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-  - build
-
+- build
+- test
 build-image:
   stage: build
   image:
     name: moby/buildkit
-    entrypoint: [ /bin/sh, -c ]
-  tags: [ buildkitd ]
+    entrypoint:
+    - "/bin/sh"
+    - "-c"
+  tags:
+  - buildkitd
   script:
-    - |-
-      buildctl --addr tcp://buildkitd.default.svc.cluster.local:1234 \
-        --tlscacert "$BUILDKITD_EVAL_CLIENT_CA" \
-        --tlscert "$BUILDKITD_EVAL_CLIENT_CERT" \
-        --tlskey "$BUILDKITD_EVAL_CLIENT_KEY" \
-        build --frontend gateway.v0 \
-        --opt source=docker-registry.wikimedia.org/wikimedia/blubber-buildkit:0.9.0 \
-        --local context=. \
-        --local dockerfile=. \
-        --opt filename=.pipeline/blubber.yaml \
-        --opt variant=test
-
-# foo
+  - |-
+    buildctl --addr tcp://buildkitd.default.svc.cluster.local:1234 \
+      --tlscacert "$BUILDKITD_EVAL_CLIENT_CA" \
+      --tlscert "$BUILDKITD_EVAL_CLIENT_CERT" \
+      --tlskey "$BUILDKITD_EVAL_CLIENT_KEY" \
+      build --frontend gateway.v0 \
+      --opt source=docker-registry.wikimedia.org/wikimedia/blubber-buildkit:0.9.0 \
+      --local context=. \
+      --local dockerfile=. \
+      --opt filename=.pipeline/blubber.yaml \
+      --opt variant=test
+sast:
+  stage: test
+include:
+- template: Security/SAST.gitlab-ci.yml
