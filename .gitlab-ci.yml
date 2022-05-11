@@ -6,6 +6,8 @@ build-image:
   image:
     name: moby/buildkit:master-rootless
     entrypoint: [ /bin/sh, -c ]
+  variables:
+    BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
   script:
     - |-
       buildctl-daemonless.sh \
