@@ -4,20 +4,14 @@ stages:
 build-image:
   stage: build
   image:
-    name: moby/buildkit
+    name: moby/buildkit:master-rootless
     entrypoint: [ /bin/sh, -c ]
-  tags: [ buildkitd ]
   script:
     - |-
-      buildctl --addr tcp://buildkitd.default.svc.cluster.local:1234 \
-        --tlscacert "$BUILDKITD_EVAL_CLIENT_CA" \
-        --tlscert "$BUILDKITD_EVAL_CLIENT_CERT" \
-        --tlskey "$BUILDKITD_EVAL_CLIENT_KEY" \
+      buildctl-daemonless.sh \
         build --frontend gateway.v0 \
         --opt source=docker-registry.wikimedia.org/wikimedia/blubber-buildkit:0.9.0 \
         --local context=. \
         --local dockerfile=. \
         --opt filename=.pipeline/blubber.yaml \
         --opt variant=test
-
-# foo
