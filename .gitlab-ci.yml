@@ -1,5 +1,20 @@
 stages:
+  - test
   - build
+
+lint:
+  stage: test
+  image: docker-registry.wikimedia.org/golang
+  before_script:
+    - go get -u golang.org/x/lint/golint
+  script:
+    - make lint
+
+unit:
+  stage: test
+  image: docker-registry.wikimedia.org/golang
+  script:
+    - make unit
 
 build-image:
   stage: build
