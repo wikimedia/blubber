@@ -24,7 +24,6 @@ build-image:
     entrypoint: [ /bin/sh, -c ]
   script:
     - |-
-      base64 <(echo $CI_JOB_JWT)
       buildctl --tlscacert "$BUILDKITD_EVAL_CLIENT_CA" --tlscert "$BUILDKITD_EVAL_CLIENT_CERT" --tlskey "$BUILDKITD_EVAL_CLIENT_KEY" \
         build --frontend gateway.v0 \
         --opt source=docker-registry.wikimedia.org/wikimedia/blubber-buildkit:0.9.0 \
