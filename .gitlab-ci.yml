@@ -34,4 +34,3 @@ build-image:
         --opt filename=.pipeline/blubber.yaml \
         --opt variant=test \
         --output type=image,name=registry.registry.svc.cluster.local/blubber:foo,push=true
-# foo
