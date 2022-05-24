@@ -19,9 +19,8 @@ to both users inside and outside of WMF and our communities.
  2. `dep` for dependency management
     * On macOS, try Homebrew: `brew install dep`
     * [Other](https://golang.github.io/dep/docs/installation.html)
- 3. An account at [gerrit.wikimedia.org](https://gerrit.wikimedia.org)
-    * See the [guide](https://www.mediawiki.org/wiki/Gerrit/Getting_started)
-      on mediawiki.org for setup instructions.
+ 3. An account at [gitlab.wikimedia.org](https://gitlab.wikimedia.org)
+    * Request an invite to become a member of the [blubber](https://gitlab.wikimedia.org/repos/releng/blubber) project
  4. (optional) `gox` is used for cross-compiling binary releases.
     * To install `gox` use `go get github.com/mitchellh/gox`.
  5. (optional) `golint` is used in `make lint` for code checking.
@@ -31,23 +30,25 @@ to both users inside and outside of WMF and our communities.
 ## Get the source
 
 Use `go get` to install the source from our Git repo into `src` under your
-`GOPATH`. By default, this will be `~/go/src`.
+`GOPATH`. By default, this will be `~/go/src`. For `go get` to install packages
+to `$GOPATH/src`, the `GO111MODULE` environment variable must be set to "off".
 
-    go get gerrit.wikimedia.org/r/blubber
+    go get gitlab.wikimedia.org/repos/releng/blubber
 
 Symlink it to a different directory if you'd prefer not to work from your
 `GOPATH`. For example:
 
     cd ~/Projects
-    ln -s ~/go/src/gerrit.wikimedia.org/r/blubber
+    ln -s ~/go/src/gitlab.wikimedia.org/repos/releng/blubber
     cd blubber # yay.
 
 ## Have a read through the documentation
 
 If you haven't already seen the [README.md](README.md), check it out.
 
+Install godoc: `go get -v  golang.org/x/tools/cmd/godoc`
 Run `godoc -http :9999` and peruse the HTML generated from inline docs
-at `localhost:9999/pkg/gerrit.wikimedia.org/r/blubber`.
+at `localhost:9999/pkg/gitlab.wikimedia.org/repos/releng/blubber`.
 
 ## Installing or updating dependencies
 
@@ -66,7 +67,7 @@ run `dep ensure` after doing so, and commit the resulting
 ## Running tests and linters
 
 Tests and linters for packages/files you've changed will automatically run
-when you submit your changes to Gerrit for review. You can also run them
+when you submit your changes to Gitlab for review. You can also run them
 locally using the `Makefile`:
 
     make lint # to run all linters
@@ -77,8 +78,8 @@ locally using the `Makefile`:
 
 ## Getting your changes reviewed and merged
 
-Push your changes to Gerrit for review. See the
-[guide](https://www.mediawiki.org/wiki/Gerrit/Tutorial#How_to_submit_a_patch)
+Push your changes to Gitlab for review. See the
+[guide](https://www.mediawiki.org/wiki/GitLab/Workflows)
 on mediawiki.org on how to correctly prepare and submit a patch.
 
 ## Releases

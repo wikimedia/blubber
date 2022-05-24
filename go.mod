@@ -1,4 +1,4 @@
-module gerrit.wikimedia.org/r/blubber
+module gitlab.wikimedia.org/repos/releng/blubber
 
 require (
 	github.com/davecgh/go-spew v1.1.0

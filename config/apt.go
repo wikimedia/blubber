@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"sort"
 
-	"gerrit.wikimedia.org/r/blubber/build"
+	"gitlab.wikimedia.org/repos/releng/blubber/build"
 )
 
 // AptConfig represents configuration pertaining to package installation from

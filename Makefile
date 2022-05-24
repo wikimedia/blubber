@@ -2,7 +2,7 @@ SHELL := /bin/bash
 RELEASE_DIR ?= ./_release
 TARGETS ?= darwin/amd64 linux/amd64 linux/386 linux/arm linux/arm64 linux/ppc64le windows/amd64 plan9/amd64
 
-PACKAGE := gerrit.wikimedia.org/r/blubber
+PACKAGE := gitlab.wikimedia.org/repos/releng/blubber
 
 GO_LIST_GOFILES := '{{range .GoFiles}}{{printf "%s/%s\n" $$.Dir .}}{{end}}{{range .XTestGoFiles}}{{printf "%s/%s\n" $$.Dir .}}{{end}}'
 GO_PACKAGES := $(shell go list ./...)
