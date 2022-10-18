@@ -5,6 +5,9 @@ cache:
   paths:
     - .cache/buildkit
 
+before_script:
+  - mkdir -p .cache/buildkit
+
 stages:
   - test
   - publish
