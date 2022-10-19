@@ -1,9 +1,0 @@
-enforcements:
-  - path: base
-    rule: oneof=docker-registry.wikimedia.org/stretch:latest docker-registry.wikimedia.org/jessie:latest
-  - path: variants.production.runs.insecurely
-    rule: isfalse
-  - path: variants.test.base
-    rule: omitempty,startswith=docker-registry.wikimedia.org
-  - path: variants.production.base
-    rule: omitempty,startswith=docker-registry.wikimedia.org
