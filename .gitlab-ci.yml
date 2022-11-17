@@ -23,6 +23,9 @@ lint-code:
   variables:
     BUILD_VARIANT: make
     RUN_ARGUMENTS: '["lint"]'
+    BUILDCTL_BUILD_FLAGS: >-
+      --import-cache type=s3,endpoint=${KOKKURI_BUILDCTL_S3_ENDPOINT},bucket=${KOKKURI_BUILDCTL_S3_BUCKET},name=${CI_PROJECT_PATH_SLUG}
+      --export-cache type=s3,endpoint=${KOKKURI_BUILDCTL_S3_ENDPOINT},bucket=${KOKKURI_BUILDCTL_S3_BUCKET},name=${CI_PROJECT_PATH_SLUG}
 
 run-unit-tests:
   stage: test
@@ -30,6 +33,9 @@ run-unit-tests:
   variables:
     BUILD_VARIANT: make
     RUN_ARGUMENTS: '["test"]'
+    BUILDCTL_BUILD_FLAGS: >-
+      --import-cache type=s3,endpoint=${KOKKURI_BUILDCTL_S3_ENDPOINT},bucket=${KOKKURI_BUILDCTL_S3_BUCKET},name=${CI_PROJECT_PATH_SLUG}
+      --export-cache type=s3,endpoint=${KOKKURI_BUILDCTL_S3_ENDPOINT},bucket=${KOKKURI_BUILDCTL_S3_BUCKET},name=${CI_PROJECT_PATH_SLUG}
 
 build-frontend:
   stage: test
@@ -37,6 +43,9 @@ build-frontend:
   variables:
     BUILD_VARIANT: buildkit
     BUILD_TARGET_PLATFORMS: linux/amd64,linux/arm64
+    BUILDCTL_BUILD_FLAGS: >-
+      --import-cache type=s3,endpoint=${KOKKURI_BUILDCTL_S3_ENDPOINT},bucket=${KOKKURI_BUILDCTL_S3_BUCKET},name=${CI_PROJECT_PATH_SLUG}
+      --export-cache type=s3,endpoint=${KOKKURI_BUILDCTL_S3_ENDPOINT},bucket=${KOKKURI_BUILDCTL_S3_BUCKET},name=${CI_PROJECT_PATH_SLUG}
 
 # Publish a new version of the buildkit frontend each time a version tag (e.g.
 # v0.0.0) is pushed. Note that these tags are marked as protected under 
