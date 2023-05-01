@@ -84,5 +84,8 @@ test-docker:
 
 test: unit lint
 
+examples:
+	go test -v ./examples_test.go
+
 FULLVERSION:
 	@echo $(FULLVERSION) > FULLVERSION
