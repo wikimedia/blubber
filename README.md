@@ -30,7 +30,8 @@ produce an application artifact.
 
 See the [builders example](./examples/04-builders.feature).
 
-Note that when using multiple builders, should be given using the `builders` key to ensure proper ordering.
+When defining multiple builders, be sure to use the `builders` field to ensure
+an explicit ordering.
 
 Similarly to other configuration keys, `builders` appearing at the top level
 of the file will be applied to all variant configurations. Builder keys
