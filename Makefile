@@ -84,6 +84,7 @@ test-docker:
 
 test: unit lint
 
+.PHONY: examples
 examples:
 	go test -v ./examples_test.go
 

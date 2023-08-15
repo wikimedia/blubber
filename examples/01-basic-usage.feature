@@ -4,7 +4,7 @@ Feature: Basic usage
   base image, copying local files to the image filesystem, and specifying some
   defaults for how to run a container based on the final image.
 
-  Blubber supports these operations and adds some basic contraints
+  Blubber supports these operations and adds some basic constraints
   around who owns the files and runtime process.
 
   Background:

@@ -1,7 +1,7 @@
 Feature: Defining the build and runtime environment
 
   When it comes to the application directory, the builder user/UID and
-  group/GID, and environment variables, Blubber behaves with a set of opinion
+  group/GID, and environment variables, Blubber behaves with a set of opinionated
   default values. However, you can tweak any one of these values.
 
   Background:
@@ -71,7 +71,7 @@ Feature: Defining the build and runtime environment
     And the image will have the group "apprunner" with GID 4320
     And the image runtime user will be "4321"
 
-  Scenario: Disable the unprivileged runtim process owner
+  Scenario: Disable the unprivileged runtime process owner
     Given this "blubber.yaml"
       """
       version: v4
