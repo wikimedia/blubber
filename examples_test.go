@@ -70,14 +70,14 @@ func initializeScenario(ctx *godog.ScenarioContext) {
 	defineSteps(ctx)
 
 	// Clean up any working directory we've created during the scenario
-	if os.Getenv("BLUBBER_DEBUG_EXAMPLES") != "yes" {
+	if os.Getenv("BLUBBER_DEBUG_EXAMPLES") == "" {
 		ctx.After(func(ctx context.Context, _ *godog.Scenario, err error) (context.Context, error) {
 			if wd, ok := ctx.Value(wdKey).(*workingDirectory); ok {
 				wd.Remove()
 			}
 
-			if imageTar, ok := ctx.Value(imageTarfileKey).(string); ok {
-				os.Remove(imageTar)
+			if imageTar, ok := ctx.Value(imageTarfileKey).(*os.File); ok {
+				os.Remove(imageTar.Name())
 			}
 
 			if client, ok := ctx.Value(clientKey).(*bkclient.Client); ok {
@@ -498,5 +498,7 @@ func (wd *workingDirectory) CopyFrom(srcDir string) error {
 		srcDir = srcDir + "/"
 	}
 
-	return exec.Command("cp", "-a", srcDir, wd.Path+"/").Run()
+	// Note the use of "<src>/." syntax which should work with both BSD and GNU
+	// cp to copy the _contents_ of the source directory into the destination
+	return exec.Command("cp", "-a", srcDir+".", wd.Path+"/").Run()
 }
