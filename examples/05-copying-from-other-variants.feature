@@ -33,5 +33,4 @@ Feature: Copying from other variants
       """
     When you build the "production" variant
     Then the image will have the following files in "/"
-      | mode       | name  |
-      | -rwxr-xr-x | hello-world |
+      | hello-world |

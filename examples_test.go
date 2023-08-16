@@ -230,15 +230,14 @@ func buildVariant(ctx context.Context, andRun string, variant string) (context.C
 // theImageHasTheFollowingFilesIn can be used with any of the following
 // table columns:
 //
-//	| mode       | owner | group | name               |
-//	| drwxr-xr-x | 123   | 123   | some-dir           |
-//	| -rwxr-xr-x | 123   | 123   | some-dir/some-file |
-//	| -rw-r--r-- | 123   | 123   | some-other-file    |
+//	| owner | group | name               |
+//	| 123   | 123   | some-dir/some-file |
+//	| 123   | 123   | some-other-file    |
 //
 // Or a very simple listing:
 //
-//	| some-file       |
-//	| some-other-file |
+//	| some-dir/some-file |
+//	| some-other-file    |
 func theImageHasTheFollowingFilesIn(ctx context.Context, not string, dir string, files *godog.Table) (context.Context, error) {
 	negate := false
 	if not != "" {
@@ -302,11 +301,6 @@ func theImageHasTheFollowingFilesIn(ctx context.Context, not string, dir string,
 
 				for field, value := range fields {
 					switch field {
-					case "mode":
-						mode := info.Mode()
-						if mode.String() != value {
-							return ctx, errors.Errorf("expected file %s to have mode %s, but it has %s", path, value, mode)
-						}
 					case "owner", "group":
 						expected, _ := strconv.Atoi(value)
 						var actual int

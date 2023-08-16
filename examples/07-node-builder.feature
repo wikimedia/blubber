@@ -20,4 +20,3 @@ Feature: Node builder
       """
     When you build and run the "hello" variant
     Then the entrypoint will have run successfully
-

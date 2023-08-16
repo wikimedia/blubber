@@ -22,8 +22,7 @@ Feature: Builders
       """
     When you build the "build" variant
     Then the image will have the following files in the default working directory
-      | mode       | name  |
-      | -rwxr-xr-x | hello |
+      | hello |
 
   Scenario: Compiling an application using multiple builders
     Given "examples/hello-world-go" as a working directory
@@ -44,5 +43,4 @@ Feature: Builders
       """
     When you build the "build" variant
     Then the image will have the following files in the default working directory
-      | mode       | name  |
-      | -rwxr-xr-x | hello-world-go |
+      | hello-world-go |

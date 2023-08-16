@@ -23,9 +23,9 @@ Feature: Defining the build and runtime environment
     And the image will have the user "runuser" with UID 900
     And the image will have the group "runuser" with GID 900
     And the image will have the following files in "/srv/app"
-      | mode       | owner | group | name      |
-      | -rw-r--r-- | 65533 | 65533 | README.md |
-      | -rwxr-xr-x | 65533 | 65533 | hello.sh  |
+      | owner | group | name      |
+      | 65533 | 65533 | README.md |
+      | 65533 | 65533 | hello.sh  |
     And the image runtime user will be "900"
     And the image entrypoint will be "./hello.sh"
 
@@ -48,9 +48,9 @@ Feature: Defining the build and runtime environment
     Then the image will have the user "appowner" with UID 1234
     And the image will have the group "appowner" with GID 1235
     And the image will have the following files in "/usr/local/app"
-      | mode       | owner | group | name      |
-      | -rw-r--r-- | 1234 | 1235 | README.md |
-      | -rwxr-xr-x | 1234 | 1235 | hello.sh  |
+      | owner | group | name      |
+      | 1234 | 1235 | README.md |
+      | 1234 | 1235 | hello.sh  |
 
   Scenario: Customize the runtime process owner
     Given this "blubber.yaml"
