@@ -86,7 +86,7 @@ test: unit lint
 
 .PHONY: examples
 examples:
-	go test -v ./examples_test.go
+	BLUBBER_RUN_EXAMPLES=1 go test -v -timeout 30m ./examples_test.go
 
 FULLVERSION:
 	@echo $(FULLVERSION) > FULLVERSION

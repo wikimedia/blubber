@@ -60,7 +60,6 @@ run-acceptance-tests:
   image: '${BUILD_ACCEPTANCE_RUNNER_IMAGE_REF}'
   variables:
     BLUBBER_TEST_IMAGE: '${BUILD_FRONTEND_FOR_TESTING_IMAGE_REF}'
-    BLUBBER_RUN_EXAMPLES: '1'
   script:
     - make examples
   rules:

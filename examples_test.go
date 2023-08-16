@@ -29,6 +29,7 @@ type ctxKey uint8
 
 const (
 	wdKey ctxKey = iota
+	clientKey
 	imageCfgKey
 	imageTarfileKey
 	imageFsKey
@@ -79,6 +80,10 @@ func initializeScenario(ctx *godog.ScenarioContext) {
 				os.Remove(imageTar)
 			}
 
+			if client, ok := ctx.Value(clientKey).(*bkclient.Client); ok {
+				client.Close()
+			}
+
 			return ctx, err
 		})
 	}
@@ -123,16 +128,25 @@ func buildVariant(ctx context.Context, andRun string, variant string) (context.C
 	runVariant := andRun != ""
 
 	return withCtxValue[*workingDirectory](ctx, wdKey, func(wd *workingDirectory) (context.Context, error) {
+		var err error
+
 		blubberImage := os.Getenv("BLUBBER_TEST_IMAGE")
 
 		if blubberImage == "" {
 			return ctx, errors.New("you must set BLUBBER_TEST_IMAGE with the blubber frontend ref to run these tests")
 		}
 
-		client, err := bkclient.New(ctx, os.Getenv("BUILDKIT_HOST"))
+		// Attempt to retrieve an existing client first
+		client, ok := ctx.Value(clientKey).(*bkclient.Client)
 
-		if err != nil {
-			return ctx, err
+		if !ok {
+			client, err = bkclient.New(ctx, os.Getenv("BUILDKIT_HOST"))
+
+			if err != nil {
+				return ctx, err
+			}
+
+			ctx = context.WithValue(ctx, clientKey, client)
 		}
 
 		tmptar, err := os.CreateTemp("", "blubber.oci.*.tar")
@@ -231,7 +245,7 @@ func theImageHasTheFollowingFilesIn(ctx context.Context, not string, dir string,
 		negate = true
 	}
 
-	return withCtxValue[fs.FS](ctx, imageFsKey, func(image fs.FS) (context.Context, error) {
+	return withImageFS(ctx, func(image fs.FS) (context.Context, error) {
 		headers := map[int]string{}
 
 		for i, row := range files.Rows {
