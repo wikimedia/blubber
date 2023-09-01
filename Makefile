@@ -26,13 +26,10 @@ GOARCH = $(TARGETARCH)
 export GOOS
 export GOARCH
 
-all: code blubber blubberoid blubber-buildkit
+all: code blubber blubber-buildkit
 
 blubber:
 	$(GO_BUILD) ./cmd/blubber
-
-blubberoid:
-	$(GO_BUILD) ./cmd/blubberoid
 
 blubber-buildkit: download
 	$(GO_BUILD) ./cmd/blubber-buildkit
@@ -42,7 +39,7 @@ code:
 
 clean:
 	go clean $(GO_PACKAGES) || true
-	rm -f blubber blubberoid || true
+	rm -f blubber || true
 
 download:
 	go mod download
@@ -56,7 +53,7 @@ install-tools: download
 release:
 	gox -output="$(RELEASE_DIR)/{{.OS}}-{{.Arch}}/{{.Dir}}" -osarch='$(TARGETS)' -ldflags '$(GO_LDFLAGS)' $(GO_PACKAGES)
 	cp LICENSE "$(RELEASE_DIR)"
-	for f in "$(RELEASE_DIR)"/*/{blubber,blubberoid}; do \
+	for f in "$(RELEASE_DIR)"/*/blubber; do \
 		shasum -a 256 "$${f}" | awk '{print $$1}' > "$${f}.sha256"; \
 	done
 
