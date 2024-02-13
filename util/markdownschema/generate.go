@@ -56,6 +56,22 @@ func writeSchema(md *doc.MarkDownDoc, name string, schema *jsonschema.Schema, lv
 		return nil
 	}
 
+	fieldTypes := typesOf(schema)
+	leafField := true
+	for _, t := range fieldTypes {
+		if t == "object" || t == "array" {
+			leafField = false
+		}
+	}
+	omitField := !leafField && schema.Description == ""
+
+	if omitField {
+		lvl -= 1
+		if lvl < 1 {
+			lvl = 1
+		}
+	}
+
 	if lvl > 4 {
 		lvl = 4
 	}
@@ -80,15 +96,18 @@ func writeSchema(md *doc.MarkDownDoc, name string, schema *jsonschema.Schema, lv
 		nameAndType := fmt.Sprintf(
 			"%s _%s_",
 			md.GetCode(name),
-			strings.Join(typesOf(schema), "|"),
+			strings.Join(fieldTypes, "|"),
 		)
 		if required {
 			nameAndType += " (required)"
 		}
-		md.WriteTitle(nameAndType, lvl)
+
+		if !omitField {
+			md.WriteTitle(nameAndType, lvl)
+		}
 	}
 
-	if schema.Description != "" {
+	if !omitField {
 		md.Writeln()
 		md.Write(schema.Description)
 		md.Writeln()

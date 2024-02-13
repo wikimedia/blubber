@@ -273,6 +273,7 @@
 		},
 		"v4.Artifacts": {
 			"type": "object",
+			"description": "Foo",
 			"properties": {
 				"from": {
 					"type": ["string", "null"],
