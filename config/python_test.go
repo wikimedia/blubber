@@ -117,6 +117,36 @@ func TestPythonConfigInstructionsNoRequirementsNoVersion(t *testing.T) {
 	})
 }
 
+func TestPythonConfigInstructionsEmptyRequirementsWithVersion(t *testing.T) {
+	cfg := config.PythonConfig{
+		Version:      "python3",
+		Requirements: config.RequirementsConfig{},
+	}
+
+	t.Run("PhasePrivileged", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePrivileged))
+	})
+
+	t.Run("PhasePrivilegeDropped", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePrivilegeDropped))
+	})
+
+	t.Run("PhasePreInstall", func(t *testing.T) {
+		assert.Equal(t,
+			[]build.Instruction{
+				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
+				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
+				build.RunAll{Runs: []build.Run{
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}}},
+			cfg.InstructionsForPhase(build.PhasePreInstall))
+	})
+
+	t.Run("PhasePostInstall", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePostInstall))
+	})
+}
+
 func TestPythonConfigInstructionsWithRequirements(t *testing.T) {
 	cfg := config.PythonConfig{
 		Version: "python2.7",

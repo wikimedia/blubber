@@ -99,8 +99,7 @@ func (pc *PoetryConfig) Merge(pc2 PoetryConfig) {
 func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instruction {
 	ins := []build.Instruction{}
 
-	// "version" and "requirements" MUST be populated to enable the Python builder.
-	if pc.Version == "" || pc.Requirements == nil {
+	if !pc.isEnabled() {
 		return ins
 	}
 
@@ -133,12 +132,13 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			ins = append(ins, build.Run{"poetry", cmd})
 		} else {
 			args := pc.RequirementsArgs()
-
-			installCmd := []string{"-m", "pip", "install"}
-			if pc.UseNoDepsFlag.True {
-				installCmd = append(installCmd, "--no-deps")
+			if args != nil {
+				installCmd := []string{"-m", "pip", "install"}
+				if pc.UseNoDepsFlag.True {
+					installCmd = append(installCmd, "--no-deps")
+				}
+				ins = append(ins, build.Run{python, append(installCmd, args...)})
 			}
-			ins = append(ins, build.Run{python, append(installCmd, args...)})
 		}
 
 	case build.PhasePostInstall:
@@ -155,6 +155,10 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 	}
 
 	return ins
+}
+
+func (pc PythonConfig) isEnabled() bool {
+	return pc.Version != "" && pc.Requirements != nil
 }
 
 func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
@@ -181,6 +185,10 @@ func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
 
 // RequirementsArgs returns the configured requirements as pip `-r` arguments.
 func (pc PythonConfig) RequirementsArgs() []string {
+	if pc.Requirements == nil || len(pc.Requirements) == 0 {
+		return nil
+	}
+
 	args := make([]string, len(pc.Requirements)*2)
 
 	for i, req := range pc.Requirements {
