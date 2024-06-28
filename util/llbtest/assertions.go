@@ -137,3 +137,32 @@ func (llbt *Assertions) ContainsNCopyActions(fileOp *pb.Op_File, n int) ([]*pb.F
 func (llbt *Assertions) HasValidInputs(op pb.Op) []pb.Op {
 	return HasValidInputs(llbt.t, llbt.opMap, op)
 }
+
+// HasOpMetadata asserts that the given [pb.Op] has [pb.OpMetadata] in the
+// given [llb.Definition]. If the assertion succeeds, the [pb.OpMetadata] is
+// returned.
+func (llbt *Assertions) HasOpMetadata(op pb.Op) pb.OpMetadata {
+	dt, err := op.Marshal()
+	llbt.NoError(err)
+
+	id := digest.FromBytes(dt)
+
+	llbt.Contains(llbt.def.Metadata, id)
+
+	return llbt.def.Metadata[id]
+}
+
+// HasDescription asserts that the given [pb.Op] has the given description key
+// in its [pb.OpMetadata]. If the assertion succeeds, the description value is
+// returned.
+func (llbt *Assertions) HasDescription(key string, op pb.Op) string {
+	meta := llbt.HasOpMetadata(op)
+	llbt.Contains(meta.Description, key)
+	return meta.Description[key]
+}
+
+// HasCustomName asserts that the given [pb.Op] has an "llb.customname"
+// description in its [pb.OpMetadata] matching the given string.
+func (llbt *Assertions) HasCustomName(name string, op pb.Op) {
+	llbt.Equal(name, llbt.HasDescription("llb.customname", op))
+}

@@ -42,6 +42,7 @@ type Target struct {
 	image        *oci.Image
 	platform     *oci.Platform
 	dependencies *TargetGroup
+	user         string
 }
 
 // NewTarget constructs a [Target] using the given arguments and defaults
@@ -357,9 +358,17 @@ func (target *Target) RunAll(runs ...[]string) error {
 // RunShell runs the given command using /bin/sh
 func (target *Target) RunShell(command string) error {
 	command = target.ExpandEnv(command)
+	var prompt string
+
+	if target.user == "root" || target.user == "0" {
+		prompt = "#"
+	} else {
+		prompt = fmt.Sprintf("@%s $", target.user)
+	}
+
 	return target.run(
 		llb.Args([]string{"/bin/sh", "-c", command}),
-		target.Describef("%s $ %s", emojiShell, command),
+		target.Describef("%s %s %s", emojiShell, prompt, command),
 	)
 }
 
@@ -451,7 +460,10 @@ func (target *Target) NameLength() int {
 // user of the resulting image config (for runtime processes when a container
 // is run), use [Image.User].
 func (target *Target) User(user string) error {
-	target.state = target.state.User(target.ExpandEnv(user))
+	user = target.ExpandEnv(user)
+	target.state = target.state.User(user)
+	target.user = user
+
 	return nil
 }
 

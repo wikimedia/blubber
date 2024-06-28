@@ -350,6 +350,47 @@ func TestRunShell(t *testing.T) {
 		req.Equal("*", execOps[0].Exec.Meta.ProxyEnv.NoProxy)
 		req.Equal("socks://proxy.example:1080", execOps[0].Exec.Meta.ProxyEnv.AllProxy)
 	})
+
+	t.Run("displays a command prompt with user information", func(t *testing.T) {
+		t.Run("using a # for root", func(t *testing.T) {
+			_, req := testtarget.Setup(t,
+				testtarget.NewTargets("foo"),
+				func(foo *build.Target) {
+					foo.User("root")
+					foo.RunShell("some cmd")
+				},
+			)
+
+			ops, _ := req.ContainsNExecOps(1)
+			req.HasCustomName("[foo] 🖥️ # some cmd", ops[0])
+		})
+
+		t.Run("using a # for uid 0", func(t *testing.T) {
+			_, req := testtarget.Setup(t,
+				testtarget.NewTargets("foo"),
+				func(foo *build.Target) {
+					foo.User("0")
+					foo.RunShell("some cmd")
+				},
+			)
+
+			ops, _ := req.ContainsNExecOps(1)
+			req.HasCustomName("[foo] 🖥️ # some cmd", ops[0])
+		})
+
+		t.Run("using a $ for non-root", func(t *testing.T) {
+			_, req := testtarget.Setup(t,
+				testtarget.NewTargets("foo"),
+				func(foo *build.Target) {
+					foo.User("somebody")
+					foo.RunShell("some cmd")
+				},
+			)
+
+			ops, _ := req.ContainsNExecOps(1)
+			req.HasCustomName("[foo] 🖥️ @somebody $ some cmd", ops[0])
+		})
+	})
 }
 
 func TestRunEntrypoint(t *testing.T) {
