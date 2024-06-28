@@ -13,6 +13,7 @@ set -o errexit -o nounset -o pipefail
 
 usage() {
   echo "Usage: $0: [-p] [remote] [branch]"
+  echo " -M  Increment major number (x.0.0) intead of minor number (0.x.0)"
   echo " -p  Increment patch number (0.0.x) intead of minor number (0.x.0)"
   echo " [remote] Remote name ('origin' by default)"
   echo " [branch] Target branch ('main' by default)"
@@ -22,6 +23,9 @@ INCREMENT_INDEX=1
 
 while getopts p opt; do
   case $opt in
+    M)
+      INCREMENT_INDEX=0
+      ;;
     p)
       INCREMENT_INDEX=2
       ;;
