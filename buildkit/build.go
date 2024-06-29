@@ -2,14 +2,22 @@ package buildkit
 
 import (
 	"context"
+	"sync"
 
+	"github.com/containerd/containerd/platforms"
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/sourceresolver"
+	"github.com/moby/buildkit/frontend"
+	"github.com/moby/buildkit/frontend/attestations/sbom"
 	"github.com/moby/buildkit/frontend/dockerui"
 	"github.com/moby/buildkit/frontend/gateway/client"
+	"github.com/moby/buildkit/solver/pb"
+	"github.com/moby/buildkit/solver/result"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 
+	"gitlab.wikimedia.org/repos/releng/blubber/build"
 	"gitlab.wikimedia.org/repos/releng/blubber/config"
 )
 
@@ -79,6 +87,22 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 		return nil, errors.Wrap(err, "failed to expand includes and copies")
 	}
 
+	var scanner sbom.Scanner
+
+	if bc.SBOM != nil {
+		scanner, err = sbom.CreateSBOMScanner(ctx, c, bc.SBOM.Generator, sourceresolver.Opt{
+			ImageOpt: &sourceresolver.ResolveImageOpt{
+				ResolveMode: resolveModeName(bc.ImageResolveMode),
+			},
+		})
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	scanTargets := sync.Map{}
+
 	rb, err := bc.Build(
 		ctx,
 		func(ctx context.Context, platform *oci.Platform, idx int) (
@@ -120,9 +144,60 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 				},
 			}
 
+			p := platforms.DefaultSpec()
+			if platform != nil {
+				p = *platform
+			}
+			scanTargets.Store(platforms.Format(platforms.Normalize(p)), target)
+
 			return ref, &dimg, nil, nil
 		},
 	)
+
+	if scanner != nil {
+		err = rb.EachPlatform(ctx, func(ctx context.Context, id string, _ oci.Platform) error {
+			v, ok := scanTargets.Load(id)
+			if !ok {
+				return errors.Errorf("no scan targets for %s", id)
+			}
+
+			target, ok := v.(*build.Target)
+			if !ok {
+				return errors.Errorf("invalid scan targets for %T", v)
+			}
+
+			att, err := target.Scan(func(core llb.State, dependencies map[string]llb.State) (result.Attestation[*llb.State], error) {
+				return scanner(ctx, id, core, dependencies)
+			})
+
+			if err != nil {
+				return err
+			}
+
+			attSolve, err := result.ConvertAttestation(&att, func(st *llb.State) (client.Reference, error) {
+				def, err := st.Marshal(ctx)
+				if err != nil {
+					return nil, err
+				}
+				r, err := c.Solve(ctx, frontend.SolveRequest{
+					Definition: def.ToPB(),
+				})
+				if err != nil {
+					return nil, err
+				}
+				return r.Ref, nil
+			})
+			if err != nil {
+				return err
+			}
+			rb.AddAttestation(id, *attSolve)
+			return nil
+		})
+
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return rb.Finalize()
 }
@@ -143,4 +218,14 @@ func readBlubberConfig(ctx context.Context, bc *dockerui.Client) (*config.Config
 	}
 
 	return cfg, nil
+}
+
+func resolveModeName(mode llb.ResolveMode) string {
+	switch mode {
+	case llb.ResolveModeForcePull:
+		return pb.AttrImageResolveModeForcePull
+	case llb.ResolveModePreferLocal:
+		return pb.AttrImageResolveModePreferLocal
+	}
+	return pb.AttrImageResolveModeDefault
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/docker/distribution/reference"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/client/llb/sourceresolver"
+	"github.com/moby/buildkit/solver/result"
 	"github.com/moby/buildkit/util/system"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
@@ -494,6 +495,18 @@ func (target *Target) RunEntrypoint(args []string, env map[string]string) error 
 	}
 
 	return target.run(runOpts...)
+}
+
+// Scan passes the given Scanner the llb.State for this target and all of its
+// dependencies.
+func (target *Target) Scan(scanner Scanner) (result.Attestation[*llb.State], error) {
+	depStates := make(map[string]llb.State, len(*target.dependencies))
+
+	for _, dep := range *target.dependencies {
+		depStates[dep.Name] = dep.state
+	}
+
+	return scanner(target.state, depStates)
 }
 
 // run is a common dispatch for all llb.State.Run operations, ensuring certain
