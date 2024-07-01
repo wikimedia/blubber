@@ -22,10 +22,6 @@
 * Use dockerui upstream pkg for common frontend features
 * Upgrade to buildkit v0.14.0
 
-### CHANGELOG
-
-* Fixed notes for 0.23.0
-
 ### Examples
 
 * Describe how defining an entrypoint clears default arguments
@@ -34,9 +30,6 @@
 
 * Upgrade to Go 1.21
 
-### Reverts
-
-* ci: Switch back to mainline Blubber frontend temporarily
 
 
 <a name="v0.23.0"></a>
