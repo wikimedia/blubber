@@ -1,30 +1,52 @@
 
+<a name="v0.24.0"></a>
+## [v0.24.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v0.23.0...v0.24.0)
+
+> 2024-06-27
+
+### Blubberoid
+
+* Remove blubberoid
+
+### Build
+
+* Support proxy build arguments
+* Reset image default arguments (i.e. CMD) when entrypoint is defined
+* Fix quoting and environment variable duplication
+* Always include blubber.version and blubber.variant labels
+* Refactor image configuration methods
+* Refactor to use BuildKit LLB library directly
+
+### BuildKit
+
+* Use dockerui upstream pkg for common frontend features
+* Upgrade to buildkit v0.14.0
+
+### CHANGELOG
+
+* Fixed notes for 0.23.0
+
+### Examples
+
+* Describe how defining an entrypoint clears default arguments
+
+### Go
+
+* Upgrade to Go 1.21
+
+### Reverts
+
+* ci: Switch back to mainline Blubber frontend temporarily
+
+
 <a name="v0.23.0"></a>
 ## [v0.23.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v0.22.0...v0.23.0)
 
-> 2024-05-16
+> 2024-05-22
 
-### Python
+### BuildKit
 
-* The Python builder now establishes a virtualenv before performing any
-  other Python operations.  This ensure that subsequent operations will
-  not affect system Python packages.  This is especially important when
-  using a Debian Bookworm base image.
-
-  Removed support for `use-system-flag`, which should not be needed
-  anymore.
-
-  Added support for `use-system-site-packages`, which will pass
-  `--system-site-packages` to `python -m venv`.
-
-Notes:
-
-* Support for building wheels of requirements has been removed.  The
-  Python builder no longer messes with the PIP_WHEEL_DIR,
-  PIP_FIND_LINKS, PIP_NO_INDEX, or PYTHONPATH environment variables.
-
-* The prior workaround from (T346090) which set
-  PIP_BREAK_SYSTEM_PACKAGES has been removed.
+* Fix comment
 
 ### Examples
 
