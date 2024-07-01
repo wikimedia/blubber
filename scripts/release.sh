@@ -13,8 +13,8 @@ set -o errexit -o nounset -o pipefail
 
 usage() {
   echo "Usage: $0: [-p] [remote] [branch]"
-  echo " -M  Increment major number (x.0.0) intead of minor number (0.x.0)"
-  echo " -p  Increment patch number (0.0.x) intead of minor number (0.x.0)"
+  echo " -M  Increment major number (x.0.0) instead of minor number (0.x.0)"
+  echo " -p  Increment patch number (0.0.x) instead of minor number (0.x.0)"
   echo " [remote] Remote name ('origin' by default)"
   echo " [branch] Target branch ('main' by default)"
 }
