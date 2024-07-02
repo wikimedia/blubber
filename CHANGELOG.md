@@ -1,8 +1,36 @@
 
+<a name="v1.0.0"></a>
+## [v1.0.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v0.24.0...v1.0.0)
+
+> 2024-07-02
+
+### Build
+
+* Include the user in `target.RunShell` logging
+
+### BuildKit
+
+* Support SBOM scanners
+
+### CHANGELOG
+
+* Cleanup
+
+### Readme
+
+* Document SLSA Provenance and SBOM features
+
+### Scripts
+
+* Add missing parameters to getopts
+* Fix typos in usage
+* Support bumping the major version number when releasing
+
+
 <a name="v0.24.0"></a>
 ## [v0.24.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v0.23.0...v0.24.0)
 
-> 2024-06-27
+> 2024-07-01
 
 ### Blubberoid
 
@@ -22,6 +50,10 @@
 * Use dockerui upstream pkg for common frontend features
 * Upgrade to buildkit v0.14.0
 
+### CHANGELOG
+
+* Fixed notes for 0.23.0
+
 ### Examples
 
 * Describe how defining an entrypoint clears default arguments
@@ -30,6 +62,9 @@
 
 * Upgrade to Go 1.21
 
+### Reverts
+
+* ci: Switch back to mainline Blubber frontend temporarily
 
 
 <a name="v0.23.0"></a>
