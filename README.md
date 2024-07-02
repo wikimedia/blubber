@@ -163,5 +163,69 @@ $ docker manifest inspect my/multi-platform-app:v1.0
 }
 ```
 
+### Image attestations
+
+The Blubber BuildKit frontend supports the creation and export of Software
+Bill of Materials (SBOM) and provenance metadata in the form of [in-toto
+attestations][in-toto].
+
+Attestations are exported in the form of image manifests that live alongside
+your images within the same manifest list/index. See the upstream BuildKit
+documentation on [image attestation storage][bk-image-attestation-storage] for
+details.
+
+#### Provenance
+
+To have Blubber create provenance metadata for your build...
+
+Using `buildctl`:
+
+```console
+$ buildctl build --frontend gateway.v0 \
+  --opt source=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v0.24.0 \
+  --opt attest:provenance= \
+  # ...
+```
+
+Using `docker buildx`:
+
+```console
+$ docker buildx build \
+  --attest=type=provenance \
+  # ...
+```
+
+See the BuildKit [provenance documentation][bk-provenance] for details and
+additional options.
+
+#### Software Bill of Materials
+
+To have Blubber produce an SBOM for your build using Docker's default
+scanner...
+
+Using `buildctl`:
+
+```console
+$ buildctl build --frontend gateway.v0 \
+  --opt source=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v0.24.0 \
+  --opt attest:sbom= \
+  # ...
+```
+
+Using `docker buildx`:
+
+```console
+$ docker buildx build \
+  --attest=type=sbom \
+  # ...
+```
+
+See the BuildKit [SBOM documentation][bk-sbom] for details and additional
+options including how to provide your own scanner.
+
 [multi-platform-env-vars]: https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
 [oci-image-index]: https://github.com/opencontainers/image-spec/blob/main/image-index.md
+[in-toto]: https://github.com/in-toto/attestation
+[bk-image-attestation-storage]: https://github.com/moby/buildkit/blob/master/docs/attestations/attestation-storage.md
+[bk-provenance]: https://github.com/moby/buildkit/blob/master/docs/attestations/slsa-provenance.md#build-with-provenance-attestations
+[bk-sbom]: https://github.com/moby/buildkit/blob/master/docs/attestations/sbom.md
