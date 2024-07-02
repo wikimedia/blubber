@@ -21,7 +21,7 @@ usage() {
 
 INCREMENT_INDEX=1
 
-while getopts p opt; do
+while getopts Mph opt; do
   case $opt in
     M)
       INCREMENT_INDEX=0
