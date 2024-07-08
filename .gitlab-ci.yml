@@ -35,6 +35,18 @@ workflow:
 .publish:
   extends: [.kokkuri:build-and-publish-image, .remote-context]
 
+.remote-context:
+  variables:
+    GIT_STRATEGY: none
+    BUILD_CONTEXT: "${CI_REPOSITORY_URL}#${CI_COMMIT_REF_NAME}"
+    BUILD_FRONTEND: docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.0.0
+
+.run:
+  extends: [.kokkuri:build-and-run-image, .remote-context]
+
+.publish:
+  extends: [.kokkuri:build-and-publish-image, .remote-context]
+
 lint-code:
   stage: lint
   extends: .run
