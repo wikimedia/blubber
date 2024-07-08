@@ -23,30 +23,42 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_REF_PROTECTED == 'true'
 
+.remote-context:
+  variables:
+    GIT_STRATEGY: none
+    BUILD_CONTEXT: "${CI_REPOSITORY_URL}#${CI_COMMIT_REF_NAME}"
+    BUILD_FRONTEND: docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.0.0
+
+.run:
+  extends: [.kokkuri:build-and-run-image, .remote-context]
+
+.publish:
+  extends: [.kokkuri:build-and-publish-image, .remote-context]
+
 lint-code:
   stage: lint
-  extends: .kokkuri:build-and-run-image
+  extends: .run
   variables:
     BUILD_VARIANT: make
     RUN_ARGUMENTS: '["lint"]'
 
 ensure-docs-were-generated:
   stage: lint
-  extends: .kokkuri:build-and-run-image
+  extends: .run
   variables:
     BUILD_VARIANT: make
     RUN_ARGUMENTS: '["ensure-docs"]'
 
 run-unit-tests:
   stage: test
-  extends: .kokkuri:build-and-run-image
+  extends: .run
   variables:
     BUILD_VARIANT: make
     RUN_ARGUMENTS: '["test"]'
 
 build-frontend-for-testing:
   stage: test
-  extends: .kokkuri:build-and-publish-image
+  extends: .publish
   variables:
     BUILD_VARIANT: buildkit
     BUILD_TARGET_PLATFORMS: linux/amd64
@@ -58,7 +70,7 @@ build-frontend-for-testing:
 
 build-acceptance-runner:
   stage: test
-  extends: .kokkuri:build-and-publish-image
+  extends: .publish
   variables:
     BUILD_VARIANT: acceptance
     PUBLISH_IMAGE_TAG: job-${CI_JOB_ID}
@@ -69,10 +81,12 @@ build-acceptance-runner:
 
 run-acceptance-tests:
   stage: acceptance
+  extends: .remote-context
   image: '${BUILD_ACCEPTANCE_RUNNER_IMAGE_REF}'
   variables:
     BLUBBER_TEST_IMAGE: '${BUILD_FRONTEND_FOR_TESTING_IMAGE_REF}'
   script:
+    - cd /srv/app
     - make examples
   parallel:
     matrix:
@@ -86,7 +100,7 @@ run-acceptance-tests:
 # an MR is merged to an experimental branch.
 build-and-publish-frontend:
   stage: publish
-  extends: .kokkuri:build-and-publish-image
+  extends: .publish
   variables:
     BUILD_VARIANT: buildkit
     BUILD_TARGET_PLATFORMS: linux/amd64,linux/arm64
@@ -109,6 +123,7 @@ build-documentation:
     DOCS_DIR: generated-documentation/docs
   extends:
     - .kokkuri:build-image
+    - .remote-context
     - .docs-common
     - .docpub:build-docs
 
