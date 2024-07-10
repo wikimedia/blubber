@@ -8,7 +8,7 @@ export default defineConfig({
   rewrites: {
     'README.md': 'index.md',
   },
-  srcExclude: ['api', 'cmd', 'examples', 'docker', 'config', 'meta', 'out', 'util', 'scripts', 'build', 'buildkit', '**/TODO.md'],
+  srcExclude: ['api', 'cmd', 'examples', 'docker', 'config', 'meta', 'out', 'util', 'scripts', 'build', 'buildkit', '**/TODO.md', '**/DEPENDENCIES.md'],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -50,7 +50,9 @@ export default defineConfig({
         ]
       }
     ],
-
+    footer: {
+      copyright: 'For copyright, licensing information, and website source code, see the <a href="https://gitlab.wikimedia.org/repos/releng/blubber">GitLab repository</a>.'
+    },
     search: {
       provider: 'local'
     }
