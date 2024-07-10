@@ -117,6 +117,7 @@ build-and-publish-frontend:
     BUILD_VARIANT: buildkit
     BUILD_TARGET_PLATFORMS: linux/amd64,linux/arm64
     PUBLISH_IMAGE_NAME: '${CI_PROJECT_PATH}/buildkit'
+    PUBLISH_PROVENANCE: 'yes'
   tags:
     - trusted
   rules:
