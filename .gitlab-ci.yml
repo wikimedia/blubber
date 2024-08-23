@@ -23,23 +23,13 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_REF_PROTECTED == 'true'
 
-.remote-context:
-  variables:
-    GIT_STRATEGY: none
-    BUILD_CONTEXT: "${CI_REPOSITORY_URL}#${CI_COMMIT_REF_NAME}"
-    BUILD_FRONTEND: docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.0.0
-
-.run:
-  extends: [.kokkuri:build-and-run-image, .remote-context]
-
-.publish:
-  extends: [.kokkuri:build-and-publish-image, .remote-context]
+variables:
+  BUILD_FRONTEND: docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.0.1
 
 .remote-context:
   variables:
     GIT_STRATEGY: none
     BUILD_CONTEXT: "${CI_REPOSITORY_URL}#${CI_COMMIT_REF_NAME}"
-    BUILD_FRONTEND: docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.0.0
 
 .run:
   extends: [.kokkuri:build-and-run-image, .remote-context]
