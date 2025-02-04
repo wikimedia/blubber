@@ -10,6 +10,9 @@ const PythonPoetryVenvs = LocalLibPrefix + "/poetry"
 // PythonVenv is the path of the virtualenv that will be created if use-virtualenv is true.
 const PythonVenv = LocalLibPrefix + "/venv"
 
+// PythonVenv is the path of the uv environment that will be created if use-virtualenv is true.
+const PythnonUvVenvs = LocalLibPrefix + "/uv"
+
 // PythonConfig holds configuration fields related to pre-installation of project
 // dependencies via PIP.
 type PythonConfig struct {
@@ -26,8 +29,20 @@ type PythonConfig struct {
 	// Use Poetry for package management
 	Poetry PoetryConfig `json:"poetry"`
 
+	//Use UV for package management
+	Uv UvConfig `json:"uv"`
+
 	// Specify a specific version of tox to install (T346226)
 	ToxVersion string `json:"tox-version"`
+}
+
+// UvConfig holds configuration fields related to installation of project
+// dependencies via UV package manager
+
+type UvConfig struct {
+	Version string `json:"version" validate:"omitempty,pypkgver"`
+	Devel   Flag   `json:"devel"`
+	Variant string `json:"variant"`
 }
 
 // PoetryConfig holds configuration fields related to installation of project
@@ -121,16 +136,36 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			"VIRTUAL_ENV": PythonVenv,
 			"PATH":        PythonVenv + "/bin:$PATH",
 		}})
-		ins = append(ins, pc.setupPipAndPoetry()...)
+		ins = append(ins, pc.setupPipAndPoetryAndUv()...)
 
-		if pc.usePoetry() {
+		// Switch case for package managers
+		switch {
+		case pc.usePoetry():
 			cmd := []string{"install", "--no-root"}
 			if !pc.Poetry.Devel.True {
 				cmd = append(cmd, "--no-dev")
 			}
 			ins = append(ins, build.CreateDirectory(PythonPoetryVenvs))
 			ins = append(ins, build.Run{"poetry", cmd})
-		} else {
+
+		case pc.useUv():
+			cmd := []string{} // Initialize an empty list of commands
+
+			// Check the uv variant
+			if pc.Uv.Variant == "pip" {
+				// Pip variant using uv pip install -r requirements.txt
+				cmd = append(cmd, "pip", "install", "-r", "requirements.txt")
+			} else {
+				// Default uv sync
+				cmd = append(cmd, "sync")
+				if !pc.Uv.Devel.True {
+					cmd = append(cmd, "--no-group", "dev")
+				}
+			}
+			ins = append(ins, build.CreateDirectory(PythnonUvVenvs))
+			ins = append(ins, build.Run{"uv", cmd})
+
+		default:
 			args := pc.RequirementsArgs()
 			if args != nil {
 				installCmd := []string{"-m", "pip", "install"}
@@ -161,7 +196,7 @@ func (pc PythonConfig) isEnabled() bool {
 	return pc.Version != "" && pc.Requirements != nil
 }
 
-func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
+func (pc PythonConfig) setupPipAndPoetryAndUv() []build.Instruction {
 	ins := []build.Instruction{}
 
 	ins = append(ins, build.RunAll{[]build.Run{
@@ -176,6 +211,15 @@ func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
 		ins = append(ins, build.Run{
 			pc.version(), []string{
 				"-m", "pip", "install", "-U", "poetry" + pc.Poetry.Version,
+			},
+		})
+	} else {
+		ins = append(ins, build.Env{map[string]string{
+			"UV_VIRTUALENVS_PATH": PythnonUvVenvs,
+		}})
+		ins = append(ins, build.Run{
+			pc.version(), []string{
+				"-m", "pip", "install", "-U", "uv" + pc.Uv.Version,
 			},
 		})
 	}
@@ -217,6 +261,10 @@ func (pc PythonConfig) version() string {
 
 func (pc PythonConfig) usePoetry() bool {
 	return pc.Poetry.Version != ""
+}
+
+func (pc PythonConfig) useUv() bool {
+	return pc.Uv.Version != ""
 }
 
 func (pc PythonConfig) toxPackage() string {
