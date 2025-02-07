@@ -10,7 +10,7 @@ const PythonPoetryVenvs = LocalLibPrefix + "/poetry"
 // PythonVenv is the path of the virtualenv that will be created if use-virtualenv is true.
 const PythonVenv = LocalLibPrefix + "/venv"
 
-// PythonVenv is the path of the uv environment that will be created if use-virtualenv is true.
+// PythnonUvVenvs is the path of the uv environment that will be created if use-virtualenv is true.
 const PythnonUvVenvs = LocalLibPrefix + "/uv"
 
 // PythonConfig holds configuration fields related to pre-installation of project
@@ -36,9 +36,7 @@ type PythonConfig struct {
 	ToxVersion string `json:"tox-version"`
 }
 
-// UvConfig holds configuration fields related to installation of project
-// dependencies via UV package manager
-
+// UvConfig holds configuration fields for project dependencies installation
 type UvConfig struct {
 	Version string `json:"version" validate:"omitempty,pypkgver"`
 	Devel   Flag   `json:"devel"`
