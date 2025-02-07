@@ -29,7 +29,7 @@ Feature: Python builder
       """
       version: v4
       variants:
-        hello_uv:
+        hello-uv:
           base: python:3.10-bullseye
           builders:
             - python:
@@ -49,7 +49,7 @@ Feature: Python builder
       """
       version: v4
       variants:
-        hello_uv:
+        hello-uv:
           base: python:3.10-bullseye
           builders:
             - python:
