@@ -200,16 +200,18 @@ func TestPythonConfigUseSystemSitePackages(t *testing.T) {
 	}
 
 	t.Run("PhasePreInstall", func(t *testing.T) {
-		assert.Equal(t, []build.Instruction{
-			build.Copy{Sources: []string{"requirements.txt", "requirements-test.txt"}, Destination: "./"},
-			build.Copy{Sources: []string{"docs/requirements.txt"}, Destination: "docs/"},
-			build.Run{Command: "python2.7", Arguments: []string{"-m", "venv", "/opt/lib/venv", "--system-site-packages"}},
-			build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
-			build.RunAll{Runs: []build.Run{
-				{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
-				{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}}}},
-			build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}},
-			build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-test.txt", "-r", "docs/requirements.txt"}}},
+		assert.Equal(t,
+			[]build.Instruction{
+				build.Copy{Sources: []string{"requirements.txt", "requirements-test.txt"}, Destination: "./"},
+				build.Copy{Sources: []string{"docs/requirements.txt"}, Destination: "docs/"},
+				build.Run{Command: "python2.7", Arguments: []string{"-m", "venv", "/opt/lib/venv", "--system-site-packages"}},
+				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
+				build.RunAll{Runs: []build.Run{
+					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}}}},
+				build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}},
+				build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "uv"}},
+				build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-test.txt", "-r", "docs/requirements.txt"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall))
 	})
 }
