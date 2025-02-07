@@ -138,7 +138,9 @@ func TestPythonConfigInstructionsEmptyRequirementsWithVersion(t *testing.T) {
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
 				build.RunAll{Runs: []build.Run{
 					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
-					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}}},
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "uv"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall))
 	})
 
@@ -171,6 +173,7 @@ func TestPythonConfigInstructionsWithRequirements(t *testing.T) {
 				build.RunAll{Runs: []build.Run{
 					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
 					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}}}},
+				build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}}, build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "uv"}},
 				build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-test.txt", "-r", "docs/requirements.txt"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
@@ -205,6 +208,7 @@ func TestPythonConfigUseSystemSitePackages(t *testing.T) {
 			build.RunAll{Runs: []build.Run{
 				{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
 				{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}}}},
+			build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}},
 			build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-test.txt", "-r", "docs/requirements.txt"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall))
 	})
@@ -225,9 +229,10 @@ func TestPythonConfigUseNoDepsFlag(t *testing.T) {
 				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./"},
 				build.Run{Command: "python3.9", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
-				build.RunAll{Runs: []build.Run{
-					{Command: "python3.9", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
-					{Command: "python3.9", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.RunAll{Runs: []build.Run{build.Run{Command: "python3.9", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					build.Run{Command: "python3.9", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}},
+				build.Run{Command: "python3.9", Arguments: []string{"-m", "pip", "install", "-U", "uv"}},
 				build.Run{Command: "python3.9", Arguments: []string{"-m", "pip", "install", "--no-deps", "-r", "requirements.txt"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
@@ -278,9 +283,10 @@ func TestPythonConfigToxVersion(t *testing.T) {
 				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./"},
 				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
-				build.RunAll{Runs: []build.Run{
-					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
-					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox==1.23.4", "pip"}}}},
+				build.RunAll{Runs: []build.Run{build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox==1.23.4", "pip"}}}},
+				build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "uv"}},
 				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
