@@ -38,9 +38,9 @@ type PythonConfig struct {
 
 // UvConfig holds configuration fields for project dependencies installation
 type UvConfig struct {
-	Version string `json:"version" validate:"omitempty,pypkgver"`
-	Devel   Flag   `json:"devel"`
-	Variant string `json:"variant"`
+	Version string   `json:"version" validate:"omitempty,pypkgver"`
+	NoGroup []string `json:"no-group"`
+	Variant string   `json:"variant"`
 }
 
 // PoetryConfig holds configuration fields related to installation of project
@@ -61,6 +61,7 @@ func (pc *PythonConfig) Merge(pc2 PythonConfig) {
 	pc.UseSystemSitePackages.Merge(pc2.UseSystemSitePackages)
 	pc.UseNoDepsFlag.Merge(pc2.UseNoDepsFlag)
 	pc.Poetry.Merge(pc2.Poetry)
+	pc.Uv.Merge(pc2.Uv)
 	if pc2.Version != "" {
 		pc.Version = pc2.Version
 	}
@@ -80,6 +81,15 @@ func (pc *PoetryConfig) Merge(pc2 PoetryConfig) {
 		pc.Version = pc2.Version
 	}
 	pc.Devel.Merge(pc2.Devel)
+}
+
+// Merge two UvConfig structs.
+func (pc *UvConfig) Merge(pc2 UvConfig) {
+	if pc2.Version != "" {
+		pc.Version = pc2.Version
+	}
+	// pc.NoGroup.Merge(pc2.NoGroup)
+	pc.NoGroup = append(pc.NoGroup, pc2.NoGroup...)
 }
 
 // InstructionsForPhase injects instructions into the build related to Python
@@ -156,8 +166,8 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			} else {
 				// Default uv sync
 				cmd = append(cmd, "sync")
-				if !pc.Uv.Devel.True {
-					cmd = append(cmd, "--no-group", "dev")
+				for _, group := range pc.Uv.NoGroup {
+					cmd = append(cmd, "--no-group", group)
 				}
 			}
 			ins = append(ins, build.CreateDirectory(PythnonUvVenvs))
@@ -211,7 +221,7 @@ func (pc PythonConfig) setupPipAndPoetryAndUv() []build.Instruction {
 				"-m", "pip", "install", "-U", "poetry" + pc.Poetry.Version,
 			},
 		})
-	} else {
+	} else if pc.useUv() {
 		ins = append(ins, build.Env{map[string]string{
 			"UV_VIRTUALENVS_PATH": PythnonUvVenvs,
 		}})
