@@ -171,7 +171,6 @@ func TestPythonConfigInstructionsWithRequirements(t *testing.T) {
 				build.RunAll{Runs: []build.Run{
 					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
 					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}}}},
-				build.Env{Definitions: map[string]string{"UV_VIRTUALENVS_PATH": "/opt/lib/uv"}}, build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "uv"}},
 				build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-test.txt", "-r", "docs/requirements.txt"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
