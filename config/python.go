@@ -88,8 +88,7 @@ func (pc *UvConfig) Merge(pc2 UvConfig) {
 	if pc2.Version != "" {
 		pc.Version = pc2.Version
 	}
-	// pc.NoGroup.Merge(pc2.NoGroup)
-	pc.NoGroup = append(pc.NoGroup, pc2.NoGroup...)
+	pc.NoGroup = pc2.NoGroup
 }
 
 // InstructionsForPhase injects instructions into the build related to Python

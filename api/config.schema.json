@@ -58,6 +58,28 @@
               "description" : "Whether to install development dependencies or not when using Poetry."
             }
           }
+        },
+        "uv": {
+          "type": "object",
+          "description": "Configuration related to installation of dependencies using [Uv](https://docs.astral.sh/uv/getting-started/).",
+          "properties": {
+            "version": {
+              "type": "string",
+              "description": "Version constraint for installing `uv` package."
+            },
+            "no-group": {
+              "type": "array",
+              "description": "List of packages to be added under a `dependency-group` in `pyproject.toml`.",
+              "items": {
+                "type": "string",
+                "description": "Package in string format to be under a dependency group in `pyproject.toml`."
+              }
+            },
+            "variant": {
+              "type": "string",
+              "description": "Whether to install requirements using `uv pip install -r requirements.txt` method."
+            }
+          }
         }
       }
     },

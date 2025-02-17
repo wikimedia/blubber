@@ -1,35 +1,17 @@
 Feature: Python builder
-  Blubber supports a specialized Python builder for easy and consistent
-  dependency installation and setup for Python projects.
+  Blubber supports a specialized Python builder. This variant is referring
+  to uv python manager for dependency handling and virtual environments creation.
 
   Background:
     Given "examples/hello-world-python-uv" as a working directory
 
-  @set2
-  Scenario: Installing Python application dependencies
+  @set3
+  Scenario: Installing Python application dependencies via uv sync
     Given this "blubber.yaml"
       """
       version: v4
       variants:
         hello:
-          base: python:3.10-bullseye
-          builders:
-            - python:
-                version: python3
-                requirements: [requirements.txt]
-          copies: [local]
-          entrypoint: [python3, hello.py]
-      """
-    When you build and run the "hello" variant
-    Then the entrypoint will have run successfully
-
-  @set3
-  Scenario: Installing Python application dependencies via Uv
-    Given this "blubber.yaml"
-      """
-      version: v4
-      variants:
-        hello-uv:
           base: python:3.10-bullseye
           builders:
             - python:
@@ -49,7 +31,7 @@ Feature: Python builder
       """
       version: v4
       variants:
-        hello-uv:
+        hello:
           base: python:3.10-bullseye
           builders:
             - python:
