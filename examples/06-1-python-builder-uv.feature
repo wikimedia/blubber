@@ -41,7 +41,7 @@ Feature: Python builder
                   variant: pip
                 requirements: [requirements.txt]
           copies: [local]
-          entrypoint: [uv, run, python3, hello.py]
+          entrypoint: [uv, run, hello.py]
       """
     When you build and run the "hello" variant
     Then the entrypoint will have run successfully
