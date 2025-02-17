@@ -40,7 +40,7 @@ type PythonConfig struct {
 type UvConfig struct {
 	Version string   `json:"version" validate:"omitempty,pypkgver"`
 	NoGroup []string `json:"no-group"`
-	UvPip   Flag   `json:"uvpip"`
+	UvPip   Flag     `json:"uvpip"`
 }
 
 // PoetryConfig holds configuration fields related to installation of project
