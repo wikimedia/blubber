@@ -89,6 +89,10 @@ func (pc *UvConfig) Merge(pc2 UvConfig) {
 		pc.Version = pc2.Version
 	}
 	pc.NoGroup = pc2.NoGroup
+
+	if pc2.Variant != "" {
+		pc.Variant = pc2.Variant
+	}
 }
 
 // InstructionsForPhase injects instructions into the build related to Python
@@ -161,7 +165,9 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			// Check the uv variant
 			if pc.Uv.Variant == "pip" {
 				// Pip variant using uv pip install -r requirements.txt
-				cmd = append(cmd, "pip", "install", "-r", "requirements.txt")
+				args := pc.RequirementsArgs()
+				cmd = append(cmd, "pip", "install", "-r")
+				cmd = append(cmd, args...)
 			} else {
 				// Default uv sync
 				cmd = append(cmd, "sync")

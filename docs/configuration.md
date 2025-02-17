@@ -457,6 +457,31 @@ Path of files/directories to copy.
 
 Whether to inject the --system-site-packages flag into the venv setup command.
 
+#### uv
+`.builders[].python.uv` _object_
+
+Configuration related to installation of dependencies using [Uv](https ://docs.astral.sh/uv/getting-started/).
+
+#### no-group
+`.builders[].python.uv.no-group` _array&lt;string&gt;_
+
+List of packages to be added under a `dependency-group` in `pyproject.toml`.
+
+#### no-group[]
+`.builders[].python.uv.no-group[]` _string_
+
+Package in string format to be under a dependency group in `pyproject.toml`.
+
+#### variant
+`.builders[].python.uv.variant` _string_
+
+Whether to install requirements using `uv pip install -r requirements.txt` method.
+
+#### version
+`.builders[].python.uv.version` _string_
+
+Version constraint for installing `uv` package.
+
 #### version
 `.builders[].python.version` _string_
 
@@ -703,6 +728,31 @@ Path of files/directories to copy.
 `.python.use-system-site-packages` _boolean_
 
 Whether to inject the --system-site-packages flag into the venv setup command.
+
+### uv
+`.python.uv` _object_
+
+Configuration related to installation of dependencies using [Uv](https ://docs.astral.sh/uv/getting-started/).
+
+#### no-group
+`.python.uv.no-group` _array&lt;string&gt;_
+
+List of packages to be added under a `dependency-group` in `pyproject.toml`.
+
+#### no-group[]
+`.python.uv.no-group[]` _string_
+
+Package in string format to be under a dependency group in `pyproject.toml`.
+
+#### variant
+`.python.uv.variant` _string_
+
+Whether to install requirements using `uv pip install -r requirements.txt` method.
+
+#### version
+`.python.uv.version` _string_
+
+Version constraint for installing `uv` package.
 
 ### version
 `.python.version` _string_
@@ -1204,6 +1254,31 @@ Path of files/directories to copy.
 
 Whether to inject the --system-site-packages flag into the venv setup command.
 
+#### uv
+`.variants.*.builders[].python.uv` _object_
+
+Configuration related to installation of dependencies using [Uv](https ://docs.astral.sh/uv/getting-started/).
+
+#### no-group
+`.variants.*.builders[].python.uv.no-group` _array&lt;string&gt;_
+
+List of packages to be added under a `dependency-group` in `pyproject.toml`.
+
+#### no-group[]
+`.variants.*.builders[].python.uv.no-group[]` _string_
+
+Package in string format to be under a dependency group in `pyproject.toml`.
+
+#### variant
+`.variants.*.builders[].python.uv.variant` _string_
+
+Whether to install requirements using `uv pip install -r requirements.txt` method.
+
+#### version
+`.variants.*.builders[].python.uv.version` _string_
+
+Version constraint for installing `uv` package.
+
 #### version
 `.variants.*.builders[].python.version` _string_
 
@@ -1505,6 +1580,31 @@ Path of files/directories to copy.
 `.variants.*.python.use-system-site-packages` _boolean_
 
 Whether to inject the --system-site-packages flag into the venv setup command.
+
+#### uv
+`.variants.*.python.uv` _object_
+
+Configuration related to installation of dependencies using [Uv](https ://docs.astral.sh/uv/getting-started/).
+
+#### no-group
+`.variants.*.python.uv.no-group` _array&lt;string&gt;_
+
+List of packages to be added under a `dependency-group` in `pyproject.toml`.
+
+#### no-group[]
+`.variants.*.python.uv.no-group[]` _string_
+
+Package in string format to be under a dependency group in `pyproject.toml`.
+
+#### variant
+`.variants.*.python.uv.variant` _string_
+
+Whether to install requirements using `uv pip install -r requirements.txt` method.
+
+#### version
+`.variants.*.python.uv.version` _string_
+
+Version constraint for installing `uv` package.
 
 #### version
 `.variants.*.python.version` _string_
