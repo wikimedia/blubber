@@ -166,7 +166,7 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			if pc.Uv.Variant == "pip" {
 				// Pip variant using uv pip install -r requirements.txt
 				args := pc.RequirementsArgs()
-				cmd = append(cmd, "pip", "install", "-r")
+				cmd = append(cmd, "pip", "install")
 				cmd = append(cmd, args...)
 			} else {
 				// Default uv sync
