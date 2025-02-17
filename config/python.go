@@ -40,7 +40,7 @@ type PythonConfig struct {
 type UvConfig struct {
 	Version string   `json:"version" validate:"omitempty,pypkgver"`
 	NoGroup []string `json:"no-group"`
-	Variant string   `json:"variant"`
+	UvPip   Flag   `json:"uvpip"`
 }
 
 // PoetryConfig holds configuration fields related to installation of project
@@ -90,9 +90,7 @@ func (pc *UvConfig) Merge(pc2 UvConfig) {
 	}
 	pc.NoGroup = pc2.NoGroup
 
-	if pc2.Variant != "" {
-		pc.Variant = pc2.Variant
-	}
+	pc.UvPip.Merge(pc2.UvPip)
 }
 
 // InstructionsForPhase injects instructions into the build related to Python
@@ -163,7 +161,7 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			cmd := []string{} // Initialize an empty list of commands
 
 			// Check the uv variant
-			if pc.Uv.Variant == "pip" {
+			if pc.Uv.UvPip.True {
 				// Pip variant using uv pip install -r requirements.txt
 				args := pc.RequirementsArgs()
 				cmd = append(cmd, "pip", "install")

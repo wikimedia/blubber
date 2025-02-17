@@ -38,7 +38,7 @@ Feature: Python builder
                 version: python3
                 uv:
                   version: ==0.5.23
-                  variant: pip
+                  uvpip: true
                 requirements: [requirements.txt]
           copies: [local]
           entrypoint: [uv, run, hello.py]

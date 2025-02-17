@@ -472,8 +472,8 @@ List of packages to be added under a `dependency-group` in `pyproject.toml`.
 
 Package in string format to be under a dependency group in `pyproject.toml`.
 
-#### variant
-`.builders[].python.uv.variant` _string_
+#### uvpip
+`.builders[].python.uv.uvpip` _boolean_
 
 Whether to install requirements using `uv pip install -r requirements.txt` method.
 
@@ -744,8 +744,8 @@ List of packages to be added under a `dependency-group` in `pyproject.toml`.
 
 Package in string format to be under a dependency group in `pyproject.toml`.
 
-#### variant
-`.python.uv.variant` _string_
+#### uvpip
+`.python.uv.uvpip` _boolean_
 
 Whether to install requirements using `uv pip install -r requirements.txt` method.
 
@@ -1269,8 +1269,8 @@ List of packages to be added under a `dependency-group` in `pyproject.toml`.
 
 Package in string format to be under a dependency group in `pyproject.toml`.
 
-#### variant
-`.variants.*.builders[].python.uv.variant` _string_
+#### uvpip
+`.variants.*.builders[].python.uv.uvpip` _boolean_
 
 Whether to install requirements using `uv pip install -r requirements.txt` method.
 
@@ -1596,8 +1596,8 @@ List of packages to be added under a `dependency-group` in `pyproject.toml`.
 
 Package in string format to be under a dependency group in `pyproject.toml`.
 
-#### variant
-`.variants.*.python.uv.variant` _string_
+#### uvpip
+`.variants.*.python.uv.uvpip` _boolean_
 
 Whether to install requirements using `uv pip install -r requirements.txt` method.
 

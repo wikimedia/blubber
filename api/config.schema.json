@@ -75,8 +75,8 @@
                 "description" : "Package in string format to be under a dependency group in `pyproject.toml`."
               }
             },
-            "variant" : {
-              "type" : "string",
+            "uvpip" : {
+              "type" : "boolean",
               "description" : "Whether to install requirements using `uv pip install -r requirements.txt` method."
             }
           }
