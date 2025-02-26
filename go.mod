@@ -5,7 +5,6 @@ require (
 	github.com/containerd/containerd v1.7.23
 	github.com/containers/image/v5 v5.25.0
 	github.com/cucumber/godog v0.14.1
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/distribution/distribution v2.8.1+incompatible
 	github.com/docker/distribution v2.8.2+incompatible
 	github.com/ghodss/yaml v1.0.0
@@ -22,6 +21,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/utahta/go-openuri v0.1.0
 	github.com/wk8/go-ordered-map v0.1.0
+	gitlab.wikimedia.org/repos/releng/llbtest v0.0.1
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/sync v0.10.0
 	gopkg.in/go-playground/validator.v9 v9.31.0
@@ -56,6 +56,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/docker v27.5.1+incompatible // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
@@ -157,6 +158,4 @@ require (
 // See https://github.com/moby/moby/issues/42939
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220414164044-61404de7df1a+incompatible
 
-go 1.22.0
-
-toolchain go1.23.5
+go 1.23.5

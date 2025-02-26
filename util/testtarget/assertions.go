@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
-	"gitlab.wikimedia.org/repos/releng/blubber/util/llbtest"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 // LLBAssertions aliases [llbtest.Assertions]

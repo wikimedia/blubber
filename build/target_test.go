@@ -11,9 +11,9 @@ import (
 
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
 	"gitlab.wikimedia.org/repos/releng/blubber/meta"
-	"gitlab.wikimedia.org/repos/releng/blubber/util/llbtest"
 	"gitlab.wikimedia.org/repos/releng/blubber/util/testmetaresolver"
 	"gitlab.wikimedia.org/repos/releng/blubber/util/testtarget"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 func TestInitialize(t *testing.T) {
