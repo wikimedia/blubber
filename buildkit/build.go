@@ -90,11 +90,15 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 	var scanner sbom.Scanner
 
 	if bc.SBOM != nil {
-		scanner, err = sbom.CreateSBOMScanner(ctx, c, bc.SBOM.Generator, sourceresolver.Opt{
-			ImageOpt: &sourceresolver.ResolveImageOpt{
-				ResolveMode: resolveModeName(bc.ImageResolveMode),
+		scanner, err = sbom.CreateSBOMScanner(
+			ctx, c, bc.SBOM.Generator,
+			sourceresolver.Opt{
+				ImageOpt: &sourceresolver.ResolveImageOpt{
+					ResolveMode: resolveModeName(bc.ImageResolveMode),
+				},
 			},
-		})
+			bc.SBOM.Parameters,
+		)
 
 		if err != nil {
 			return nil, err
