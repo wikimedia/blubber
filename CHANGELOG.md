@@ -1,8 +1,22 @@
 
+<a name="v1.1.0"></a>
+## [v1.1.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.0.1...v1.1.0)
+
+> 2025-02-26
+
+### BuildKit
+
+* Update BuildKit dependency to v0.20
+
+### Llbtest
+
+* Moved llbtest to its own project/module
+
+
 <a name="v1.0.1"></a>
 ## [v1.0.1](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.0.0...v1.0.1)
 
-> 2024-07-10
+> 2024-07-31
 
 
 <a name="v1.0.0"></a>
