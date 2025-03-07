@@ -103,10 +103,18 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 		return ins
 	}
 
+	python := pc.version()
+	// Virtual environments are a requirement and on Debian the module is installed via the APT
+	// package python + "-venv"
+	aptConfig := AptConfig{
+		Packages: AptPackages{
+			"default": []string{python + "-venv"},
+		},
+	}
+	ins = append(ins, aptConfig.InstructionsForPhase(phase)...)
+
 	// This only does something for build.PhasePreInstall
 	ins = append(ins, pc.Requirements.InstructionsForPhase(phase)...)
-
-	python := pc.version()
 
 	switch phase {
 	case build.PhasePreInstall:
