@@ -153,8 +153,8 @@ func TestVariantConfigInstructions(t *testing.T) {
 
 			assert.Equal(t,
 				[]build.Instruction{
-					build.CopyAs{"$LIVES_UID", "$LIVES_GID", build.Copy{[]string{"."}, "."}},
-					build.CopyAs{"$LIVES_UID", "$LIVES_GID", build.CopyFrom{"build", build.Copy{[]string{"/foo/src"}, "/foo/dst"}}},
+					build.CopyAs{"$LIVES_UID", "$LIVES_GID", build.Copy{[]string{"."}, ".", nil}},
+					build.CopyAs{"$LIVES_UID", "$LIVES_GID", build.CopyFrom{"build", build.Copy{[]string{"/foo/src"}, "/foo/dst", nil}}},
 				},
 				cfg.InstructionsForPhase(build.PhaseInstall),
 			)

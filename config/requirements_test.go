@@ -19,7 +19,7 @@ func TestRequirementsInstructionsForPhase(t *testing.T) {
 			assert.Len(t, instructions, 1)
 			assert.Equal(
 				t,
-				build.Copy{[]string{"foo", "bar"}, "./"},
+				build.Copy{[]string{"foo", "bar"}, "./", []string{}},
 				instructions[0],
 			)
 		}
@@ -37,12 +37,12 @@ func TestRequirementsInstructionsForPhase(t *testing.T) {
 			assert.Len(t, instructions, 2)
 			assert.Equal(
 				t,
-				build.CopyFrom{"foo", build.Copy{[]string{"./"}, "./"}},
+				build.CopyFrom{"foo", build.Copy{[]string{"./"}, "./", []string{}}},
 				instructions[0],
 			)
 			assert.Equal(
 				t,
-				build.CopyFrom{"bar", build.Copy{[]string{"/foo"}, "/bar/"}},
+				build.CopyFrom{"bar", build.Copy{[]string{"/foo"}, "/bar/", []string{}}},
 				instructions[1],
 			)
 		}
@@ -62,17 +62,17 @@ func TestRequirementsInstructionsForPhase(t *testing.T) {
 			assert.Len(t, instructions, 3)
 			assert.Equal(
 				t,
-				build.Copy{[]string{"foo", "bar"}, "./"},
+				build.Copy{[]string{"foo", "bar"}, "./", []string{}},
 				instructions[0],
 			)
 			assert.Equal(
 				t,
-				build.CopyFrom{"foo", build.Copy{[]string{"./"}, "./"}},
+				build.CopyFrom{"foo", build.Copy{[]string{"./"}, "./", []string{}}},
 				instructions[1],
 			)
 			assert.Equal(
 				t,
-				build.CopyFrom{"bar", build.Copy{[]string{"/foo"}, "/bar/"}},
+				build.CopyFrom{"bar", build.Copy{[]string{"/foo"}, "/bar/", []string{}}},
 				instructions[2],
 			)
 		}
@@ -100,17 +100,17 @@ func TestRequirementsInstructionsForPhase(t *testing.T) {
 			assert.Len(t, instructions, 9)
 			assert.Equal(
 				t,
-				build.Copy{[]string{".git", "Makefile", "go.mod", "go.sum"}, "./"},
+				build.Copy{[]string{".git", "Makefile", "go.mod", "go.sum"}, "./", []string{}},
 				instructions[0],
 			)
-			assert.Equal(t, build.Copy{[]string{"api/"}, "api/"}, instructions[1])
-			assert.Equal(t, build.Copy{[]string{"build/"}, "build/"}, instructions[2])
-			assert.Equal(t, build.Copy{[]string{"cmd/"}, "cmd/"}, instructions[3])
-			assert.Equal(t, build.Copy{[]string{"config/"}, "config/"}, instructions[4])
-			assert.Equal(t, build.Copy{[]string{"docker/"}, "docker/"}, instructions[5])
-			assert.Equal(t, build.Copy{[]string{"meta/"}, "meta/"}, instructions[6])
-			assert.Equal(t, build.Copy{[]string{"scripts/"}, "scripts/"}, instructions[7])
-			assert.Equal(t, build.Copy{[]string{"vendor/"}, "vendor/"}, instructions[8])
+			assert.Equal(t, build.Copy{[]string{"api/"}, "api/", []string{}}, instructions[1])
+			assert.Equal(t, build.Copy{[]string{"build/"}, "build/", []string{}}, instructions[2])
+			assert.Equal(t, build.Copy{[]string{"cmd/"}, "cmd/", []string{}}, instructions[3])
+			assert.Equal(t, build.Copy{[]string{"config/"}, "config/", []string{}}, instructions[4])
+			assert.Equal(t, build.Copy{[]string{"docker/"}, "docker/", []string{}}, instructions[5])
+			assert.Equal(t, build.Copy{[]string{"meta/"}, "meta/", []string{}}, instructions[6])
+			assert.Equal(t, build.Copy{[]string{"scripts/"}, "scripts/", []string{}}, instructions[7])
+			assert.Equal(t, build.Copy{[]string{"vendor/"}, "vendor/", []string{}}, instructions[8])
 		}
 	})
 }

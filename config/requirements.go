@@ -36,6 +36,8 @@ func (rc RequirementsConfig) InstructionsForPhase(phase build.Phase) []build.Ins
 	case build.PhasePreInstall:
 		// Map of artifacts grouped by From and Destination
 		artifacts := map[string]map[string][]string{}
+		// Map of excludes grouped by From and Destination
+		excludes := map[string]map[string][]string{}
 		// Set of From values in input order
 		fromOrder := []string{}
 		// Map of sets of Destination values in input order grouped by From
@@ -52,6 +54,8 @@ func (rc RequirementsConfig) InstructionsForPhase(phase build.Phase) []build.Ins
 				// - make a map to track discovered Source values grouped by
 				// Destination
 				artifacts[artifact.From] = map[string][]string{}
+				// - make a map to track excludes
+				excludes[artifact.From] = map[string][]string{}
 			}
 
 			src := artifact.NormalizedSource()
@@ -67,17 +71,23 @@ func (rc RequirementsConfig) InstructionsForPhase(phase build.Phase) []build.Ins
 				)
 				// - make a slice to track related Source values
 				artifacts[artifact.From][dest] = []string{}
+				// - make a slice to track excludes
+				excludes[artifact.From][dest] = []string{}
 			}
 
 			artifacts[artifact.From][dest] = append(
 				artifacts[artifact.From][dest],
 				src,
 			)
+			excludes[artifact.From][dest] = append(
+				excludes[artifact.From][dest],
+				artifact.Exclude...,
+			)
 		}
 
 		for _, from := range fromOrder {
 			for _, dest := range destOrder[from] {
-				copy := build.Copy{artifacts[from][dest], dest}
+				copy := build.Copy{artifacts[from][dest], dest, excludes[from][dest]}
 				if from == LocalArtifactKeyword || from == "" {
 					instructions = append(instructions, copy)
 				} else {

@@ -16,9 +16,10 @@ import (
 // binaries or production only source files over into a smaller image that
 // contains only production dependencies.
 type ArtifactsConfig struct {
-	From        string `json:"from" validate:"required,artifactfrom"`
-	Source      string `json:"source" validate:"requiredwith=destination,relativelocal"`
-	Destination string `json:"destination"`
+	From        string   `json:"from" validate:"required,artifactfrom"`
+	Source      string   `json:"source" validate:"requiredwith=destination,relativelocal"`
+	Destination string   `json:"destination"`
+	Exclude     []string `json:"exclude"`
 }
 
 // NewArtifactsConfigFromSource creates an local ArtifactsConfig from the
@@ -38,6 +39,24 @@ func (ac ArtifactsConfig) Dependencies() []string {
 	return []string{}
 }
 
+// Equal returns whether the given ArtifactsConfig is equal to this one.
+func (ac ArtifactsConfig) Equal(other ArtifactsConfig) bool {
+	if ac.From != other.From ||
+		ac.Source != other.Source ||
+		ac.Destination != other.Destination ||
+		len(ac.Exclude) != len(other.Exclude) {
+		return false
+	}
+
+	for i, v := range other.Exclude {
+		if ac.Exclude[i] != v {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Expand returns the longhand configured artifact and/or the default
 // artifacts for any configured by shorthand notation (i.e. on the `From`
 // field).
@@ -50,6 +69,7 @@ func (ac ArtifactsConfig) Expand(appDirectory string) []ArtifactsConfig {
 					From:        ac.From,
 					Source:      ".",
 					Destination: ".",
+					Exclude:     ac.Exclude,
 				},
 			}
 		}
@@ -59,11 +79,13 @@ func (ac ArtifactsConfig) Expand(appDirectory string) []ArtifactsConfig {
 				From:        ac.From,
 				Source:      appDirectory,
 				Destination: appDirectory,
+				Exclude:     ac.Exclude,
 			},
 			{
 				From:        ac.From,
 				Source:      LocalLibPrefix,
 				Destination: LocalLibPrefix,
+				Exclude:     ac.Exclude,
 			},
 		}
 	}
@@ -71,7 +93,12 @@ func (ac ArtifactsConfig) Expand(appDirectory string) []ArtifactsConfig {
 	// if destination is empty, use the source value
 	if ac.Destination == "" {
 		return []ArtifactsConfig{
-			{From: ac.From, Source: ac.Source, Destination: ac.Source},
+			{
+				From:        ac.From,
+				Source:      ac.Source,
+				Destination: ac.Source,
+				Exclude:     ac.Exclude,
+			},
 		}
 	}
 
@@ -90,7 +117,7 @@ func (ac ArtifactsConfig) Expand(appDirectory string) []ArtifactsConfig {
 func (ac ArtifactsConfig) InstructionsForPhase(phase build.Phase) []build.Instruction {
 	switch phase {
 	case build.PhaseInstall:
-		copy := build.Copy{[]string{ac.Source}, ac.Destination}
+		copy := build.Copy{[]string{ac.Source}, ac.Destination, ac.Exclude}
 
 		if ac.From == LocalArtifactKeyword {
 			return []build.Instruction{copy}

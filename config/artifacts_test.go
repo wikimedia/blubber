@@ -22,7 +22,8 @@ func TestArtifactsConfigYAML(t *testing.T) {
             destination: /foo/dst
           - from: build
             source: /bar/src
-            destination: /bar/dst`))
+            destination: /bar/dst
+            exclude: [something]`))
 
 	if assert.NoError(t, err) {
 		err := config.ExpandIncludesAndCopies(cfg, "production")
@@ -39,7 +40,11 @@ func TestArtifactsConfigYAML(t *testing.T) {
 			)
 			assert.Contains(t,
 				variant.Copies,
-				config.ArtifactsConfig{From: "build", Source: "/bar/src", Destination: "/bar/dst"},
+				config.ArtifactsConfig{
+					From:        "build",
+					Source:      "/bar/src",
+					Destination: "/bar/dst",
+					Exclude:     []string{"something"}},
 			)
 		}
 	}
@@ -47,36 +52,92 @@ func TestArtifactsConfigYAML(t *testing.T) {
 
 func TestArtifactsConfigExpand(t *testing.T) {
 	t.Run("local with no source/destination", func(t *testing.T) {
-		cfg := config.ArtifactsConfig{From: "local"}
+		cfg := config.ArtifactsConfig{
+			From:    "local",
+			Exclude: []string{"*.md"},
+		}
 
-		assert.Equal(t, []config.ArtifactsConfig{
-			{From: "local", Source: ".", Destination: "."},
-		}, cfg.Expand("/app/dir"))
+		assert.Equal(
+			t,
+			[]config.ArtifactsConfig{
+				{
+					From:        "local",
+					Source:      ".",
+					Destination: ".",
+					Exclude:     []string{"*.md"},
+				},
+			},
+			cfg.Expand("/app/dir"),
+		)
 	})
 
 	t.Run("variant with no source/destination", func(t *testing.T) {
-		cfg := config.ArtifactsConfig{From: "foo"}
+		cfg := config.ArtifactsConfig{
+			From:    "foo",
+			Exclude: []string{"*.md"},
+		}
 
-		assert.Equal(t, []config.ArtifactsConfig{
-			{From: "foo", Source: "/app/dir", Destination: "/app/dir"},
-			{From: "foo", Source: "/opt/lib", Destination: "/opt/lib"},
-		}, cfg.Expand("/app/dir"))
+		assert.Equal(
+			t,
+			[]config.ArtifactsConfig{
+				{
+					From:        "foo",
+					Source:      "/app/dir",
+					Destination: "/app/dir",
+					Exclude:     []string{"*.md"},
+				},
+				{
+					From:        "foo",
+					Source:      "/opt/lib",
+					Destination: "/opt/lib",
+					Exclude:     []string{"*.md"},
+				},
+			},
+			cfg.Expand("/app/dir"),
+		)
 	})
 
 	t.Run("variant with source/destination", func(t *testing.T) {
-		cfg := config.ArtifactsConfig{From: "foo", Source: "./foo/dir", Destination: "./bar/dir"}
+		cfg := config.ArtifactsConfig{
+			From:        "foo",
+			Source:      "./foo/dir",
+			Destination: "./bar/dir",
+			Exclude:     []string{"*.md"},
+		}
 
-		assert.Equal(t, []config.ArtifactsConfig{
-			{From: "foo", Source: "./foo/dir", Destination: "./bar/dir"},
-		}, cfg.Expand("/app/dir"))
+		assert.Equal(
+			t,
+			[]config.ArtifactsConfig{
+				{
+					From:        "foo",
+					Source:      "./foo/dir",
+					Destination: "./bar/dir",
+					Exclude:     []string{"*.md"},
+				},
+			},
+			cfg.Expand("/app/dir"),
+		)
 	})
 
 	t.Run("source but no destination", func(t *testing.T) {
-		cfg := config.ArtifactsConfig{From: "foo", Source: "./foo/dir"}
+		cfg := config.ArtifactsConfig{
+			From:    "foo",
+			Source:  "./foo/dir",
+			Exclude: []string{"*.md"},
+		}
 
-		assert.Equal(t, []config.ArtifactsConfig{
-			{From: "foo", Source: "./foo/dir", Destination: "./foo/dir"},
-		}, cfg.Expand("/app/dir"))
+		assert.Equal(
+			t,
+			[]config.ArtifactsConfig{
+				{
+					From:        "foo",
+					Source:      "./foo/dir",
+					Destination: "./foo/dir",
+					Exclude:     []string{"*.md"},
+				},
+			},
+			cfg.Expand("/app/dir"),
+		)
 	})
 }
 
@@ -85,6 +146,7 @@ func TestArtifactsConfigInstructions(t *testing.T) {
 		From:        "foo",
 		Source:      "/source/path",
 		Destination: "/destination/path",
+		Exclude:     []string{"**/*.bak"},
 	}
 
 	t.Run("PhasePrivileged", func(t *testing.T) {
@@ -103,7 +165,11 @@ func TestArtifactsConfigInstructions(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{build.CopyFrom{
 				"foo",
-				build.Copy{[]string{"/source/path"}, "/destination/path"},
+				build.Copy{
+					Sources:     []string{"/source/path"},
+					Destination: "/destination/path",
+					Exclude:     []string{"**/*.bak"},
+				},
 			}},
 			cfg.InstructionsForPhase(build.PhaseInstall),
 		)
@@ -280,6 +346,28 @@ func TestArtifactsConfigValidation(t *testing.T) {
 				assert.False(t, config.IsValidationError(err))
 			})
 		})
+	})
+
+	t.Run("cannot have duplicates", func(t *testing.T) {
+		_, err := config.ReadYAMLConfig([]byte(`---
+      version: v4
+      variants:
+        foo:
+          copies:
+           - from: local
+             source: foo
+             destination: foo
+             exclude: [bar]
+           - from: local
+             source: foo
+             destination: foo
+             exclude: [bar]`))
+
+		if assert.True(t, config.IsValidationError(err)) {
+			msg := config.HumanizeValidationError(err)
+
+			assert.Equal(t, `copies: cannot contain duplicates`, msg)
+		}
 	})
 }
 

@@ -46,3 +46,29 @@ Feature: Builders
     When you build the "build" variant
     Then the image will have the following files in the default working directory
       | hello-world-go |
+
+  @set1
+  Scenario: Excluding files from requirements by glob pattern
+    Given "examples/hello-world-c" as a working directory
+    And this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        build:
+          base: debian:bullseye
+          apt:
+            packages:
+              - gcc
+              - libc6-dev
+          builder:
+            requirements:
+              - from: local
+                exclude: ["*.md"]
+            command: [gcc, -o, hello, main.c]
+          entrypoint: [./hello]
+      """
+    When you build the "build" variant
+    Then the image will have the following files in the default working directory
+      | hello |
+    Then the image will not have the following files in the default working directory
+      | README.md |

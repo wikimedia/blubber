@@ -164,14 +164,28 @@ func TestPythonConfigInstructionsWithRequirements(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{Sources: []string{"requirements.txt", "requirements-test.txt"}, Destination: "./"},
-				build.Copy{Sources: []string{"docs/requirements.txt"}, Destination: "docs/"},
+				build.Copy{Sources: []string{"requirements.txt", "requirements-test.txt"}, Destination: "./", Exclude: []string{}},
+				build.Copy{Sources: []string{"docs/requirements.txt"}, Destination: "docs/", Exclude: []string{}},
 				build.Run{Command: "python2.7", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
 				build.RunAll{Runs: []build.Run{
 					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
-					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}}}},
-				build.Run{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-test.txt", "-r", "docs/requirements.txt"}}},
+					{Command: "python2.7", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip<21"}},
+				}},
+				build.Run{
+					Command: "python2.7",
+					Arguments: []string{
+						"-m",
+						"pip",
+						"install",
+						"-r",
+						"requirements.txt",
+						"-r",
+						"requirements-test.txt",
+						"-r",
+						"docs/requirements.txt",
+					}},
+			},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
 	})
@@ -198,8 +212,8 @@ func TestPythonConfigUseSystemSitePackages(t *testing.T) {
 
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t, []build.Instruction{
-			build.Copy{Sources: []string{"requirements.txt", "requirements-test.txt"}, Destination: "./"},
-			build.Copy{Sources: []string{"docs/requirements.txt"}, Destination: "docs/"},
+			build.Copy{Sources: []string{"requirements.txt", "requirements-test.txt"}, Destination: "./", Exclude: []string{}},
+			build.Copy{Sources: []string{"docs/requirements.txt"}, Destination: "docs/", Exclude: []string{}},
 			build.Run{Command: "python2.7", Arguments: []string{"-m", "venv", "/opt/lib/venv", "--system-site-packages"}},
 			build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
 			build.RunAll{Runs: []build.Run{
@@ -222,7 +236,7 @@ func TestPythonConfigUseNoDepsFlag(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./"},
+				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./", Exclude: []string{}},
 				build.Run{Command: "python3.9", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
 				build.RunAll{Runs: []build.Run{
@@ -275,7 +289,7 @@ func TestPythonConfigToxVersion(t *testing.T) {
 	t.Run("tox version honored", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./"},
+				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./", Exclude: []string{}},
 				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
 				build.RunAll{Runs: []build.Run{
@@ -300,7 +314,7 @@ func TestPythonConfigInstructionsWithPoetry(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{Sources: []string{"pyproject.toml", "poetry.lock"}, Destination: "./"},
+				build.Copy{Sources: []string{"pyproject.toml", "poetry.lock"}, Destination: "./", Exclude: []string{}},
 				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
 				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
 				build.RunAll{Runs: []build.Run{

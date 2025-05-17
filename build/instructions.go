@@ -79,11 +79,16 @@ func (ra RunAll) Compile(target *Target) error {
 type Copy struct {
 	Sources     []string // source file/directory paths
 	Destination string   // destination path
+	Exclude     []string // exclude glob patterns
 }
 
 // Compile to the given [Target]
 func (copy Copy) Compile(target *Target) error {
-	return target.CopyFromBuildContext(copy.Sources, copy.Destination)
+	return target.CopyFromBuildContext(
+		copy.Sources,
+		copy.Destination,
+		llb.WithExcludePatterns(copy.Exclude),
+	)
 }
 
 // CopyAs is a concrete build instruction for copying source
@@ -102,15 +107,18 @@ func (ca CopyAs) Compile(target *Target) error {
 	from := ""
 	sources := []string{}
 	destination := ""
+	exclude := []string{}
 
 	switch ins := ca.Instruction.(type) {
 	case Copy:
 		sources = ins.Sources
 		destination = ins.Destination
+		exclude = ins.Exclude
 	case CopyFrom:
 		from = ins.From
 		sources = ins.Copy.Sources
 		destination = ins.Copy.Destination
+		exclude = ins.Copy.Exclude
 	default:
 		return errors.New("a CopyAs may only wrap Copy and CopyFrom")
 	}
@@ -119,6 +127,7 @@ func (ca CopyAs) Compile(target *Target) error {
 		llb.WithUser(
 			target.ExpandEnv(fmt.Sprintf("%s:%s", ca.UID, ca.GID)),
 		),
+		llb.WithExcludePatterns(exclude),
 	}
 
 	if from == "" {
@@ -137,7 +146,12 @@ type CopyFrom struct {
 
 // Compile to the given [Target]
 func (cf CopyFrom) Compile(target *Target) error {
-	return target.CopyFrom(cf.From, cf.Copy.Sources, cf.Copy.Destination)
+	return target.CopyFrom(
+		cf.From,
+		cf.Copy.Sources,
+		cf.Copy.Destination,
+		llb.WithExcludePatterns(cf.Copy.Exclude),
+	)
 }
 
 // EntryPoint is a build instruction for declaring a container's default

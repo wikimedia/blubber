@@ -51,6 +51,25 @@ Feature: Basic usage
       | README.md |
 
   @set3
+  Scenario: Files are excluded using explicit glob patterns
+    Given this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        hello:
+          base: debian:bullseye
+          copies:
+            - from: local
+              exclude:
+                - "*.md"
+      """
+    When you build the "hello" variant
+    Then the image will have the following files in the default working directory
+      | hello.sh  |
+    And the image will not have the following files in the default working directory
+      | README.md |
+
+  @set4
   Scenario: Variants can include one another
     Given this "blubber.yaml"
       """

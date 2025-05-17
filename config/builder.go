@@ -8,7 +8,7 @@ import (
 // build command and the files required to successfully execute the command.
 type BuilderConfig struct {
 	Command      []string           `json:"command"`
-	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,unique,dive"`
+	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 }
 
 // Dependencies returns variant dependencies.

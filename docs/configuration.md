@@ -154,6 +154,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.builder.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.builder.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.builder.requirements[].from` _null|string_
 
@@ -227,6 +237,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.builders[].custom.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.builders[].custom.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.builders[].custom.requirements[].from` _null|string_
 
@@ -296,6 +316,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.builders[].node.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.builders[].node.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.builders[].node.requirements[].from` _null|string_
 
@@ -362,6 +392,16 @@ builder:
 `.builders[].php.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.builders[].php.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.builders[].php.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.builders[].php.requirements[].from` _null|string_
@@ -441,6 +481,16 @@ builder:
 `.builders[].python.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.builders[].python.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.builders[].python.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.builders[].python.requirements[].from` _null|string_
@@ -549,6 +599,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.node.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.node.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.node.requirements[].from` _null|string_
 
@@ -612,6 +672,16 @@ builder:
 `.php.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.php.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.php.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.php.requirements[].from` _null|string_
@@ -688,6 +758,16 @@ builder:
 `.python.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.python.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.python.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.python.requirements[].from` _null|string_
@@ -901,6 +981,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.variants.*.builder.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.builder.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.variants.*.builder.requirements[].from` _null|string_
 
@@ -974,6 +1064,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.variants.*.builders[].custom.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.builders[].custom.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.variants.*.builders[].custom.requirements[].from` _null|string_
 
@@ -1043,6 +1143,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.variants.*.builders[].node.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.builders[].node.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.variants.*.builders[].node.requirements[].from` _null|string_
 
@@ -1109,6 +1219,16 @@ builder:
 `.variants.*.builders[].php.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.variants.*.builders[].php.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.builders[].php.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.variants.*.builders[].php.requirements[].from` _null|string_
@@ -1189,6 +1309,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.variants.*.builders[].python.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.builders[].python.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.variants.*.builders[].python.requirements[].from` _null|string_
 
@@ -1225,6 +1355,16 @@ Variant from which to copy application and library files. Note that prior to v4,
 `.variants.*.copies[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.variants.*.copies[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.copies[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.variants.*.copies[].from` _null|string_
@@ -1351,6 +1491,16 @@ builder:
 
 Destination path. Defaults to source path.
 
+#### exclude
+`.variants.*.node.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.node.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
+
 #### from
 `.variants.*.node.requirements[].from` _null|string_
 
@@ -1414,6 +1564,16 @@ builder:
 `.variants.*.php.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.variants.*.php.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.php.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.variants.*.php.requirements[].from` _null|string_
@@ -1490,6 +1650,16 @@ builder:
 `.variants.*.python.requirements[].destination` _string_
 
 Destination path. Defaults to source path.
+
+#### exclude
+`.variants.*.python.requirements[].exclude` _array&lt;string&gt;_
+
+Exclude files that match any of these patterns.
+
+#### exclude[]
+`.variants.*.python.requirements[].exclude[]` _string_
+
+A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 
 #### from
 `.variants.*.python.requirements[].from` _null|string_

@@ -92,8 +92,8 @@ func TestBuilderConfigInstructionsWithRequirements(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{[]string{"Makefile", "foo"}, "./"},
-				build.Copy{[]string{"bar/baz"}, "bar/"},
+				build.Copy{[]string{"Makefile", "foo"}, "./", []string{}},
+				build.Copy{[]string{"bar/baz"}, "bar/", []string{}},
 				build.Run{
 					"make",
 					[]string{"-f", "Makefile", "foo"},

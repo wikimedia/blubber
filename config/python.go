@@ -17,7 +17,7 @@ type PythonConfig struct {
 	Version string `json:"version"`
 
 	// Install requirements from given files
-	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,unique,dive"`
+	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 
 	UseSystemSitePackages Flag `json:"use-system-site-packages"`
 

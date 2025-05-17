@@ -82,10 +82,11 @@ func TestRunAll(t *testing.T) {
 
 func TestCopy(t *testing.T) {
 	sources := []string{"source1", "source2"}
+	exclude := []string{"**/*.bak"}
 
 	_, req := testtarget.Compile(t,
 		testtarget.NewTargets("foo"),
-		build.Copy{sources, "dest"},
+		build.Copy{sources, "dest", exclude},
 	)
 
 	fops, fileOps := req.ContainsNFileOps(1)
@@ -101,18 +102,20 @@ func TestCopy(t *testing.T) {
 		copy := copies[i].Copy
 		req.Equal("/"+source, copy.Src)
 		req.Equal("/srv/app/dest/", copy.Dest)
+		req.Equal(exclude, copy.ExcludePatterns)
 	}
 }
 
 func TestCopyAs(t *testing.T) {
 	t.Run("wrapping Copy", func(t *testing.T) {
 		sources := []string{"source1", "source2"}
+		exclude := []string{"**/*.bak"}
 
 		_, req := testtarget.Compile(t,
 			testtarget.NewTargets("foo"),
 			build.CopyAs{
 				"123", "321",
-				build.Copy{sources, "dest/"},
+				build.Copy{sources, "dest/", exclude},
 			},
 		)
 
@@ -129,6 +132,7 @@ func TestCopyAs(t *testing.T) {
 			copy := copies[i].Copy
 			req.Equal("/"+source, copy.Src)
 			req.Equal("/srv/app/dest/", copy.Dest)
+			req.Equal(exclude, copy.ExcludePatterns)
 
 			req.Equal(uint32(123), copy.Owner.User.GetByID())
 			req.Equal(uint32(321), copy.Owner.Group.GetByID())
@@ -136,6 +140,8 @@ func TestCopyAs(t *testing.T) {
 	})
 
 	t.Run("wrapping CopyFrom", func(t *testing.T) {
+		exclude := []string{"**/*.bak"}
+
 		_, req := testtarget.Setup(t,
 			testtarget.NewTargets("bar", "foo"),
 			func(bar *build.Target) {
@@ -146,7 +152,7 @@ func TestCopyAs(t *testing.T) {
 				foo.WorkingDirectory("/srv/foo")
 				i := build.CopyAs{
 					"123", "321",
-					build.CopyFrom{"bar", build.Copy{[]string{"source1"}, "dest"}},
+					build.CopyFrom{"bar", build.Copy{[]string{"source1"}, "dest", exclude}},
 				}
 				i.Compile(foo)
 			},
@@ -174,6 +180,7 @@ func TestCopyAs(t *testing.T) {
 		copy := copies[0].Copy
 		req.Equal("/srv/bar/source1", copy.Src)
 		req.Equal("/srv/foo/dest", copy.Dest)
+		req.Equal(exclude, copy.ExcludePatterns)
 
 		req.Equal(uint32(123), copy.Owner.User.GetByID())
 		req.Equal(uint32(321), copy.Owner.Group.GetByID())
@@ -185,7 +192,7 @@ func TestCopyAs(t *testing.T) {
 			func(target *build.Target) {
 				i := build.CopyAs{
 					"$LIVES_UID", "$LIVES_GID",
-					build.Copy{[]string{"source1"}, "dest/"},
+					build.Copy{[]string{"source1"}, "dest/", nil},
 				}
 				target.ExposeBuildArg("LIVES_UID", "123")
 				target.ExposeBuildArg("LIVES_GID", "321")

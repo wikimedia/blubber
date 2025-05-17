@@ -318,6 +318,14 @@
         "destination" : {
           "type" : "string",
           "description" : "Destination path. Defaults to source path."
+        },
+        "exclude" : {
+          "type" : "array",
+          "description" : "Exclude files that match any of these patterns.",
+          "items" : {
+            "type" : "string",
+            "description": "A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`)."
+          }
         }
       }
     },

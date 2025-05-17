@@ -51,23 +51,27 @@ func (cc CopiesConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 //
 // Artifacts are merged additively and duplicates are removed. Uniqueness is
 // ensured by taking the latest definition over the previous.
-func (cc *CopiesConfig) Merge(cc2 CopiesConfig) {
-	// efficient search of the other CopiesConfig using a map
-	newlyDefined := make(map[ArtifactsConfig]bool, len(*cc))
-	for _, artifact := range cc2 {
-		newlyDefined[artifact] = true
+func (cc *CopiesConfig) Merge(newCC CopiesConfig) {
+	newlyDefined := func(artifact ArtifactsConfig) bool {
+		for i := range newCC {
+			if newCC[i].Equal(artifact) {
+				return true
+			}
+		}
+
+		return false
 	}
 
 	dupesRemoved := CopiesConfig{}
 
 	// omit any previously defined artifacts that are among the new
 	for _, artifact := range *cc {
-		if !newlyDefined[artifact] {
+		if !newlyDefined(artifact) {
 			dupesRemoved = append(dupesRemoved, artifact)
 		}
 	}
 
-	*cc = append(dupesRemoved, cc2...)
+	*cc = append(dupesRemoved, newCC...)
 }
 
 // UnmarshalJSON implements json.Unmarshaler to handle both shorthand and

@@ -8,7 +8,7 @@ import (
 // whether/how to install NPM packages.
 type NodeConfig struct {
 	// Install requirements from given files
-	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,unique,dive"`
+	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 
 	// Environment name ("production" install)
 	Env string `json:"env" validate:"omitempty,nodeenv"`

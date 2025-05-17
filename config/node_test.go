@@ -81,7 +81,7 @@ func TestNodeConfigInstructionsUseNpmCi(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{[]string{"package.json"}, "./"},
+				build.Copy{[]string{"package.json"}, "./", []string{}},
 				build.Run{"npm ci", []string{}},
 			},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
@@ -108,7 +108,7 @@ func TestNodeConfigInstructionsNonProduction(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{[]string{"package.json"}, "./"},
+				build.Copy{[]string{"package.json"}, "./", []string{}},
 				build.Run{"npm install", []string{}},
 			},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
@@ -148,7 +148,7 @@ func TestNodeConfigInstructionsProduction(t *testing.T) {
 		t.Run("Default", func(t *testing.T) {
 			assert.Equal(t,
 				[]build.Instruction{
-					build.Copy{[]string{"package.json", "package-lock.json"}, "./"},
+					build.Copy{[]string{"package.json", "package-lock.json"}, "./", []string{}},
 					build.Run{"npm install", []string{"--only=production"}},
 					build.Run{"npm dedupe", []string{}},
 				},
@@ -163,7 +163,7 @@ func TestNodeConfigInstructionsProduction(t *testing.T) {
 			cfg2.Merge(cfg)
 			assert.Equal(t,
 				[]build.Instruction{
-					build.Copy{[]string{"package.json", "package-lock.json"}, "./"},
+					build.Copy{[]string{"package.json", "package-lock.json"}, "./", []string{}},
 					build.Run{"npm install", []string{"--only=production"}},
 					build.Run{"npm dedupe || echo %s", []string{
 						"WARNING: npm dedupe failed, continuing anyways",

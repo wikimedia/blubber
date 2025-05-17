@@ -59,6 +59,7 @@ var (
 		"required":          `{{.Field}}: is required`,
 		"requiredwith":      `{{.Field}}: is required if "{{.Param}}" is also set`,
 		"unique":            `{{.Field}}: cannot contain duplicates`,
+		"uniqueartifacts":   `{{.Field}}: cannot contain duplicates`,
 		"username":          `{{.Field}}: "{{.Value}}" is not a valid user name`,
 		"variantref":        `{{.Field}}: references an unknown variant "{{.Value}}"`,
 		"variants":          `{{.Field}}: contains a bad variant name`,
@@ -86,6 +87,7 @@ var (
 		"pypkgver":        isPythonPackageVersion,
 		"relativelocal":   isRelativePathForLocalArtifact,
 		"requiredwith":    isSetIfOtherFieldIsSet,
+		"uniqueartifacts": uniqueByEquality[ArtifactsConfig],
 		"variantref":      isVariantReference,
 		"variants":        hasVariantNames,
 		// Can be used with array or slice fields
@@ -307,6 +309,35 @@ func uniqueTypesExcept(_ context.Context, fl validator.FieldLevel) bool {
 			}
 		}
 		presentTypes[actualType] = new(interface{})
+	}
+
+	return true
+}
+
+type equality[T any] interface {
+	Equal(T) bool
+}
+
+// uniqueByEquality iterates over a slice field twice and ensures it has no
+// duplicate items. If there is an instance of equality (based on the
+// [equality] interface) between two entries at different index positions, the
+// validation will fail.
+//
+// The complexity of this function is O((n^2)-n) and should only be used with
+// slice fields whose member type is not [comparable] by Go rules (if the
+// member type itself contains a slice field, it is not [comparable]).
+func uniqueByEquality[T equality[E], E any](_ context.Context, fl validator.FieldLevel) bool {
+	field := fl.Field()
+
+	for i := 0; i < field.Len(); i++ {
+		v1 := field.Index(i).Interface().(T)
+
+		for j := 0; j < field.Len(); j++ {
+			v2 := field.Index(j).Interface().(E)
+			if i != j && v1.Equal(v2) {
+				return false
+			}
+		}
 	}
 
 	return true

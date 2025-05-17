@@ -7,7 +7,7 @@ import (
 // PhpConfig holds configuration for whether/how to install php packages.
 type PhpConfig struct {
 	// Install requirements from given files
-	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,unique,dive"`
+	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 
 	// Whether to use the no-dev flag
 	Production Flag `json:"production"`

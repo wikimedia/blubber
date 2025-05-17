@@ -74,7 +74,7 @@ func TestPhpConfigInstructions(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{[]string{"composer.json"}, "./"},
+				build.Copy{[]string{"composer.json"}, "./", []string{}},
 				build.RunAll{[]build.Run{
 					{"composer install", []string{"--no-scripts"}},
 				}},
@@ -107,7 +107,7 @@ func TestPhpConfigInstructionsProduction(t *testing.T) {
 	t.Run("PhasePreInstall", func(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{
-				build.Copy{[]string{"composer.json"}, "./"},
+				build.Copy{[]string{"composer.json"}, "./", []string{}},
 				build.RunAll{[]build.Run{
 					{"composer install", []string{"--no-scripts", "--no-dev"}},
 				}},

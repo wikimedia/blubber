@@ -14,7 +14,7 @@ func NewVariantConfig(name string) *VariantConfig {
 // VariantConfig holds configuration fields for each defined build variant.
 type VariantConfig struct {
 	Includes     []string     `json:"includes" validate:"dive,variantref"`
-	Copies       CopiesConfig `json:"copies" validate:"omitempty,unique,dive"`
+	Copies       CopiesConfig `json:"copies" validate:"omitempty,uniqueartifacts,dive"`
 	CommonConfig `json:",inline"`
 
 	name string
