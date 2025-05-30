@@ -1,6 +1,7 @@
 package build_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/moby/buildkit/solver/pb"
@@ -396,4 +397,26 @@ func TestUintArg(t *testing.T) {
 	t.Run("expands variables", func(t *testing.T) {
 		req.ExpandsEnv("RUNS_UID is 900", "RUNS_UID is $RUNS_UID")
 	})
+}
+
+func TestFile(t *testing.T) {
+	_, req := testtarget.Compile(t,
+		testtarget.NewTargets("foo"),
+		build.File{
+			Path:    "/foo",
+			Content: []byte(`bar`),
+			Mode:    os.FileMode(0o400),
+		},
+	)
+
+	fops, fileOps := req.ContainsNFileOps(1)
+	inputs := req.HasValidInputs(fops[0])
+	req.Len(inputs, 1)
+
+	_, mkfiles := req.ContainsNMkfileActions(fileOps[0], 1)
+	mkfile := mkfiles[0].Mkfile
+
+	req.Equal("/foo", mkfile.Path)
+	req.Equal([]byte(`bar`), mkfile.Data)
+	req.Equal(int32(0400), mkfile.Mode)
 }

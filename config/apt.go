@@ -1,8 +1,12 @@
 package config
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/url"
+	"os"
+	"path"
 	"sort"
 	"strings"
 
@@ -25,20 +29,24 @@ type AptConfig struct {
 }
 
 const (
-	// DefaultTargetKeyword defines a special keyword indicating that the
+	// AptDefaultTargetKeyword defines a special keyword indicating that the
 	// packages to be installed should use the default target release
-	//
-	DefaultTargetKeyword = "default"
+	AptDefaultTargetKeyword = "default"
 
 	// AptSourceConfigurationPath is the file that source configuration will be
 	// written to for each defined source.
-	//
 	AptSourceConfigurationPath = "/etc/apt/sources.list.d/99blubber.list"
+
+	// AptKeyringDir is the directory where [AptSource.SignedBy] key data will
+	// be written.
+	AptKeyringDir = "/etc/apt/keyrings"
 
 	// AptProxyConfigurationPath is the file that configuration will be written
 	// to for each defined proxy.
-	//
 	AptProxyConfigurationPath = "/etc/apt/apt.conf.d/99blubber-proxies"
+
+	// AptFileMode is the default file mode of APT configuration files.
+	AptFileMode = os.FileMode(0o644)
 )
 
 // Merge takes another AptConfig and combines the packages declared within
@@ -73,7 +81,7 @@ func (apt *AptConfig) Merge(apt2 AptConfig) {
 func (apt AptConfig) InstructionsForPhase(phase build.Phase) []build.Instruction {
 	ins := []build.Instruction{}
 
-	if len(apt.Packages) > 0 {
+	if len(apt.Packages) > 0 || len(apt.Sources) > 0 || len(apt.Proxies) > 0 {
 		switch phase {
 		case build.PhasePrivileged:
 			var (
@@ -85,33 +93,64 @@ func (apt AptConfig) InstructionsForPhase(phase build.Phase) []build.Instruction
 				"DEBIAN_FRONTEND": "noninteractive",
 			}})
 
-			// Configure sources
-			for _, source := range apt.Sources {
-				runAll = append(runAll, build.Run{
-					"echo %s >> " + AptSourceConfigurationPath,
-					[]string{source.Configuration()},
-				})
-			}
-
 			// Configure proxies
+			var proxies []string
 			for _, proxy := range apt.Proxies {
-				runAll = append(runAll, build.Run{
-					"echo %s >> " + AptProxyConfigurationPath,
-					[]string{proxy.Configuration()},
+				proxies = append(proxies, proxy.Configuration())
+			}
+
+			if len(proxies) > 0 {
+				ins = append(ins, build.File{
+					Path:    AptProxyConfigurationPath,
+					Content: []byte(strings.Join(proxies, "\n") + "\n"),
+					Mode:    os.FileMode(AptFileMode),
 				})
 			}
 
-			runAll = append(runAll, build.Run{"apt-get update", []string{}})
+			// Configure sources
+			var sources []string
+			for _, source := range apt.Sources {
+				sources = append(sources, source.Configuration())
+
+				if source.SignedBy != "" {
+					ins = append(ins, build.File{
+						Path:    source.KeyringPath(),
+						Content: []byte(source.SignedBy),
+						Mode:    os.FileMode(AptFileMode),
+					})
+				}
+			}
+
+			if len(sources) > 0 {
+				// If we're configuring any additional sources, install
+				// ca-certificates first to ensure successful fetching of third-party
+				// package lists over https
+				ins = append(ins,
+					build.RunAll{[]build.Run{
+						{"apt-get update", []string{}},
+						{"apt-get install -y", []string{"ca-certificates"}},
+					}},
+					build.File{
+						Path:    AptSourceConfigurationPath,
+						Content: []byte(strings.Join(sources, "\n") + "\n"),
+						Mode:    os.FileMode(AptFileMode),
+					},
+				)
+			}
 
 			// order the targets for the same result each run
 			for target := range apt.Packages {
 				targets = append(targets, target)
 			}
 
+			if len(targets) > 0 {
+				runAll = append(runAll, build.Run{"apt-get update", []string{}})
+			}
+
 			sort.Strings(targets)
 
 			for _, target := range targets {
-				if target == DefaultTargetKeyword {
+				if target == AptDefaultTargetKeyword {
 					runAll = append(runAll, build.Run{"apt-get install -y", apt.Packages[target]})
 				} else {
 					args := append([]string{target}, apt.Packages[target]...)
@@ -123,10 +162,6 @@ func (apt AptConfig) InstructionsForPhase(phase build.Phase) []build.Instruction
 
 			if len(apt.Proxies) > 0 {
 				runAll = append(runAll, build.Run{"rm -f", []string{AptProxyConfigurationPath}})
-			}
-
-			if len(apt.Sources) > 0 {
-				runAll = append(runAll, build.Run{"rm -f", []string{AptSourceConfigurationPath}})
 			}
 
 			ins = append(ins, build.RunAll{runAll})
@@ -164,7 +199,7 @@ func (ap *AptPackages) UnmarshalJSON(unmarshal []byte) error {
 
 	if err == nil {
 		// Input was entirely in short form
-		(*ap)[DefaultTargetKeyword] = shorthand
+		(*ap)[AptDefaultTargetKeyword] = shorthand
 		return nil
 	}
 
@@ -252,9 +287,26 @@ type AptSource struct {
 
 	// Components is a list of the source components to index (e.g. main, contrib)
 	Components []string `json:"components" validate:"dive,omitempty,debiancomponent"`
+
+	// SignedBy is an encoded set of public keys used to verify the source
+	SignedBy string `json:"signed-by" validate:"omitempty"`
 }
 
 // Configuration returns the APT list configuration for this source.
 func (as AptSource) Configuration() string {
-	return "deb " + strings.Join(append([]string{as.URL, as.Distribution}, as.Components...), " ")
+	cfg := "deb"
+
+	if as.SignedBy != "" {
+		cfg += " [signed-by=" + as.KeyringPath() + "]"
+
+	}
+
+	return cfg + " " + strings.Join(append([]string{as.URL, as.Distribution}, as.Components...), " ")
+}
+
+// KeyringPath returns a unique filename for the [SignedBy] key(s).
+func (as AptSource) KeyringPath() string {
+	sha := sha256.New()
+	sha.Write([]byte(as.SignedBy))
+	return path.Join(AptKeyringDir, hex.EncodeToString(sha.Sum(nil))+".asc")
 }

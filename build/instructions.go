@@ -5,6 +5,7 @@ package build
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
@@ -270,4 +271,17 @@ type UintArg struct {
 // Compile to the given [Target]
 func (arg UintArg) Compile(target *Target) error {
 	return target.ExposeBuildArg(arg.Name, fmt.Sprintf("%d", arg.Default))
+}
+
+// File is a build instruction that creates a single file with the literal
+// []byte contents.
+type File struct {
+	Path    string
+	Mode    os.FileMode
+	Content []byte
+}
+
+// Compile to the given [Target]
+func (f File) Compile(target *Target) error {
+	return target.Mkfile(f.Path, f.Mode, f.Content)
 }

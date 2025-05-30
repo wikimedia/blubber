@@ -24,6 +24,7 @@ import (
 
 const (
 	emojiExternal = "🌐"
+	emojiFile     = "📄"
 	emojiImage    = "📦"
 	emojiLocal    = "📂"
 	emojiShell    = "🖥️"
@@ -297,6 +298,15 @@ func (target *Target) copy(sources []string, destination string, from string, op
 	}
 
 	target.state = target.state.File(fa, fileOpts...)
+	return nil
+}
+
+// Mkfile creates a single file with the given content.
+func (target *Target) Mkfile(path string, mode os.FileMode, data []byte, opts ...llb.MkfileOption) error {
+	target.state = target.state.File(
+		llb.Mkfile(path, mode, data, opts...),
+		target.Describef("%s %+v", emojiFile, path),
+	)
 	return nil
 }
 

@@ -121,6 +121,10 @@
                     "items" : {
                       "type" : "string"
                     }
+                  },
+                  "signed-by" : {
+                    "type" : "string",
+                    "description" : "ASCII encoded public key(s) with which to verify the source. See [Debian source.list](https://wiki.debian.org/DebianRepository/UseThirdParty#Sources.list_entry) for more information on the expected format."
                   }
                 }
               }

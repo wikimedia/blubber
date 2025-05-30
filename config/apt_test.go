@@ -1,10 +1,12 @@
 package config_test
 
 import (
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
 	"gitlab.wikimedia.org/repos/releng/blubber/config"
@@ -25,6 +27,16 @@ func TestAptConfigYAML(t *testing.T) {
         - url: http://apt.wikimedia.org
           distribution: buster-wikimedia
           components: [component/pygments]
+        - url: http://packages.microsoft.com
+          distribution: buster
+          components: [main]
+          signed-by: |
+            -----BEGIN PGP PUBLIC KEY BLOCK-----
+            Version: GnuPG v1.4.7 (GNU/Linux)
+
+            foo
+            -----END PGP PUBLIC KEY BLOCK-----
+
     variants:
       build:
         apt:
@@ -50,7 +62,23 @@ func TestAptConfigYAML(t *testing.T) {
 
 		assert.Equal(t,
 			[]config.AptSource{
-				{URL: "http://apt.wikimedia.org", Distribution: "buster-wikimedia", Components: []string{"component/pygments"}},
+				{
+					URL:          "http://apt.wikimedia.org",
+					Distribution: "buster-wikimedia",
+					Components:   []string{"component/pygments"},
+					SignedBy:     "",
+				},
+				{
+					URL:          "http://packages.microsoft.com",
+					Distribution: "buster",
+					Components:   []string{"main"},
+					SignedBy: `-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+foo
+-----END PGP PUBLIC KEY BLOCK-----
+`,
+				},
 			},
 			cfg.Apt.Sources,
 		)
@@ -63,7 +91,22 @@ func TestAptConfigYAML(t *testing.T) {
 			if assert.NoError(t, err) {
 				assert.Equal(t,
 					[]config.AptSource{
-						{URL: "http://apt.wikimedia.org", Distribution: "buster-wikimedia", Components: []string{"component/pygments"}},
+						{
+							URL:          "http://apt.wikimedia.org",
+							Distribution: "buster-wikimedia",
+							Components:   []string{"component/pygments"},
+						},
+						{
+							URL:          "http://packages.microsoft.com",
+							Distribution: "buster",
+							Components:   []string{"main"},
+							SignedBy: `-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+foo
+-----END PGP PUBLIC KEY BLOCK-----
+`,
+						},
 					},
 					variant.Apt.Sources,
 				)
@@ -136,11 +179,19 @@ func TestAptConfigInstructions(t *testing.T) {
 			"default":       {"libfoo", "libbar"},
 			"baz-backports": {"libbaz"},
 		},
-		Sources: []config.AptSource{{
-			URL:          "http://apt.wikimedia.org",
-			Distribution: "buster-wikimedia",
-			Components:   []string{"components/pygments"},
-		}},
+		Sources: []config.AptSource{
+			{
+				URL:          "http://apt.wikimedia.org",
+				Distribution: "buster-wikimedia",
+				Components:   []string{"components/pygments"},
+			},
+			{
+				URL:          "https://packages.microsoft.com",
+				Distribution: "buster",
+				Components:   []string{"main"},
+				SignedBy:     "foo",
+			},
+		},
 		Proxies: []config.AptProxy{{
 			URL:    "http://proxy.example:8080",
 			Source: "http://security.debian.org",
@@ -153,21 +204,34 @@ func TestAptConfigInstructions(t *testing.T) {
 				build.Env{map[string]string{
 					"DEBIAN_FRONTEND": "noninteractive",
 				}},
+				build.File{
+					Path:    "/etc/apt/apt.conf.d/99blubber-proxies",
+					Content: []byte(`Acquire::http::Proxy::security.debian.org "http://proxy.example:8080";` + "\n"),
+					Mode:    os.FileMode(config.AptFileMode),
+				},
+				build.File{
+					Path:    "/etc/apt/keyrings/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.asc",
+					Content: []byte("foo"),
+					Mode:    os.FileMode(config.AptFileMode),
+				},
 				build.RunAll{[]build.Run{
-					build.Run{
-						"echo %s >> /etc/apt/sources.list.d/99blubber.list",
-						[]string{"deb http://apt.wikimedia.org buster-wikimedia components/pygments"},
-					},
-					build.Run{
-						"echo %s >> /etc/apt/apt.conf.d/99blubber-proxies",
-						[]string{`Acquire::http::Proxy::security.debian.org "http://proxy.example:8080";`},
-					},
+					build.Run{"apt-get update", []string{}},
+					build.Run{"apt-get install -y", []string{"ca-certificates"}},
+				}},
+				build.File{
+					Path: "/etc/apt/sources.list.d/99blubber.list",
+					Content: []byte(strings.Join([]string{
+						"deb http://apt.wikimedia.org buster-wikimedia components/pygments\n",
+						"deb [signed-by=/etc/apt/keyrings/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.asc] https://packages.microsoft.com buster main\n",
+					}, "")),
+					Mode: os.FileMode(config.AptFileMode),
+				},
+				build.RunAll{[]build.Run{
 					build.Run{"apt-get update", []string{}},
 					build.Run{"apt-get install -y -t", []string{"baz-backports", "libbaz"}},
 					build.Run{"apt-get install -y", []string{"libfoo", "libbar"}},
 					build.Run{"rm -rf /var/lib/apt/lists/*", []string{}},
 					build.Run{"rm -f", []string{"/etc/apt/apt.conf.d/99blubber-proxies"}},
-					build.Run{"rm -f", []string{"/etc/apt/sources.list.d/99blubber.list"}},
 				}}},
 			cfg.InstructionsForPhase(build.PhasePrivileged),
 		)
@@ -362,4 +426,14 @@ func TestAptProxyConfiguration(t *testing.T) {
 			cfg.Configuration(),
 		)
 	})
+}
+
+func TestAptSourceKeyringPath(t *testing.T) {
+	req := require.New(t)
+
+	source := config.AptSource{
+		SignedBy: "foo",
+	}
+
+	req.Equal("/etc/apt/keyrings/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.asc", source.KeyringPath())
 }

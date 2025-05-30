@@ -90,6 +90,11 @@ List of distribution components (e.g. main, contrib). See [APT repository struct
 
 Debian distribution/release name (e.g. buster). See [APT repository structure](https://wikitech.wikimedia.org/wiki/APT_repository#Repository_Structure) for more information about our use of the distribution and component fields.
 
+#### signed-by
+`.apt.sources[].signed-by` _string_
+
+ASCII encoded public key(s) with which to verify the source. See [Debian source.list](https://wiki.debian.org/DebianRepository/UseThirdParty#Sources.list_entry) for more information on the expected format.
+
 #### url
 `.apt.sources[].url` _string_ (required)
 
@@ -1132,6 +1137,11 @@ List of distribution components (e.g. main, contrib). See [APT repository struct
 `.variants.*.apt.sources[].distribution` _string_
 
 Debian distribution/release name (e.g. buster). See [APT repository structure](https://wikitech.wikimedia.org/wiki/APT_repository#Repository_Structure) for more information about our use of the distribution and component fields.
+
+#### signed-by
+`.variants.*.apt.sources[].signed-by` _string_
+
+ASCII encoded public key(s) with which to verify the source. See [Debian source.list](https://wiki.debian.org/DebianRepository/UseThirdParty#Sources.list_entry) for more information on the expected format.
 
 #### url
 `.variants.*.apt.sources[].url` _string_ (required)
