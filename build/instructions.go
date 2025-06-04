@@ -53,7 +53,7 @@ type Run struct {
 
 // Compile to the given [Target]
 func (run Run) Compile(target *Target) error {
-	return target.Run(run.Command, run.Arguments...)
+	return target.Run(run.Command, run.Arguments)
 }
 
 // RunAll is a concrete build instruction for declaring multiple Run
@@ -64,14 +64,36 @@ type RunAll struct {
 
 // Compile to the given [Target]
 func (ra RunAll) Compile(target *Target) error {
+	return (RunAllWithOptions{Runs: ra.Runs}).Compile(target)
+}
+
+// RunOption is any type that can be reduced to a single [llb.RunOption].
+type RunOption interface {
+	// RunOption returns an [llb.RunOption] for the given target.
+	RunOption(*Target) llb.RunOption
+}
+
+// RunAllWithOptions is a concrete build instruction that executes a number of
+// commands and provides additional [RunOption] to the target.
+type RunAllWithOptions struct {
+	Runs    []Run
+	Options []RunOption
+}
+
+// Compile to the given [Target]
+func (ra RunAllWithOptions) Compile(target *Target) error {
 	runs := make([][]string, len(ra.Runs))
 
 	for i, run := range ra.Runs {
-		runs[i] = []string{run.Command}
-		runs[i] = append(runs[i], run.Arguments...)
+		runs[i] = append([]string{run.Command}, run.Arguments...)
 	}
 
-	return target.RunAll(runs...)
+	opts := make([]llb.RunOption, len(ra.Options))
+	for i, ro := range ra.Options {
+		opts[i] = ro.RunOption(target)
+	}
+
+	return target.RunAll(runs, opts...)
 }
 
 // Copy is a concrete build instruction for copying source files/directories

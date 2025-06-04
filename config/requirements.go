@@ -1,9 +1,6 @@
 package config
 
 import (
-	"encoding/json"
-	"errors"
-
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
 )
 
@@ -106,54 +103,12 @@ func (rc RequirementsConfig) InstructionsForPhase(phase build.Phase) []build.Ins
 // UnmarshalJSON implements json.Unmarshaler to handle both shorthand and
 // longhand requirements configuration.
 func (rc *RequirementsConfig) UnmarshalJSON(unmarshal []byte) error {
-	shorthand := []string{}
-	err := json.Unmarshal(unmarshal, &shorthand)
+	rc2, err := unmarshalShorthand[RequirementsConfig](unmarshal, NewArtifactsConfigFromSource)
 
-	if err == nil {
-		// Input was entirely in short form
-		*rc = make(RequirementsConfig, len(shorthand))
-
-		for i, source := range shorthand {
-			(*rc)[i] = NewArtifactsConfigFromSource(source)
-		}
-
-		return nil
-	}
-
-	// We treat UnmarshalTypeError as a soft error. It means that some part of
-	// the input could not be matched to the target interface. Other errors
-	// indicate severly malformed input, so we will propigate the error.
-	if !IsUnmarshalTypeError(err) {
+	if err != nil {
 		return err
 	}
 
-	longhand := []ArtifactsConfig{}
-	err = json.Unmarshal(unmarshal, &longhand)
-
-	if err == nil {
-		// Input was entirely in long form
-		*rc = RequirementsConfig(longhand)
-
-		return nil
-	}
-
-	if !IsUnmarshalTypeError(err) {
-		return err
-	}
-
-	if len(shorthand) != len(longhand) {
-		return errors.New("mismatched unmarshal results")
-	}
-
-	// Input was mixed short and long form. Walk the short form results and
-	// turn any non-empty strings into ArtifactsConfig values in the same slot
-	// of the long form results.
-	for i, source := range shorthand {
-		if source != "" {
-			longhand[i] = NewArtifactsConfigFromSource(source)
-		}
-	}
-	*rc = RequirementsConfig(longhand)
-
+	*rc = rc2
 	return nil
 }

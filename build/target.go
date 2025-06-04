@@ -30,6 +30,9 @@ const (
 
 	labelVariant = "blubber.variant"
 	labelVersion = "blubber.version"
+
+	// LocalContextKeyword is the name used to identify the main build context
+	LocalContextKeyword = "local"
 )
 
 // Target is used during compilation to keep track of build arguments, the
@@ -269,18 +272,8 @@ func (target *Target) copy(sources []string, destination string, from string, op
 			target.Describef("%s {%s}%+v -> %+v", emojiImage, from, sources, destination),
 		)
 
-		// We're copying from some other state filesystem, either a variant
-		// dependency or an external image
-		if dep, ok := target.dependencies.Find(from); ok {
-			fromState = &dep.state
-		} else {
-			imgState := llb.Image(
-				from,
-				llb.Platform(target.Platform()),
-				target.Describef("%s %s", emojiExternal, from),
-			)
-			fromState = &imgState
-		}
+		namedCtxState := target.NamedContext(from)
+		fromState = &namedCtxState
 	}
 
 	// Default to using the client's main build context as the source
@@ -308,8 +301,8 @@ func (target *Target) copy(sources []string, destination string, from string, op
 }
 
 // Run executes the given command and arguments using the default shell
-func (target *Target) Run(command string, args ...string) error {
-	return target.RunAll(append([]string{command}, args...))
+func (target *Target) Run(command string, args []string, opts ...llb.RunOption) error {
+	return target.RunAll([][]string{append([]string{command}, args...)}, opts...)
 }
 
 // RunAll executes the given set of commands and arguments as shell commands
@@ -321,15 +314,15 @@ func (target *Target) Run(command string, args ...string) error {
 //
 // ## Example
 //
-//	target.RunAll(
-//			string{"chown -R %s:%s", "123", "321", "/dir"},
-//			[]string{"chmod", "0755", "/dir"},
-//	)
+//	target.RunAll([][]string{
+//	  []string{"chown -R %s:%s", "123", "321", "/dir"},
+//	  []string{"chmod", "0755", "/dir"},
+//	})
 //
 // Would append a single run operation that executes:
 //
 //	/bin/sh -c 'chown -R "123":"321" "/dir" && chmod "0755" "/dir"'
-func (target *Target) RunAll(runs ...[]string) error {
+func (target *Target) RunAll(runs [][]string, opts ...llb.RunOption) error {
 	commands := make([]string, len(runs))
 
 	for i, run := range runs {
@@ -353,11 +346,11 @@ func (target *Target) RunAll(runs ...[]string) error {
 		commands[i] = command
 	}
 
-	return target.RunShell(strings.Join(commands, " && "))
+	return target.RunShell(strings.Join(commands, " && "), opts...)
 }
 
 // RunShell runs the given command using /bin/sh
-func (target *Target) RunShell(command string) error {
+func (target *Target) RunShell(command string, opts ...llb.RunOption) error {
 	command = target.ExpandEnv(command)
 	var prompt string
 
@@ -367,10 +360,12 @@ func (target *Target) RunShell(command string) error {
 		prompt = fmt.Sprintf("@%s $", target.user)
 	}
 
-	return target.run(
+	run := append([]llb.RunOption{
 		llb.Args([]string{"/bin/sh", "-c", command}),
 		target.Describef("%s %s %s", emojiShell, prompt, command),
-	)
+	}, opts...)
+
+	return target.run(run...)
 }
 
 // ExpandEnv substitutes environment variable references in the given string
@@ -387,6 +382,34 @@ func (target *Target) ExpandEnv(subject string) string {
 
 		return ""
 	})
+}
+
+// NamedContext looks in the target's dependencies for an entry with the given
+// name and returns its [llb.State]. If no dependency with the given name is
+// found, the name is assumed to be an image ref. If the name is "local", the
+// main build context is used.
+//
+// TODO if a NamedContextResolver were implemented (similar to
+// [ContextResolver], we could delegate to that. This would allow the buildkit
+// gateway to in turn delegate to [dockerui.Client.NamedContext].
+func (target *Target) NamedContext(name string) llb.State {
+	if name == LocalContextKeyword {
+		mainCtx, err := target.BuildContext()
+		if err != nil {
+			return *mainCtx
+		}
+	}
+
+	dep, ok := target.dependencies.Find(name)
+	if ok {
+		return dep.state
+	}
+
+	return llb.Image(
+		name,
+		llb.Platform(target.Platform()),
+		target.Describef("%s %s", emojiExternal, name),
+	)
 }
 
 // Logf formats logging messages for this target

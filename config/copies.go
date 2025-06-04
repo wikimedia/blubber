@@ -8,7 +8,7 @@ import (
 
 // LocalArtifactKeyword defines a special keyword indicating
 // file/directory artifacts to be copied from the local build host context.
-const LocalArtifactKeyword = "local"
+const LocalArtifactKeyword = build.LocalContextKeyword
 
 // CopiesConfig holds configuration for which files to copy into the variant
 // from local and other variant sources.

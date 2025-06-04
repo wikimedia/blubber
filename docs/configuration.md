@@ -105,6 +105,65 @@ Base image on which the new image will be built; a list of available images can 
 
 Run an arbitrary build command.
 
+### caches
+`.builder.caches` _array&lt;object|string&gt;_
+
+Mount a number of caching filesystems that will persist between builds. Each cache mount should specify the a `destination` path, and optionally the level of `access` (`"shared"` by default) and a unique `id` (`destination` is used by default).
+
+Cache mounts are most useful in speeding up build processes that save downloaded files or compilation state in local directories.
+
+Example
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches:
+        - destination: "/var/cache/go"
+
+Example (shorthand and using an environment variable)
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches: [ "${GOCACHE}" ]
+```
+
+
+#### caches[]
+`.builder.caches[]` _string_
+
+#### caches[]
+`.builder.caches[]` _object_
+
+#### access
+`.builder.caches[].access` __
+
+Level of access between concurrent build processes. This depends on the underlying build process and what kind of locking it employs.
+
+ - A `shared` cache can be written to concurrently.
+
+ - A `private` cache ensures only one writer at a time and is non-blocking (a new filesystem is created for concurrent writers).
+
+ - A `locked` cache ensures only one writer at a time and will block other build processes until the first releases the lock.
+
+#### destination
+`.builder.caches[].destination` _string_
+
+Destination path in the build container where the cache filesystem will be mounted.
+
+#### id
+`.builder.caches[].id` _string_
+
+A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
+
 ### command
 `.builder.command` _array&lt;string&gt;_
 
@@ -112,6 +171,55 @@ Command and arguments of an arbitrary build command, for example `[make, build]`
 
 #### command[]
 `.builder.command[]` _string_
+
+### mounts
+`.builder.mounts` _array&lt;object|string&gt;_
+
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+
+Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
+
+Example
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts:
+        - from: foo
+          destination: /src/foo
+```
+
+Example (shorthand for mounting the local build context at `/src`)
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts: [ /src ]
+```
+
+
+#### mounts[]
+`.builder.mounts[]` _string_
+
+#### mounts[]
+`.builder.mounts[]` _object_
+
+#### destination
+`.builder.mounts[].destination` _string_
+
+Destination path in the build container where the root of the `from` filesystem will be mounted.
+
+#### from
+`.builder.mounts[].from` _string_
+
+Variant or image filesystem to mount. Set to `local` to mount the local build context.
+
+#### source
+`.builder.mounts[].source` _string_
+
+Path within the `from` filesystem to use as the root directory of the mount.
 
 ### requirements
 `.builder.requirements` _array&lt;object|string&gt;_
@@ -188,6 +296,65 @@ Multiple builders to be executed in an explicit order. You can specify any of th
 
 Run an arbitrary build command.
 
+#### caches
+`.builders[].custom.caches` _array&lt;object|string&gt;_
+
+Mount a number of caching filesystems that will persist between builds. Each cache mount should specify the a `destination` path, and optionally the level of `access` (`"shared"` by default) and a unique `id` (`destination` is used by default).
+
+Cache mounts are most useful in speeding up build processes that save downloaded files or compilation state in local directories.
+
+Example
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches:
+        - destination: "/var/cache/go"
+
+Example (shorthand and using an environment variable)
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches: [ "${GOCACHE}" ]
+```
+
+
+#### caches[]
+`.builders[].custom.caches[]` _string_
+
+#### caches[]
+`.builders[].custom.caches[]` _object_
+
+#### access
+`.builders[].custom.caches[].access` __
+
+Level of access between concurrent build processes. This depends on the underlying build process and what kind of locking it employs.
+
+ - A `shared` cache can be written to concurrently.
+
+ - A `private` cache ensures only one writer at a time and is non-blocking (a new filesystem is created for concurrent writers).
+
+ - A `locked` cache ensures only one writer at a time and will block other build processes until the first releases the lock.
+
+#### destination
+`.builders[].custom.caches[].destination` _string_
+
+Destination path in the build container where the cache filesystem will be mounted.
+
+#### id
+`.builders[].custom.caches[].id` _string_
+
+A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
+
 #### command
 `.builders[].custom.command` _array&lt;string&gt;_
 
@@ -195,6 +362,55 @@ Command and arguments of an arbitrary build command, for example `[make, build]`
 
 #### command[]
 `.builders[].custom.command[]` _string_
+
+#### mounts
+`.builders[].custom.mounts` _array&lt;object|string&gt;_
+
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+
+Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
+
+Example
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts:
+        - from: foo
+          destination: /src/foo
+```
+
+Example (shorthand for mounting the local build context at `/src`)
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts: [ /src ]
+```
+
+
+#### mounts[]
+`.builders[].custom.mounts[]` _string_
+
+#### mounts[]
+`.builders[].custom.mounts[]` _object_
+
+#### destination
+`.builders[].custom.mounts[].destination` _string_
+
+Destination path in the build container where the root of the `from` filesystem will be mounted.
+
+#### from
+`.builders[].custom.mounts[].from` _string_
+
+Variant or image filesystem to mount. Set to `local` to mount the local build context.
+
+#### source
+`.builders[].custom.mounts[].source` _string_
+
+Path within the `from` filesystem to use as the root directory of the mount.
 
 #### requirements
 `.builders[].custom.requirements` _array&lt;object|string&gt;_
@@ -932,6 +1148,65 @@ Base image on which the new image will be built; a list of available images can 
 
 Run an arbitrary build command.
 
+#### caches
+`.variants.*.builder.caches` _array&lt;object|string&gt;_
+
+Mount a number of caching filesystems that will persist between builds. Each cache mount should specify the a `destination` path, and optionally the level of `access` (`"shared"` by default) and a unique `id` (`destination` is used by default).
+
+Cache mounts are most useful in speeding up build processes that save downloaded files or compilation state in local directories.
+
+Example
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches:
+        - destination: "/var/cache/go"
+
+Example (shorthand and using an environment variable)
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches: [ "${GOCACHE}" ]
+```
+
+
+#### caches[]
+`.variants.*.builder.caches[]` _string_
+
+#### caches[]
+`.variants.*.builder.caches[]` _object_
+
+#### access
+`.variants.*.builder.caches[].access` __
+
+Level of access between concurrent build processes. This depends on the underlying build process and what kind of locking it employs.
+
+ - A `shared` cache can be written to concurrently.
+
+ - A `private` cache ensures only one writer at a time and is non-blocking (a new filesystem is created for concurrent writers).
+
+ - A `locked` cache ensures only one writer at a time and will block other build processes until the first releases the lock.
+
+#### destination
+`.variants.*.builder.caches[].destination` _string_
+
+Destination path in the build container where the cache filesystem will be mounted.
+
+#### id
+`.variants.*.builder.caches[].id` _string_
+
+A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
+
 #### command
 `.variants.*.builder.command` _array&lt;string&gt;_
 
@@ -939,6 +1214,55 @@ Command and arguments of an arbitrary build command, for example `[make, build]`
 
 #### command[]
 `.variants.*.builder.command[]` _string_
+
+#### mounts
+`.variants.*.builder.mounts` _array&lt;object|string&gt;_
+
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+
+Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
+
+Example
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts:
+        - from: foo
+          destination: /src/foo
+```
+
+Example (shorthand for mounting the local build context at `/src`)
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts: [ /src ]
+```
+
+
+#### mounts[]
+`.variants.*.builder.mounts[]` _string_
+
+#### mounts[]
+`.variants.*.builder.mounts[]` _object_
+
+#### destination
+`.variants.*.builder.mounts[].destination` _string_
+
+Destination path in the build container where the root of the `from` filesystem will be mounted.
+
+#### from
+`.variants.*.builder.mounts[].from` _string_
+
+Variant or image filesystem to mount. Set to `local` to mount the local build context.
+
+#### source
+`.variants.*.builder.mounts[].source` _string_
+
+Path within the `from` filesystem to use as the root directory of the mount.
 
 #### requirements
 `.variants.*.builder.requirements` _array&lt;object|string&gt;_
@@ -1015,6 +1339,65 @@ Multiple builders to be executed in an explicit order. You can specify any of th
 
 Run an arbitrary build command.
 
+#### caches
+`.variants.*.builders[].custom.caches` _array&lt;object|string&gt;_
+
+Mount a number of caching filesystems that will persist between builds. Each cache mount should specify the a `destination` path, and optionally the level of `access` (`"shared"` by default) and a unique `id` (`destination` is used by default).
+
+Cache mounts are most useful in speeding up build processes that save downloaded files or compilation state in local directories.
+
+Example
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches:
+        - destination: "/var/cache/go"
+
+Example (shorthand and using an environment variable)
+
+```yaml
+runs:
+  environment: { GOCACHE: "/var/cache/go" }
+builders:
+  - custom:
+      command: "go build"
+      requirements: [.]
+      caches: [ "${GOCACHE}" ]
+```
+
+
+#### caches[]
+`.variants.*.builders[].custom.caches[]` _string_
+
+#### caches[]
+`.variants.*.builders[].custom.caches[]` _object_
+
+#### access
+`.variants.*.builders[].custom.caches[].access` __
+
+Level of access between concurrent build processes. This depends on the underlying build process and what kind of locking it employs.
+
+ - A `shared` cache can be written to concurrently.
+
+ - A `private` cache ensures only one writer at a time and is non-blocking (a new filesystem is created for concurrent writers).
+
+ - A `locked` cache ensures only one writer at a time and will block other build processes until the first releases the lock.
+
+#### destination
+`.variants.*.builders[].custom.caches[].destination` _string_
+
+Destination path in the build container where the cache filesystem will be mounted.
+
+#### id
+`.variants.*.builders[].custom.caches[].id` _string_
+
+A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
+
 #### command
 `.variants.*.builders[].custom.command` _array&lt;string&gt;_
 
@@ -1022,6 +1405,55 @@ Command and arguments of an arbitrary build command, for example `[make, build]`
 
 #### command[]
 `.variants.*.builders[].custom.command[]` _string_
+
+#### mounts
+`.variants.*.builders[].custom.mounts` _array&lt;object|string&gt;_
+
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+
+Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
+
+Example
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts:
+        - from: foo
+          destination: /src/foo
+```
+
+Example (shorthand for mounting the local build context at `/src`)
+
+```yaml
+builders:
+  - custom:
+      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      mounts: [ /src ]
+```
+
+
+#### mounts[]
+`.variants.*.builders[].custom.mounts[]` _string_
+
+#### mounts[]
+`.variants.*.builders[].custom.mounts[]` _object_
+
+#### destination
+`.variants.*.builders[].custom.mounts[].destination` _string_
+
+Destination path in the build container where the root of the `from` filesystem will be mounted.
+
+#### from
+`.variants.*.builders[].custom.mounts[].from` _string_
+
+Variant or image filesystem to mount. Set to `local` to mount the local build context.
+
+#### source
+`.variants.*.builders[].custom.mounts[].source` _string_
+
+Path within the `from` filesystem to use as the root directory of the mount.
 
 #### requirements
 `.variants.*.builders[].custom.requirements` _array&lt;object|string&gt;_

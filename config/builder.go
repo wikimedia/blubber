@@ -9,6 +9,8 @@ import (
 type BuilderConfig struct {
 	Command      []string           `json:"command"`
 	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
+	Mounts       MountsConfig       `json:"mounts" validate:"omitempty,unique,dive"`
+	Caches       CachesConfig       `json:"caches" validate:"omitempty,unique,dive"`
 }
 
 // Dependencies returns variant dependencies.
@@ -25,6 +27,14 @@ func (bc *BuilderConfig) Merge(bc2 BuilderConfig) {
 
 	if bc2.Requirements != nil {
 		bc.Requirements = bc2.Requirements
+	}
+
+	if bc2.Mounts != nil {
+		bc.Mounts = bc2.Mounts
+	}
+
+	if bc2.Caches != nil {
+		bc.Caches = bc2.Caches
 	}
 }
 
@@ -52,7 +62,13 @@ func (bc BuilderConfig) InstructionsForPhase(phase build.Phase) []build.Instruct
 			run.Arguments = bc.Command[1:]
 		}
 
-		instructions = append(instructions, run)
+		instructions = append(instructions, build.RunAllWithOptions{
+			Runs: []build.Run{run},
+			Options: append(
+				bc.Mounts.RunOptions(),
+				bc.Caches.RunOptions()...,
+			),
+		})
 	}
 
 	return instructions

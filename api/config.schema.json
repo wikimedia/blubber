@@ -278,6 +278,12 @@
         },
         "requirements" : {
           "$ref" : "#/$defs/v4.Requirements"
+        },
+        "mounts": {
+          "$ref" : "#/$defs/v4.Mounts"
+        },
+        "caches": {
+          "$ref" : "#/$defs/v4.Caches"
         }
       }
     },
@@ -328,6 +334,56 @@
           }
         }
       }
+    },
+    "v4.Mounts" : {
+      "type" : "array",
+      "description" : "Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `\"local\"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.\n\nMounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.\n\nExample\n\n```yaml\nbuilders:\n  - custom:\n      command: [ make, SRC1=/src/local, SRC2=/src/foo ]\n      mounts:\n        - from: foo\n          destination: /src/foo\n```\n\nExample (shorthand for mounting the local build context at `/src`)\n\n```yaml\nbuilders:\n  - custom:\n      command: [ make, SRC1=/src/local, SRC2=/src/foo ]\n      mounts: [ /src ]\n```",
+      "items" : {
+        "oneOf": [ {
+          "type" : "string"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "from": {
+              "type" : "string",
+              "description" : "Variant or image filesystem to mount. Set to `local` to mount the local build context."
+            },
+            "destination" : {
+              "type" : "string",
+              "description" : "Destination path in the build container where the root of the `from` filesystem will be mounted."
+            },
+            "source" : {
+              "type" : "string",
+              "description" : "Path within the `from` filesystem to use as the root directory of the mount."
+            }
+          }
+        } ]
+      }
+    },
+    "v4.Caches" : {
+      "type" : "array",
+      "description" : "Mount a number of caching filesystems that will persist between builds. Each cache mount should specify the a `destination` path, and optionally the level of `access` (`\"shared\"` by default) and a unique `id` (`destination` is used by default).\n\nCache mounts are most useful in speeding up build processes that save downloaded files or compilation state in local directories.\n\nExample\n\n```yaml\nruns:\n  environment: { GOCACHE: \"/var/cache/go\" }\nbuilders:\n  - custom:\n      command: \"go build\"\n      requirements: [.]\n      caches:\n        - destination: \"/var/cache/go\"\n\nExample (shorthand and using an environment variable)\n\n```yaml\nruns:\n  environment: { GOCACHE: \"/var/cache/go\" }\nbuilders:\n  - custom:\n      command: \"go build\"\n      requirements: [.]\n      caches: [ \"${GOCACHE}\" ]\n```",
+      "items" : {
+        "oneOf" : [ {
+          "type" : "string"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "destination" : {
+              "type" : "string",
+              "description" : "Destination path in the build container where the cache filesystem will be mounted."
+            },
+            "id" : {
+              "type" : "string",
+              "description" : "A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default."
+            },
+            "access" : {
+              "enum" : [ "shared", "locked", "private" ],
+              "description" : "Level of access between concurrent build processes. This depends on the underlying build process and what kind of locking it employs.\n\n - A `shared` cache can be written to concurrently.\n\n - A `private` cache ensures only one writer at a time and is non-blocking (a new filesystem is created for concurrent writers).\n\n - A `locked` cache ensures only one writer at a time and will block other build processes until the first releases the lock."
+            }
+          }
+        } ]
+      } 
     },
     "v4.Config" : {
       "allOf" : [ {
