@@ -81,6 +81,22 @@ func TestRunAll(t *testing.T) {
 	)
 }
 
+func TestRunScript(t *testing.T) {
+	_, req := testtarget.Compile(t,
+		testtarget.NewTargets("foo"),
+		build.RunScript{
+			Script: []byte("#!/bin/bash\nfoo\nbar"),
+		},
+	)
+
+	_, eops := req.ContainsNExecOps(1)
+
+	req.Equal(
+		[]string{"/1a217f52204c3dede7849be111c38b85167c7d4fdab7c886668258fb94d96fbd/script"},
+		eops[0].Exec.Meta.Args,
+	)
+}
+
 func TestCopy(t *testing.T) {
 	sources := []string{"source1", "source2"}
 	exclude := []string{"**/*.bak"}

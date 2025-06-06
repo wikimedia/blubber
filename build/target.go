@@ -1,11 +1,15 @@
 package build
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"strings"
 	"unicode/utf8"
 
@@ -216,6 +220,23 @@ func (target *Target) Describef(msg string, v ...interface{}) llb.ConstraintsOpt
 	return llb.WithCustomName(target.Logf(msg, v...))
 }
 
+// DescribeExecf returns an llb.ConstraintsOpt that describes a execution
+// operation to the end user.
+func (target *Target) DescribeExecf(msg string, values ...interface{}) llb.ConstraintsOpt {
+	var prompt string
+
+	if target.user == "root" || target.user == "0" {
+		prompt = "#"
+	} else {
+		prompt = fmt.Sprintf("@%s $", target.user)
+	}
+
+	v := append([]interface{}{}, emojiShell, prompt)
+	v = append(v, values...)
+
+	return target.Describef("%s %s "+msg, v...)
+}
+
 // BuildContext returns the llb.State for the main build context
 func (target *Target) BuildContext() (*llb.State, error) {
 	return target.Options.BuildContext(context.TODO())
@@ -359,20 +380,47 @@ func (target *Target) RunAll(runs [][]string, opts ...llb.RunOption) error {
 	return target.RunShell(strings.Join(commands, " && "), opts...)
 }
 
+// RunScript runs the given script by creating it in a scratch filesystem and
+// mounting that filesystem during execution. A default `#!/bin/sh` line is
+// prepended if the script does not contain its own shebang.
+func (target *Target) RunScript(script []byte, opts ...llb.RunOption) error {
+	if !bytes.HasPrefix(script, []byte(`#!`)) {
+		script = append([]byte("#!/bin/sh\n"), script...)
+	}
+
+	sha := sha256.New()
+	sha.Write(script)
+	digest := hex.EncodeToString(sha.Sum(nil))
+	scriptName := "script"
+	scriptDir := path.Join("/", digest)
+	scriptPath := path.Join(scriptDir, scriptName)
+
+	scriptState := llb.Scratch().File(
+		llb.Mkfile(scriptName, os.FileMode(0o0555), script),
+		target.Describef("%s [script@%s]", emojiFile, digest[0:8]),
+	)
+
+	opts = append(
+		opts,
+		llb.Args([]string{scriptPath}),
+		llb.AddMount(
+			scriptDir,
+			scriptState,
+			llb.Readonly,
+		),
+		target.DescribeExecf("[script@%s]", digest[0:8]),
+	)
+
+	return target.run(opts...)
+}
+
 // RunShell runs the given command using /bin/sh
 func (target *Target) RunShell(command string, opts ...llb.RunOption) error {
 	command = target.ExpandEnv(command)
-	var prompt string
-
-	if target.user == "root" || target.user == "0" {
-		prompt = "#"
-	} else {
-		prompt = fmt.Sprintf("@%s $", target.user)
-	}
 
 	run := append([]llb.RunOption{
 		llb.Args([]string{"/bin/sh", "-c", command}),
-		target.Describef("%s %s %s", emojiShell, prompt, command),
+		target.DescribeExecf("%s", command),
 	}, opts...)
 
 	return target.run(run...)

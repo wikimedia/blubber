@@ -169,13 +169,23 @@ Destination path in the build container where the cache filesystem will be mount
 
 A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
 
+
 ### command
 `.builder.command` _array&lt;string&gt;_
 
 Command and arguments of an arbitrary build command, for example `[make, build]`.
 
+Only one of `script` or `command` may be used for a given builder.
+
 #### command[]
 `.builder.command[]` _string_
+
+### command
+`.builder.command` _string_
+
+Arbitrary build command, for example `"make build"`.
+
+Only one of `script` or `command` may be used for a given builder.
 
 ### mounts
 `.builder.mounts` _array&lt;object|string&gt;_
@@ -287,6 +297,27 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 
 Path of files/directories to copy.
 
+### script
+`.builder.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
+
+Only one of `script` or `command` may be used for a given builder.
+
 ## builders
 `.builders` _array&lt;object&gt;_
 
@@ -360,13 +391,23 @@ Destination path in the build container where the cache filesystem will be mount
 
 A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
 
+
 #### command
 `.builders[].custom.command` _array&lt;string&gt;_
 
 Command and arguments of an arbitrary build command, for example `[make, build]`.
 
+Only one of `script` or `command` may be used for a given builder.
+
 #### command[]
 `.builders[].custom.command[]` _string_
+
+#### command
+`.builders[].custom.command` _string_
+
+Arbitrary build command, for example `"make build"`.
+
+Only one of `script` or `command` may be used for a given builder.
 
 #### mounts
 `.builders[].custom.mounts` _array&lt;object|string&gt;_
@@ -477,6 +518,27 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 `.builders[].custom.requirements[].source` _string_
 
 Path of files/directories to copy.
+
+#### script
+`.builders[].custom.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
+
+Only one of `script` or `command` may be used for a given builder.
 
 ### builders[]
 `.builders[]` _object_
@@ -1217,13 +1279,23 @@ Destination path in the build container where the cache filesystem will be mount
 
 A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
 
+
 #### command
 `.variants.*.builder.command` _array&lt;string&gt;_
 
 Command and arguments of an arbitrary build command, for example `[make, build]`.
 
+Only one of `script` or `command` may be used for a given builder.
+
 #### command[]
 `.variants.*.builder.command[]` _string_
+
+#### command
+`.variants.*.builder.command` _string_
+
+Arbitrary build command, for example `"make build"`.
+
+Only one of `script` or `command` may be used for a given builder.
 
 #### mounts
 `.variants.*.builder.mounts` _array&lt;object|string&gt;_
@@ -1335,6 +1407,27 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 
 Path of files/directories to copy.
 
+#### script
+`.variants.*.builder.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
+
+Only one of `script` or `command` may be used for a given builder.
+
 #### builders
 `.variants.*.builders` _array&lt;object&gt;_
 
@@ -1408,13 +1501,23 @@ Destination path in the build container where the cache filesystem will be mount
 
 A unique ID used to persistent the cache filesystem between builds. The `destination` path is used by default.
 
+
 #### command
 `.variants.*.builders[].custom.command` _array&lt;string&gt;_
 
 Command and arguments of an arbitrary build command, for example `[make, build]`.
 
+Only one of `script` or `command` may be used for a given builder.
+
 #### command[]
 `.variants.*.builders[].custom.command[]` _string_
+
+#### command
+`.variants.*.builders[].custom.command` _string_
+
+Arbitrary build command, for example `"make build"`.
+
+Only one of `script` or `command` may be used for a given builder.
 
 #### mounts
 `.variants.*.builders[].custom.mounts` _array&lt;object|string&gt;_
@@ -1525,6 +1628,27 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 `.variants.*.builders[].custom.requirements[].source` _string_
 
 Path of files/directories to copy.
+
+#### script
+`.variants.*.builders[].custom.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
+
+Only one of `script` or `command` may be used for a given builder.
 
 #### builders[]
 `.variants.*.builders[]` _object_

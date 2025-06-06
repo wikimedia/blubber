@@ -1,13 +1,16 @@
 package config
 
 import (
+	"encoding/json"
+
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
 )
 
 // BuilderConfig contains configuration for the definition of an arbitrary
 // build command and the files required to successfully execute the command.
 type BuilderConfig struct {
-	Command      []string           `json:"command"`
+	Command      BuilderCommand     `json:"command" validate:"notallowedwith=script"`
+	Script       string             `json:"script" validate:"notallowedwith=command"`
 	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 	Mounts       MountsConfig       `json:"mounts" validate:"omitempty,unique,dive"`
 	Caches       CachesConfig       `json:"caches" validate:"omitempty,unique,dive"`
@@ -26,6 +29,10 @@ func (bc BuilderConfig) Dependencies() []string {
 func (bc *BuilderConfig) Merge(bc2 BuilderConfig) {
 	if bc2.Command != nil {
 		bc.Command = bc2.Command
+	}
+
+	if bc2.Script != "" {
+		bc.Script = bc2.Script
 	}
 
 	if bc2.Requirements != nil {
@@ -49,30 +56,58 @@ func (bc *BuilderConfig) Merge(bc2 BuilderConfig) {
 // Creates directories for requirements files, copies in requirements files,
 // and runs the builder command.
 func (bc BuilderConfig) InstructionsForPhase(phase build.Phase) []build.Instruction {
-	if len(bc.Command) == 0 {
-		// Don't do anything if we don't have a command. We don't want folks
-		// to abuse this config for requirements side-effects.
-		return []build.Instruction{}
-	}
-
 	instructions := bc.Requirements.InstructionsForPhase(phase)
 
 	switch phase {
 	case build.PhasePreInstall:
-		run := build.Run{Command: bc.Command[0]}
+		opts := append(
+			bc.Mounts.RunOptions(),
+			bc.Caches.RunOptions()...,
+		)
 
-		if len(bc.Command) > 1 {
-			run.Arguments = bc.Command[1:]
+		if bc.Script != "" {
+			instructions = append(instructions, build.RunScript{
+				Script:  []byte(bc.Script),
+				Options: opts,
+			})
+		} else if len(bc.Command) > 0 {
+			run := build.Run{Command: bc.Command[0]}
+			if len(bc.Command) > 1 {
+				run.Arguments = bc.Command[1:]
+			}
+
+			instructions = append(instructions, build.RunAllWithOptions{
+				Runs:    []build.Run{run},
+				Options: opts,
+			})
 		}
 
-		instructions = append(instructions, build.RunAllWithOptions{
-			Runs: []build.Run{run},
-			Options: append(
-				bc.Mounts.RunOptions(),
-				bc.Caches.RunOptions()...,
-			),
-		})
 	}
 
 	return instructions
+}
+
+// BuilderCommand represents a single builder command to run.
+type BuilderCommand []string
+
+// UnmarshalJSON parses a shell command from either `["cmd", "arg"]` or `"cmd
+// arg"` form.
+func (bc *BuilderCommand) UnmarshalJSON(data []byte) error {
+	var cmdString string
+
+	err := json.Unmarshal(data, &cmdString)
+	if err == nil && cmdString != "" {
+		(*bc) = BuilderCommand([]string{cmdString})
+		return nil
+	}
+
+	var cmd []string
+	err = json.Unmarshal(data, &cmd)
+	if err != nil {
+		return err
+	}
+
+	(*bc) = BuilderCommand(cmd)
+
+	return nil
 }

@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"text/template"
 
 	"github.com/distribution/distribution/reference"
@@ -348,17 +349,28 @@ func uniqueByEquality[T equality[E], E any](_ context.Context, fl validator.Fiel
 // registered for structs and doesn't work for fields that contain one (gets ignored)
 func notAllowedWith(_ context.Context, fl validator.FieldLevel) bool {
 	field := fl.Field()
+
 	if isNullable(field) && field.IsNil() {
 		return true
 	}
-	if (field.Kind() == reflect.Array || field.Kind() == reflect.Slice) && field.Len() == 0 {
+
+	switch field.Kind() {
+	case reflect.Array, reflect.Slice, reflect.String:
+		if field.Len() == 0 {
+			return true
+		}
+	}
+
+	if field.Kind() == reflect.String && field.Len() == 0 {
 		return true
 	}
 
 	disallowingFields := strings.Fields(fl.Param())
 	for _, disallowingField := range disallowingFields {
-		if !isZeroValue(fl.Parent().FieldByName(disallowingField)) {
-			return false
+		if otherField, found := fieldByJSONName(fl.Parent(), disallowingField); found {
+			if !isZeroValue(otherField) {
+				return false
+			}
 		}
 	}
 
@@ -380,4 +392,34 @@ func isZeroValue(v reflect.Value) bool {
 
 func resolveJSONTagName(field reflect.StructField) string {
 	return strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
+}
+
+var typeToJSONNameToFieldName = make(map[reflect.Type]map[string]string)
+var fieldByJSONNameMu sync.Mutex
+
+func fieldByJSONName(v reflect.Value, jsonName string) (reflect.Value, bool) {
+	t := v.Type()
+
+	fieldByJSONNameMu.Lock()
+	defer fieldByJSONNameMu.Unlock()
+
+	if jsonNameToFieldName := typeToJSONNameToFieldName[t]; jsonNameToFieldName != nil {
+		if fieldName, ok := jsonNameToFieldName[jsonName]; ok {
+			return v.FieldByName(fieldName), true
+		}
+
+		typeToJSONNameToFieldName[t][jsonName] = ""
+	} else {
+		typeToJSONNameToFieldName[t] = make(map[string]string)
+	}
+
+	for _, field := range reflect.VisibleFields(t) {
+		name := resolveJSONTagName(field)
+		typeToJSONNameToFieldName[t][name] = field.Name
+		if name == jsonName {
+			return v.FieldByName(field.Name), true
+		}
+	}
+
+	return reflect.Value{}, false
 }

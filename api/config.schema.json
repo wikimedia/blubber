@@ -274,11 +274,20 @@
       "description" : "Run an arbitrary build command.",
       "properties" : {
         "command" : {
-          "type" : "array",
-          "description" : "Command and arguments of an arbitrary build command, for example `[make, build]`.",
-          "items" : {
-            "type" : "string"
-          }
+          "oneOf" : [ {
+            "type" : "array",
+            "description" : "Command and arguments of an arbitrary build command, for example `[make, build]`.\n\nOnly one of `script` or `command` may be used for a given builder.",
+            "items" : {
+              "type" : "string"
+            }
+          }, {
+            "type" : "string",
+            "description" : "Arbitrary build command, for example `\"make build\"`.\n\nOnly one of `script` or `command` may be used for a given builder."
+          } ]
+        },
+        "script" : {
+          "type" : "string",
+          "description" : "Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.\n\nNote that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.\n\nExample\n\n```yaml\nbuilder:\n  requirements: [targets]\n  script: |\n    #!/bin/bash\n    for target in $(cat targets); do\n      make $target\n    done\n```\n\nOnly one of `script` or `command` may be used for a given builder."
         },
         "requirements" : {
           "$ref" : "#/$defs/v4.Requirements"

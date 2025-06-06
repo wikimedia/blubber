@@ -19,7 +19,7 @@ Feature: Builders
               - libc6-dev
           builder:
             requirements: [main.c]
-            command: [gcc, -o, hello, main.c]
+            command: "gcc -o hello main.c"
           entrypoint: [./hello]
       """
     When you build the "build" variant
@@ -38,17 +38,53 @@ Feature: Builders
           builders:
             - custom:
                 requirements: [go.mod, go.sum]
-                command: [go, mod, download]
+                command: "go mod download"
             - custom:
                 requirements: [main.go]
-                command: [go, build, .]
+                command: "go build ."
           entrypoint: [./hello-world-go]
       """
     When you build the "build" variant
     Then the image will have the following files in the default working directory
       | hello-world-go |
 
-  @set1
+  @set1 @debug
+  Scenario: Defining inline builder scripts
+    Given "examples/hello-world-go" as a working directory
+    And this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        build:
+          base: golang:1.18
+          runs:
+            environment:
+              CGO_ENABLED: "0"
+          builders:
+            - custom:
+                requirements: [go.mod, go.sum]
+                command: "go mod download"
+            - custom:
+                requirements: [main.go]
+                script: |
+                  #!/bin/bash
+                  if ! [[ "$CGO_ENABLED" == "0" ]]; then
+                    echo "you must set CGO_ENABLED=0 for this build"
+                    exit 1
+                  fi
+                  go build $(go list)
+        application:
+          copies:
+            - from: build
+              source: ./hello-world-go
+              destination: /hello
+          entrypoint: [/hello]
+      """
+    When you build the "application" variant
+    Then the image will have the following files in "/"
+      | hello |
+
+  @set2
   Scenario: Excluding files from requirements by glob pattern
     Given "examples/hello-world-c" as a working directory
     And this "blubber.yaml"
@@ -65,7 +101,7 @@ Feature: Builders
             requirements:
               - from: local
                 exclude: ["*.md"]
-            command: [gcc, -o, hello, main.c]
+            command: "gcc -o hello main.c"
           entrypoint: [./hello]
       """
     When you build the "build" variant
@@ -74,7 +110,7 @@ Feature: Builders
     Then the image will not have the following files in the default working directory
       | README.md |
 
-  @set2
+  @set3
   Scenario: Using caches to speed up builds
     Given "examples/hello-world-go" as a working directory
     And this "blubber.yaml"
@@ -89,11 +125,11 @@ Feature: Builders
           builders:
             - custom:
                 requirements: [ go.mod, go.sum ]
-                command: [ go, mod, download ]
+                command: "go mod download"
                 caches: [ "${GOPATH}/pkg/mod" ]
             - custom:
                 requirements: [main.go]
-                command: [go, build, .]
+                command: "go build ."
                 caches: [ "${GOCACHE}" ]
           entrypoint: [./hello-world-go]
       """
@@ -101,7 +137,7 @@ Feature: Builders
     Then the image will have the following files in the default working directory
       | hello-world-go |
 
-  @set3
+  @set4
   Scenario: Using a mount to read files from another variant
     Given "examples/web-app" as a working directory
     And this "blubber.yaml"
@@ -119,7 +155,7 @@ Feature: Builders
                 requirements:
                   - webpack.config.js
                   - ./src/
-                command: [npm, run, build]
+                command: "npm run build"
         build:
           base: golang:1.23
           runs:
@@ -129,7 +165,7 @@ Feature: Builders
           builders:
             - custom:
                 requirements: [go.mod, main.go]
-                command: [go, build]
+                command: "go build"
                 caches: [ "${GOCACHE}" ]
                 mounts:
                   - from: assets

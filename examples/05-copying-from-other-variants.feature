@@ -20,10 +20,10 @@ Feature: Copying from other variants
           builders:
             - custom:
                 requirements: [go.mod, go.sum]
-                command: [go, mod, download]
+                command: "go mod download"
             - custom:
                 requirements: [main.go]
-                command: [go, build, .]
+                command: "go build ."
         production:
           base: ~ # Go binaries are statically linked, so we can even use a scratch image here
           copies:

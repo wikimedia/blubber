@@ -9,7 +9,7 @@ import (
 type CommonConfig struct {
 	Base       string         `json:"base" validate:"omitempty,imageref"`                                                                // name/path to base image
 	Apt        AptConfig      `json:"apt"`                                                                                               // APT related
-	Builders   BuildersConfig `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=Node Php Python Builder"` // Builders related
+	Builders   BuildersConfig `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=node php python builder"` // Builders related
 	Node       NodeConfig     `json:"node"`                                                                                              // Node related
 	Php        PhpConfig      `json:"php"`                                                                                               // Php related
 	Python     PythonConfig   `json:"python"`                                                                                            // Python related
