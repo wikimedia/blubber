@@ -8,6 +8,7 @@ import (
 // build command and the files required to successfully execute the command.
 type BuilderConfig struct {
 	Command      []string           `json:"command"`
+	Script       string             `json:"script"`
 	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 	Mounts       MountsConfig       `json:"mounts" validate:"omitempty,unique,dive"`
 	Caches       CachesConfig       `json:"caches" validate:"omitempty,unique,dive"`
@@ -26,6 +27,10 @@ func (bc BuilderConfig) Dependencies() []string {
 func (bc *BuilderConfig) Merge(bc2 BuilderConfig) {
 	if bc2.Command != nil {
 		bc.Command = bc2.Command
+	}
+
+	if bc2.Script != "" {
+		bc.Script = bc2.Script
 	}
 
 	if bc2.Requirements != nil {
@@ -49,28 +54,35 @@ func (bc *BuilderConfig) Merge(bc2 BuilderConfig) {
 // Creates directories for requirements files, copies in requirements files,
 // and runs the builder command.
 func (bc BuilderConfig) InstructionsForPhase(phase build.Phase) []build.Instruction {
-	if len(bc.Command) == 0 {
-		// Don't do anything if we don't have a command. We don't want folks
-		// to abuse this config for requirements side-effects.
-		return []build.Instruction{}
-	}
-
 	instructions := bc.Requirements.InstructionsForPhase(phase)
 
 	switch phase {
 	case build.PhasePreInstall:
-		run := build.Run{Command: bc.Command[0]}
+		opts := append(
+			bc.Mounts.RunOptions(),
+			bc.Caches.RunOptions()...,
+		)
 
-		if len(bc.Command) > 1 {
-			run.Arguments = bc.Command[1:]
+		run := build.Run{}
+
+		if bc.Script != "" {
+			script := bc.Script
+
+			if !shebangRegexp.MatchString(script) {
+				script = "#!/bin/sh"
+			}
+
+			run = build.Run
+		} else {
+			run.Command = bc.Command[0]
+			if len(bc.Command) > 1 {
+				run.Arguments = bc.Command[1:]
+			}
 		}
 
 		instructions = append(instructions, build.RunAllWithOptions{
-			Runs: []build.Run{run},
-			Options: append(
-				bc.Mounts.RunOptions(),
-				bc.Caches.RunOptions()...,
-			),
+			Runs:    []build.Run{run},
+			Options: opts,
 		})
 	}
 

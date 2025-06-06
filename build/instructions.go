@@ -97,6 +97,17 @@ func (ra RunAllWithOptions) Compile(target *Target) error {
 	return target.RunAll(runs, opts...)
 }
 
+// RunScript is a concrete build instruction that executes the given script.
+type RunScript struct {
+	Script  []byte
+	Options []RunOption
+}
+
+// Compile to the given [Target]
+func (rs RunScript) Compile(target *Target) error {
+	return target.Run
+}
+
 // Copy is a concrete build instruction for copying source files/directories
 // from the build host into the image.
 type Copy struct {

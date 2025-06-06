@@ -1,6 +1,7 @@
 package build
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -357,6 +358,17 @@ func (target *Target) RunAll(runs [][]string, opts ...llb.RunOption) error {
 	}
 
 	return target.RunShell(strings.Join(commands, " && "), opts...)
+}
+
+// RunScript runs the given script by creating it in a scratch filesystem and
+// mounting that filesystem during execution. A default `#!/bin/sh` line is
+// prepended if the script does not contain its own shebang.
+func (target *Target) RunScript(script []byte, opts ...llb.RunOption) error {
+	if !bytes.HasPrefix(script, []byte(`#!`)) {
+		script = append([]byte("#!/bin/sh\n"), script...)
+	}
+
+	scriptState := llb.Scratch().File(llb.Mkfile())
 }
 
 // RunShell runs the given command using /bin/sh
