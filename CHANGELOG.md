@@ -1,8 +1,27 @@
 
+<a name="v1.2.0"></a>
+## [v1.2.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.1.0...v1.2.0)
+
+> 2025-05-29
+
+### APT
+
+* Support `signed-by` field in apt configuration
+
+### Artifacts
+
+* Support `exclude` patterns for copies/requirements
+
+### Builder
+
+* Ensure variant dependencies are resolved from `mounts`
+* Support `mounts` and `caches`
+
+
 <a name="v1.1.0"></a>
 ## [v1.1.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.0.1...v1.1.0)
 
-> 2025-02-26
+> 2025-02-27
 
 ### BuildKit
 
