@@ -15,7 +15,10 @@ type BuilderConfig struct {
 
 // Dependencies returns variant dependencies.
 func (bc BuilderConfig) Dependencies() []string {
-	return bc.Requirements.Dependencies()
+	return append(
+		bc.Requirements.Dependencies(),
+		bc.Mounts.Dependencies()...,
+	)
 }
 
 // Merge takes another BuilderConfig and merges its fields into this one's,

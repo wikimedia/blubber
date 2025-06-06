@@ -1,9 +1,22 @@
 package config
 
-import "gitlab.wikimedia.org/repos/releng/blubber/build"
+import (
+	"gitlab.wikimedia.org/repos/releng/blubber/build"
+)
 
 // MountsConfig holds a number of [MountConfig] values.
 type MountsConfig []MountConfig
+
+// Dependencies returns the variant dependencies of the mounts.
+func (mcs MountsConfig) Dependencies() []string {
+	deps := []string{}
+
+	for i := range mcs {
+		deps = append(deps, mcs[i].Dependencies()...)
+	}
+
+	return deps
+}
 
 // RunOptions returns a number of [build.RunOption] for the mounts.
 func (mcs MountsConfig) RunOptions() []build.RunOption {
@@ -52,4 +65,15 @@ func (mc MountConfig) RunOptions() []build.RunOption {
 			Readonly:    true,
 		},
 	}
+}
+
+// Dependencies returns the variant dependencies of the mount.
+func (mc MountConfig) Dependencies() []string {
+	// Since a mount can reference things other than another variant, only
+	// return references that match the variant name validation regexp.
+	if !variantNameRegexp.MatchString(mc.From) {
+		return []string{}
+	}
+
+	return []string{mc.From}
 }

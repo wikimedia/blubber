@@ -100,3 +100,49 @@ Feature: Builders
     When you build the "build" variant
     Then the image will have the following files in the default working directory
       | hello-world-go |
+
+  @set3
+  Scenario: Using a mount to read files from another variant
+    Given "examples/web-app" as a working directory
+    And this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        assets:
+          base: node:22-bookworm
+          lives:
+            in: /src
+          builders:
+            - node:
+                requirements: [package.json, package-lock.json]
+            - custom:
+                requirements:
+                  - webpack.config.js
+                  - ./src/
+                command: [npm, run, build]
+        build:
+          base: golang:1.23
+          runs:
+            environment:
+              CGO_ENABLED: "0"
+              GOCACHE: /var/cache/go
+          builders:
+            - custom:
+                requirements: [go.mod, main.go]
+                command: [go, build]
+                caches: [ "${GOCACHE}" ]
+                mounts:
+                  - from: assets
+                    source: /src/dist
+                    destination: ./dist
+        webserver:
+          copies:
+            - from: build
+              source: ./web-app
+              destination: /usr/bin/web-app
+          entrypoint: [/usr/bin/web-app]
+      """
+    When you build the "webserver" variant
+    Then the image will have the following files in "/usr/bin"
+      | web-app |
+    And the image entrypoint will be "/usr/bin/web-app"
