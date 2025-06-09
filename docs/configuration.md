@@ -287,6 +287,25 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 
 Path of files/directories to copy.
 
+### script
+`.builder.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
+
 ## builders
 `.builders` _array&lt;object&gt;_
 
@@ -477,6 +496,25 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 `.builders[].custom.requirements[].source` _string_
 
 Path of files/directories to copy.
+
+#### script
+`.builders[].custom.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
 
 ### builders[]
 `.builders[]` _object_
@@ -1335,6 +1373,25 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 
 Path of files/directories to copy.
 
+#### script
+`.variants.*.builder.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
+
 #### builders
 `.variants.*.builders` _array&lt;object&gt;_
 
@@ -1525,6 +1582,25 @@ Variant from which to copy files. Set to `local` to copy build-context files tha
 `.variants.*.builders[].custom.requirements[].source` _string_
 
 Path of files/directories to copy.
+
+#### script
+`.variants.*.builders[].custom.script` _string_
+
+Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.
+
+Note that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.
+
+Example
+
+```yaml
+builder:
+  requirements: [targets]
+  script: |
+    #!/bin/bash
+    for target in $(cat targets); do
+      make $target
+    done
+```
 
 #### builders[]
 `.variants.*.builders[]` _object_

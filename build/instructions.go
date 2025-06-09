@@ -105,7 +105,12 @@ type RunScript struct {
 
 // Compile to the given [Target]
 func (rs RunScript) Compile(target *Target) error {
-	return target.Run
+	opts := make([]llb.RunOption, len(rs.Options))
+	for i, ro := range rs.Options {
+		opts[i] = ro.RunOption(target)
+	}
+
+	return target.RunScript(rs.Script, opts...)
 }
 
 // Copy is a concrete build instruction for copying source files/directories

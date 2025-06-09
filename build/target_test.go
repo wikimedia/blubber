@@ -2,6 +2,7 @@ package build_test
 
 import (
 	"context"
+	"io/fs"
 	"testing"
 
 	"github.com/moby/buildkit/client/llb"
@@ -312,6 +313,55 @@ func TestLogf(t *testing.T) {
 		req.NoError(target.Initialize(ctx))
 
 		req.Equal("[foo_{linux/amd64}] bar: baz", target.Logf("bar: %s", "baz"))
+	})
+}
+
+func TestTargetRunScript(t *testing.T) {
+	t.Run("executes script from a mounted filesystem", func(t *testing.T) {
+		_, req := testtarget.Setup(t,
+			testtarget.NewTargets("foo"),
+			func(foo *build.Target) {
+				foo.RunScript([]byte("#!/bin/bash\nfoo\nbar\n"))
+			},
+		)
+
+		fops, fileOps := req.ContainsNFileOps(1)
+
+		_, mkfiles := req.ContainsNMkfileActions(fileOps[0], 1)
+		req.Equal("/script", mkfiles[0].Mkfile.Path)
+		req.Equal([]byte("#!/bin/bash\nfoo\nbar\n"), mkfiles[0].Mkfile.Data)
+		req.Equal(int32(fs.FileMode(0o555)), mkfiles[0].Mkfile.Mode)
+
+		eops, execOps := req.ContainsNExecOps(1)
+		req.Equal([]string{"/3adbfe3067cb702a825d0fda79596a32b2132760b022b79bc6f206f55d74311b/script"}, execOps[0].Exec.Meta.Args)
+
+		req.Len(execOps[0].Exec.Mounts, 2)
+		mnt := execOps[0].Exec.Mounts[1]
+
+		req.Equal("/3adbfe3067cb702a825d0fda79596a32b2132760b022b79bc6f206f55d74311b", mnt.Dest)
+		req.Equal(pb.MountType_BIND, mnt.MountType)
+		req.True(mnt.Readonly)
+
+		inputs := req.HasValidInputs(eops[0])
+		req.Len(inputs, 2)
+		req.Equal(int64(1), mnt.Input)
+		req.Equal(fops[0].Op, inputs[mnt.Input].Op)
+	})
+
+	t.Run("defaults to /bin/sh", func(t *testing.T) {
+		_, req := testtarget.Setup(t,
+			testtarget.NewTargets("foo"),
+			func(foo *build.Target) {
+				foo.RunScript([]byte("foo\nbar\n"))
+			},
+		)
+
+		_, fileOps := req.ContainsNFileOps(1)
+
+		_, mkfiles := req.ContainsNMkfileActions(fileOps[0], 1)
+		req.Equal("/script", mkfiles[0].Mkfile.Path)
+		req.Equal([]byte("#!/bin/sh\nfoo\nbar\n"), mkfiles[0].Mkfile.Data)
+		req.Equal(int32(fs.FileMode(0o555)), mkfiles[0].Mkfile.Mode)
 	})
 }
 

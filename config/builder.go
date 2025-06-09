@@ -1,13 +1,15 @@
 package config
 
 import (
+	"encoding/json"
+
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
 )
 
 // BuilderConfig contains configuration for the definition of an arbitrary
 // build command and the files required to successfully execute the command.
 type BuilderConfig struct {
-	Command      []string           `json:"command"`
+	Command      BuilderCommand     `json:"command"`
 	Script       string             `json:"script"`
 	Requirements RequirementsConfig `json:"requirements" validate:"omitempty,uniqueartifacts,dive"`
 	Mounts       MountsConfig       `json:"mounts" validate:"omitempty,unique,dive"`
@@ -63,28 +65,49 @@ func (bc BuilderConfig) InstructionsForPhase(phase build.Phase) []build.Instruct
 			bc.Caches.RunOptions()...,
 		)
 
-		run := build.Run{}
-
 		if bc.Script != "" {
-			script := bc.Script
-
-			if !shebangRegexp.MatchString(script) {
-				script = "#!/bin/sh"
-			}
-
-			run = build.Run
-		} else {
-			run.Command = bc.Command[0]
+			instructions = append(instructions, build.RunScript{
+				Script:  []byte(bc.Script),
+				Options: opts,
+			})
+		} else if len(bc.Command) > 0 {
+			run := build.Run{Command: bc.Command[0]}
 			if len(bc.Command) > 1 {
 				run.Arguments = bc.Command[1:]
 			}
+
+			instructions = append(instructions, build.RunAllWithOptions{
+				Runs:    []build.Run{run},
+				Options: opts,
+			})
 		}
 
-		instructions = append(instructions, build.RunAllWithOptions{
-			Runs:    []build.Run{run},
-			Options: opts,
-		})
 	}
 
 	return instructions
+}
+
+// BuilderCommand represents a single builder command to run.
+type BuilderCommand []string
+
+// UnmarshalJSON parses a shell command from either `["cmd", "arg"]` or `"cmd
+// arg"` form.
+func (bc *BuilderCommand) UnmarshalJSON(data []byte) error {
+	var cmdString string
+
+	err := json.Unmarshal(data, &cmdString)
+	if err == nil && cmdString != "" {
+		(*bc) = BuilderCommand([]string{cmdString})
+		return nil
+	}
+
+	var cmd []string
+	err = json.Unmarshal(data, &cmd)
+	if err != nil {
+		return err
+	}
+
+	(*bc) = BuilderCommand(cmd)
+
+	return nil
 }
