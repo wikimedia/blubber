@@ -159,6 +159,28 @@ func TestBuilderConfigYAML(t *testing.T) {
 		req.Contains(msg, `command: is not allowed if any of field(s) "script" is declared/included`, msg)
 		req.Contains(msg, `script: is not allowed if any of field(s) "command" is declared/included`, msg)
 	})
+
+	t.Run("validation applies to builders.[].custom", func(t *testing.T) {
+		req := require.New(t)
+
+		_, err := config.ReadYAMLConfig([]byte(`---
+      version: v4
+      base: an.example/base/image
+      variants:
+        build:
+          builders:
+            - custom:
+                command: "foo"
+                script: |
+                  #!/bin/bash
+                  something_with foo
+                requirements: [foo]
+`))
+		req.Error(err)
+		msg := config.HumanizeValidationError(err)
+		req.Contains(msg, `command: is not allowed if any of field(s) "script" is declared/included`, msg)
+		req.Contains(msg, `script: is not allowed if any of field(s) "command" is declared/included`, msg)
+	})
 }
 
 func TestBuilderConfigInstructions(t *testing.T) {

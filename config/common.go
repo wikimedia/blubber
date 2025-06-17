@@ -7,16 +7,16 @@ import (
 // CommonConfig holds the configuration fields common to both the root config
 // and each configured variant.
 type CommonConfig struct {
-	Base       string         `json:"base" validate:"omitempty,imageref"`                                                                // name/path to base image
-	Apt        AptConfig      `json:"apt"`                                                                                               // APT related
-	Builders   BuildersConfig `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=node php python builder"` // Builders related
-	Node       NodeConfig     `json:"node"`                                                                                              // Node related
-	Php        PhpConfig      `json:"php"`                                                                                               // Php related
-	Python     PythonConfig   `json:"python"`                                                                                            // Python related
-	Builder    BuilderConfig  `json:"builder"`                                                                                           // Builder related
-	Lives      LivesConfig    `json:"lives"`                                                                                             // application owner/dir
-	Runs       RunsConfig     `json:"runs"`                                                                                              // runtime environment
-	EntryPoint []string       `json:"entrypoint"`                                                                                        // entry-point executable
+	Base       string         `json:"base" validate:"omitempty,imageref"`                                                                     // name/path to base image
+	Apt        AptConfig      `json:"apt"`                                                                                                    // APT related
+	Builders   BuildersConfig `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=node php python builder,dive"` // Builders related
+	Node       NodeConfig     `json:"node"`                                                                                                   // Node related
+	Php        PhpConfig      `json:"php"`                                                                                                    // Php related
+	Python     PythonConfig   `json:"python"`                                                                                                 // Python related
+	Builder    BuilderConfig  `json:"builder"`                                                                                                // Builder related
+	Lives      LivesConfig    `json:"lives"`                                                                                                  // application owner/dir
+	Runs       RunsConfig     `json:"runs"`                                                                                                   // runtime environment
+	EntryPoint []string       `json:"entrypoint"`                                                                                             // entry-point executable
 }
 
 // Dependencies returns variant dependencies.
