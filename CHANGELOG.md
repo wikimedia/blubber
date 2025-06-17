@@ -1,8 +1,19 @@
 
+<a name="v1.3.0"></a>
+## [v1.3.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.2.0...v1.3.0)
+
+> 2025-06-17
+
+### Builder
+
+* Fix lack of validation on custom builders
+* Support multiline builder `script` and string `command`
+
+
 <a name="v1.2.0"></a>
 ## [v1.2.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.1.0...v1.2.0)
 
-> 2025-05-29
+> 2025-06-06
 
 ### APT
 
