@@ -128,6 +128,7 @@ builders:
       requirements: [.]
       caches:
         - destination: "/var/cache/go"
+```
 
 Example (shorthand and using an environment variable)
 
@@ -350,6 +351,7 @@ builders:
       requirements: [.]
       caches:
         - destination: "/var/cache/go"
+```
 
 Example (shorthand and using an environment variable)
 
@@ -1238,6 +1240,7 @@ builders:
       requirements: [.]
       caches:
         - destination: "/var/cache/go"
+```
 
 Example (shorthand and using an environment variable)
 
@@ -1460,6 +1463,7 @@ builders:
       requirements: [.]
       caches:
         - destination: "/var/cache/go"
+```
 
 Example (shorthand and using an environment variable)
 
