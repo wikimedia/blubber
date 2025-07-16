@@ -8,7 +8,21 @@ export default defineConfig({
   rewrites: {
     'README.md': 'index.md',
   },
-  srcExclude: ['api', 'cmd', 'examples', 'docker', 'config', 'meta', 'out', 'util', 'scripts', 'build', 'buildkit', '**/TODO.md', '**/DEPENDENCIES.md'],
+  srcExclude: [
+    'api',
+    'cmd',
+    'docker',
+    'config',
+    'examples/*/README.md',
+    'meta',
+    'out',
+    'util',
+    'scripts',
+    'build',
+    'buildkit',
+    '**/TODO.md',
+    '**/DEPENDENCIES.md'
+  ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -27,7 +41,8 @@ export default defineConfig({
             items: [
               {text: 'Examples', link: '/#examples'},
               {text: 'Concepts', link: '/#concepts'},
-              {text: 'Usage', link: '/#usage'}]
+              {text: 'Usage', link: '/#usage'}
+            ]
           },
           { text: 'Configuration',
             link: '/configuration',
@@ -36,8 +51,20 @@ export default defineConfig({
               {text: 'APT', link: '/configuration#apt'},
               {text: 'NodeJS', link: '/configuration#node-1'},
               {text: 'PHP', link: '/configuration#php-1'},
-              {text: 'Python', link: '/configuration#python-1'},
-            ]}
+              {text: 'Python', link: '/configuration#python-1'}
+            ]
+          },
+          { text: 'Examples',
+            items: [
+              {text: 'Basic usage', link: '/examples/01-basic-usage'},
+              {text: 'Define environment', link: '/examples/02-defining-the-environment'},
+              {text: 'Install packages', link: '/examples/03-installing-packages'},
+              {text: 'Define builders', link: '/examples/04-builders'},
+              {text: 'Copying from variants', link: '/examples/05-copying-from-other-variants'},
+              {text: 'Python builder', link: '/examples/06-python-builder'},
+              {text: 'NodeJS builder', link: '/examples/07-node-builder'}
+            ]
+          }
         ],
       },
       {

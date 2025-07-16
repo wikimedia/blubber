@@ -6,6 +6,7 @@ GIT_COMMIT = $(shell git rev-parse --short HEAD)
 FULLVERSION = $(VERSION)-$(GIT_COMMIT)
 
 PACKAGE := gitlab.wikimedia.org/repos/releng/blubber
+SOURCE_TREE_URL := https://$(PACKAGE)/-/tree/main/
 
 GO_LIST_GOFILES := '{{range .GoFiles}}{{printf "%s/%s\n" $$.Dir .}}{{end}}{{range .XTestGoFiles}}{{printf "%s/%s\n" $$.Dir .}}{{end}}'
 GO_PACKAGES = $(shell go list ./...)
@@ -28,6 +29,9 @@ export GOARCH
 
 BINARIES = blubber blubber-buildkit
 
+FEATURE_FILES := $(wildcard examples/*.feature)
+FEATURE_DOCS := $(patsubst examples/%.feature,examples/%.md,$(FEATURE_FILES))
+
 all: code $(BINARIES)
 
 .PHONY: $(BINARIES)
@@ -46,12 +50,18 @@ clean:
 	rm -f $(BINARIES) || true
 
 .PHONY: docs
-docs:
-	go run ./util/markdownschema ./api/config.schema.json > ./docs/configuration.md
+docs: docs/configuration.md
+docs/configuration.md: api/config.schema.json
+	go run ./util/markdownschema $< > $@
 
 .PHONY: ensure-docs
 ensure-docs:
-	diff -q <(go run ./util/markdownschema ./api/config.schema.json) ./docs/configuration.md
+	$(MAKE) -q docs
+
+.PHONY: example-docs
+example-docs: $(FEATURE_DOCS)
+$(FEATURE_DOCS): examples/%.md: examples/%.feature
+	go run ./util/markdownexamples --source-url=$(SOURCE_TREE_URL) $< > $@
 
 download:
 	go mod download

@@ -1,4 +1,4 @@
-# syntax=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.0.1
+# syntax=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.3.0
 version: v4
 
 variants:
@@ -66,21 +66,32 @@ variants:
           command: [make, FULLVERSION]
     entrypoint: [cat, VERSION, FULLVERSION]
 
+  example-docs:
+    includes: [build]
+    builders:
+      - custom:
+          requirements: [./examples/, Makefile, ./util/]
+          command: "make example-docs"
+
   build-docs:
     base: docker-registry.wikimedia.org/nodejs20-slim:0.0.1-20240519
     runs: { insecurely: true }
-    node:
-      use-npm-ci: true
-      requirements:
-        - from: local
-          source: ./docs/
-          destination: ./
-        - CHANGELOG.md
-        - CONTRIBUTING.md
-        - README.md
-        - RELEASE.md
-    builder:
-      command: [npm, run, docs:build]
+    builders:
+      - node:
+          use-npm-ci: true
+          requirements:
+            - from: local
+              source: ./docs/
+              destination: ./
+            - from: example-docs
+              source: ./examples/
+              destination: ./examples/
+            - CHANGELOG.md
+            - CONTRIBUTING.md
+            - README.md
+            - RELEASE.md
+      - custom:
+          command: [npm, run, docs:build]
 
   docs-for-publishing:
     copies:

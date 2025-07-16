@@ -17,6 +17,7 @@ require (
 	github.com/pborman/getopt v1.1.0
 	github.com/pborman/getopt/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
+	github.com/raviqqe/gherkin2markdown v0.0.0-20250505141152-891ab8c31337
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1
 	github.com/stretchr/testify v1.10.0
 	github.com/utahta/go-openuri v0.1.0
@@ -55,7 +56,9 @@ require (
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
+	github.com/cucumber/gherkin/go/v28 v28.0.0 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
+	github.com/cucumber/messages/go/v24 v24.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/docker v27.5.1+incompatible // indirect
@@ -69,7 +72,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
-	github.com/gofrs/uuid v4.3.1+incompatible // indirect
+	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -125,6 +128,7 @@ require (
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/urfave/cli/v2 v2.27.5 // indirect
 	github.com/vbatts/tar-split v0.11.6 // indirect
+	github.com/willf/pad v0.0.0-20200313202418-172aa767f2a4 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.56.0 // indirect
@@ -157,5 +161,8 @@ require (
 //     but was required as: github.com/Sirupsen/logrus
 // See https://github.com/moby/moby/issues/42939
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220414164044-61404de7df1a+incompatible
+
+// Remove once https://github.com/raviqqe/gherkin2markdown/pull/71 is accepted
+replace github.com/raviqqe/gherkin2markdown => github.com/marxarelli/gherkin2markdown v0.0.0-20250717190528-4b76922339e4
 
 go 1.23.5
