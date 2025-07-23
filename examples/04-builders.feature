@@ -126,7 +126,7 @@ Feature: Builders
             - custom:
                 requirements: [ go.mod, go.sum ]
                 command: "go mod download"
-                caches: [ "${GOPATH}/pkg/mod" ]
+                caches: [ "${GOPATH}/pkg" ]
             - custom:
                 requirements: [main.go]
                 command: "go build ."

@@ -1,5 +1,9 @@
 blubber
-blubberoid
 blubber-buildkit
 _release
 /.cache
+/.pipeline
+/bake.hcl
+/*.test
+/dist
+/examples.test

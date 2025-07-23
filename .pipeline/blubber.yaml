@@ -1,70 +1,124 @@
 # syntax=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.3.0
 version: v4
-
 variants:
+  debian:
+    base: docker-registry.wikimedia.org/bookworm:20250720
+
+  golang:
+    base: docker-registry.wikimedia.org/golang1.22:1.22-20250720
+
+  nodejs:
+    base: docker-registry.wikimedia.org/nodejs20-slim:0.0.1-20250720
+
+  project:
+    builders:
+      - custom:
+          requirements:
+            - from: local
+              source: ./
+              destination: ./
+              exclude: [.git]
+            - from: local
+              source: .git/
+              destination: .git/
+              # We need some information from .git in order to embed the
+              # current commit as part of the version number (see Makefile)
+              # and for Go's VCS stamping, but not everything. These excludes
+              # ensure that _only_ HEAD and refs/**/* are copied.
+              exclude:
+                - "!HEAD"
+                - "!refs/**/*"
+
   build:
-    base: docker-registry.wikimedia.org/golang1.22:1.22-20250223
-    apt: {packages: [gcc, git, make]}
+    includes: [golang]
+    apt: { packages: [gcc, git, make] }
     runs:
       environment:
         CGO_ENABLED: "0"
+        GOPATH: "/opt/lib/go"
+        GOENV: "/opt/lib/go/env"
+        GOCACHE: "/opt/lib/go/cache"
+        PATH: "/opt/lib/go/bin:${PATH}"
     builders:
       - custom:
+          command: "mkdir -p ${GOPATH}/bin"
+      - custom:
           requirements: [go.mod, go.sum]
-          command: [go, mod, download]
-  make:
-    includes: [build]
-    runs: { insecurely: true }
+          command: "go mod download"
+          caches:
+            - destination: "${GOPATH}/pkg"
+              access: locked
+
+  tools:
     builders:
       - custom:
           requirements: [Makefile, tools.go]
-          command: [make, install-tools]
-    copies: [local]
-    entrypoint: [make, clean]
+          command: "make install-tools"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+
   test:
-    includes: [make]
-    entrypoint: [make, clean, test]
-  acceptance:
-    includes: [make]
-    entrypoint: [make, examples]
-  prep:
-    includes: [build]
-    builders:
-      - custom:
-          requirements: [.]
-          command: [make, clean, blubberoid]
-  production:
-    base: docker-registry.wikimedia.org/buster:latest
-    copies:
-      - from: prep
-        source: /srv/app/blubberoid
-        destination: /srv/app/blubberoid
-    entrypoint: [./blubberoid]
-  buildkit-prep:
-    includes: [build]
-    builders:
-      - custom:
-          requirements: [.]
-          command: [make, clean, blubber-buildkit]
-  buildkit-test:
+    includes: [build, tools, project]
+    runs:
+      insecurely: true
+
+  lint:
     includes: [test]
-    entrypoint: [go, test, ./buildkit]
+    builders:
+      - custom:
+          command: "make lint"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+
+  unit:
+    includes: [test]
+    builders:
+      - custom:
+          command: "make unit"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+
+  ensure-docs:
+    includes: [test]
+    builders:
+      - custom:
+          command: "make ensure-docs"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+
+  examples:
+    includes: [build, project]
+    builders:
+      - custom:
+          command: "make examples.test"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+
+  acceptance:
+    includes: [debian]
+    runs:
+      environment:
+        BLUBBER_RUN_EXAMPLES: "1"
+    copies:
+      - from: examples
+        source: ./examples.test
+        destination: ./examples.test
+      - from: local
+        source: ./examples/
+        destination: ./examples/
+    entrypoint: [./examples.test]
+
+  buildkit-build:
+    includes: [build, project]
+    builders:
+      - custom:
+          command: "make blubber-buildkit"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+
   buildkit:
     copies:
-      - from: buildkit-prep
-        source: /srv/app/blubber-buildkit
+      - from: buildkit-build
+        source: ./blubber-buildkit
         destination: /blubber-buildkit
-      - from: buildkit-prep
+      - from: buildkit-build
         source: /etc/ssl/certs/ca-certificates.crt
         destination: /etc/ssl/certs/ca-certificates.crt
     entrypoint: [/blubber-buildkit]
-  print-versions:
-    includes: [build]
-    builders:
-      - custom:
-          requirements: [Makefile, .git, VERSION]
-          command: [make, FULLVERSION]
-    entrypoint: [cat, VERSION, FULLVERSION]
 
   example-docs:
     includes: [build]
@@ -72,9 +126,10 @@ variants:
       - custom:
           requirements: [./examples/, Makefile, ./util/]
           command: "make example-docs"
+          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
 
   build-docs:
-    base: docker-registry.wikimedia.org/nodejs20-slim:0.0.1-20240519
+    includes: [nodejs]
     runs: { insecurely: true }
     builders:
       - node:
@@ -91,13 +146,13 @@ variants:
             - README.md
             - RELEASE.md
       - custom:
-          command: [npm, run, docs:build]
+          command: "npm run docs:build"
 
   docs-for-publishing:
     copies:
       - from: build-docs
         source: /srv/app/.vitepress/dist/
-        destination: docs/
+        destination: ./
 
   preview-docs:
     includes: [build-docs]

@@ -1,6 +1,5 @@
 include:
-  - project: 'repos/releng/kokkuri'
-    file: 'includes/images.yaml'
+  - component: '${CI_SERVER_FQDN}/repos/releng/kokkuri/images@2'
   - project: 'repos/releng/docpub'
     file: 'includes/publish.yml'
 
@@ -9,115 +8,76 @@ default:
     - kubernetes
 
 stages:
-  - lint
   - test
-  - acceptance
   - publish
   - build-publish-docs
 
-workflow:
-  # Run pipelines for:
-  #  1. Merge requests
-  #  2. Protected refs (branches or tags)
+# Test MRs
+.workflow-mr:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_REF_PROTECTED == 'true'
 
-lint-code:
-  stage: lint
-  extends: [.kokkuri:build-and-run-image, .kokkuri:remote-context]
-  variables:
-    BUILD_VARIANT: make
-    RUN_ARGUMENTS: '["lint"]'
-
-ensure-docs-were-generated:
-  stage: lint
-  extends: [.kokkuri:build-and-run-image, .kokkuri:remote-context]
-  variables:
-    BUILD_VARIANT: make
-    RUN_ARGUMENTS: '["ensure-docs"]'
-
-run-unit-tests:
-  stage: test
-  extends: [.kokkuri:build-and-run-image, .kokkuri:remote-context]
-  variables:
-    BUILD_VARIANT: make
-    RUN_ARGUMENTS: '["test"]'
-
-build-frontend-for-testing:
-  stage: test
-  extends: [.kokkuri:build-and-publish-image, .kokkuri:remote-context]
-  variables:
-    BUILD_VARIANT: buildkit
-    BUILD_TARGET_PLATFORMS: linux/amd64
-    PUBLISH_IMAGE_TAG: job-${CI_JOB_ID}
+# Create a release for each new version tag
+.workflow-release:
   rules:
-    - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
-      when: never
-    - when: always
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/
+  tags:
+    - trusted
 
-build-acceptance-runner:
-  stage: test
-  extends: [.kokkuri:build-and-publish-image, .kokkuri:remote-context]
-  variables:
-    BUILD_VARIANT: acceptance
-    PUBLISH_IMAGE_TAG: job-${CI_JOB_ID}
+# Publish docs when the default branch is updated
+.workflow-docs:
   rules:
-    - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
-      when: never
-    - when: always
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+workflow:
+  rules:
+    - !reference [.workflow-mr, rules]
+    - !reference [.workflow-release, rules]
+
+# Build/run tests and build the buildkit gateway and acceptance test runner
+# all in one go. Doing this as a single job with bake ensures efficient image
+# layer reuse and cache consolidation and cuts down on CI runner utilization.
+test:
+  stage: test
+  extends: [.workflow-mr, .kokkuri:bake, .kokkuri:remote-context]
+  variables:
+    BUILD_TARGETS: 'test buildkit acceptance'
+    TAG: 'job-${CI_JOB_ID}'
+
+# Run acceptance tests
 run-acceptance-tests:
-  stage: acceptance
-  extends: .kokkuri:remote-context
-  image: '${BUILD_ACCEPTANCE_RUNNER_IMAGE_REF}'
+  stage: test
+  needs: [test]
+  extends: [.workflow-mr, .kokkuri:remote-context]
+  image: '${TEST_ACCEPTANCE_IMAGE_REF}'
   variables:
-    BLUBBER_TEST_IMAGE: '${BUILD_FRONTEND_FOR_TESTING_IMAGE_REF}'
+    BLUBBER_TEST_IMAGE: '${TEST_BUILDKIT_IMAGE_REF}'
   script:
     - cd /srv/app
-    - make examples
+    - ./examples.test
   parallel:
     matrix:
-      - BLUBBER_ONLY_EXAMPLES: ["@set1", "@set2", "@set3", "@set4"]
-  rules:
-    - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
-      when: never
-    - when: always
+      - BLUBBER_ONLY_EXAMPLES: ['@set1', '@set2', '@set3', '@set4']
 
 # Publish a new version of the buildkit frontend each time a tag is pushed or
 # an MR is merged to an experimental branch.
 build-and-publish-frontend:
   stage: publish
-  extends: [.kokkuri:build-and-publish-image, .kokkuri:remote-context]
+  extends: [.workflow-release, .kokkuri:bake, .kokkuri:remote-context]
   variables:
-    BUILD_VARIANT: buildkit
-    BUILD_TARGET_PLATFORMS: linux/amd64,linux/arm64
-    PUBLISH_IMAGE_NAME: '${CI_PROJECT_PATH}/buildkit'
-    PUBLISH_PROVENANCE: 'yes'
-  tags:
-    - trusted
-  rules:
-    - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
-    - if: $CI_COMMIT_BRANCH =~ /^experimental/ && $CI_COMMIT_REF_PROTECTED
+    BUILD_TARGETS: buildkit
+    TAG: '${CI_COMMIT_TAG}'
 
-.docs-common:
-  stage: build-publish-docs
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
+# Build documentation
 build-documentation:
+  stage: build-publish-docs
+  extends: [.workflow-docs, .kokkuri:bake, .kokkuri:remote-context, .docpub:build-docs]
   variables:
-    BUILD_VARIANT: docs-for-publishing
-    BUILDCTL_BUILD_FLAGS: --output type=local,dest=generated-documentation
-    DOCS_DIR: generated-documentation/docs
-  extends:
-    - .kokkuri:build-image
-    - .kokkuri:remote-context
-    - .docs-common
-    - .docpub:build-docs
+    BUILD_TARGETS: docs
+    DOCS_DIR: dist/docs
 
+# Publish documentation to https://doc.wikimedia.org/releng/blubber
 publish-documentation:
+  stage: build-publish-docs
   needs: [build-documentation]
-  extends:
-    - .docs-common
-    - .docpub:publish-docs
+  extends: [.workflow-docs, .docpub:publish-docs]

@@ -13,3 +13,5 @@
 **/node_modules
 **/.DS_Store
 /examples/*.md
+/examples.test
+/dist
