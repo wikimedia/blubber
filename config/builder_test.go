@@ -22,10 +22,10 @@ func TestBuilderConfigYAML(t *testing.T) {
         test: {}
         build:
           builder:
-            command: [make]
+            command: "make install"
             requirements: []
             mounts:
-              - /src/main
+              - local
               - from: test
                 destination: /src/foo
                 source: "/tmp"
@@ -57,14 +57,13 @@ func TestBuilderConfigYAML(t *testing.T) {
 			variant, err = config.GetVariant(cfg, "build")
 
 			if assert.NoError(t, err) {
-				assert.Equal(t, config.BuilderCommand([]string{"make"}), variant.Builder.Command)
+				assert.Equal(t, config.BuilderCommand([]string{"make install"}), variant.Builder.Command)
 				assert.Equal(t, config.RequirementsConfig{}, variant.Builder.Requirements)
 				assert.Equal(
 					t,
 					config.MountsConfig{
 						{
-							From:        "local",
-							Destination: "/src/main",
+							From: "local",
 						},
 						{
 							From:        "test",
@@ -284,7 +283,6 @@ func TestBuilderConfigInstructions(t *testing.T) {
 								From:        "foo",
 								Destination: "/src/foo",
 								Source:      "/foo/subdir",
-								Readonly:    true,
 							},
 							build.CacheMount{
 								Destination: "/var/cache/foo",

@@ -23,8 +23,13 @@ func (sm SourceMount) RunOption(target *Target) llb.RunOption {
 		mopts = append(mopts, llb.Readonly)
 	}
 
+	destination := "."
+	if sm.Destination != "" {
+		destination = sm.Destination
+	}
+
 	return llb.AddMount(
-		target.ExpandEnv(sm.Destination),
+		target.ExpandEnv(destination),
 		target.NamedContext(sm.From),
 		mopts...,
 	)

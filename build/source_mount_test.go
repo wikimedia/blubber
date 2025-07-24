@@ -9,7 +9,7 @@ import (
 )
 
 func TestSourceMount(t *testing.T) {
-	t.Run("without source path", func(t *testing.T) {
+	t.Run("without destination and source path", func(t *testing.T) {
 		_, req := testtarget.Setup(t,
 			testtarget.NewTargets("bar", "foo"),
 			func(bar *build.Target) {
@@ -21,8 +21,7 @@ func TestSourceMount(t *testing.T) {
 					[]build.Run{{"cat /bar/output/msg", []string{}}},
 					[]build.RunOption{
 						build.SourceMount{
-							From:        "bar",
-							Destination: "/bar",
+							From: "bar",
 						},
 					},
 				}
@@ -32,15 +31,18 @@ func TestSourceMount(t *testing.T) {
 
 		ops, eops := req.ContainsNExecOps(2)
 		req.Len(eops[1].Exec.Mounts, 2)
-		mnt := eops[1].Exec.Mounts[1]
 
-		req.Equal("/bar", mnt.Dest)
+		// Note that the mount comes before / in this case as mounts are sorted by destination
+		// path.
+		mnt := eops[1].Exec.Mounts[0]
+
+		req.Equal(".", mnt.Dest)
 		req.Equal(pb.MountType_BIND, mnt.MountType)
 		req.False(mnt.Readonly)
 
 		iops := req.HasValidInputs(ops[1])
 		_, sops := req.ContainsNSourceOps(2)
-		req.Equal(sops[0], iops[0].Op)
+		req.Equal(sops[1], iops[1].Op)
 	})
 
 	t.Run("with source path and readonly", func(t *testing.T) {

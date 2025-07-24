@@ -302,7 +302,7 @@
     },
     "v4.Requirements" : {
       "type" : "array",
-      "description" : "Path of files/directories to copy from the local build context. This is done before any of the build steps. Note that there are two possible formats for `requirements`. The first is a simple shorthand notation that means copying a list of source files from the local build context to a destination of the same relative path in the image. The second is a longhand form that gives more control over the source context (local or another variant), source and destination paths.\n\nExample (shorthand)\n\n```yaml\nbuilder:\n  command: [\"some\", \"build\", \"command\"]\n  requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image\n```\n\nExample (longhand/advanced)\n\n```yaml\nbuilder:\n  command: [\"some\", \"build\", \"command\"]\n  requirements:\n    - from: local\n      source: config.production.json\n      destination: config.json\n    - Makefile # note that longhand/shorthand can be mixed\n    - src/\n    - from: other-variant\n      source: /srv/some/previous/build/product\n      destination: dist/product\n```",
+      "description" : "Path of files/directories to copy from the local build context. This is done before any of the build steps. Note that there are two possible formats for `requirements`. The first is a simple shorthand notation that means copying a list of source files from the local build context to a destination of the same relative path in the image. The second is a longhand form that gives more control over the source context (local or another variant), source and destination paths.\n\nExample (shorthand)\n\n```yaml\nbuilder:\n  command: \"some build command\"\n  requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image\n```\n\nExample (longhand/advanced)\n\n```yaml\nbuilder:\n  command: \"some build command\"\n  requirements:\n    - from: local\n      source: config.production.json\n      destination: config.json\n    - Makefile # note that longhand/shorthand can be mixed\n    - src/\n    - from: other-variant\n      source: /srv/some/previous/build/product\n      destination: dist/product\n```",
       "items" : {
         "oneOf" : [ {
           "type" : "string"
@@ -350,7 +350,7 @@
     },
     "v4.Mounts" : {
       "type" : "array",
-      "description" : "Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `\"local\"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.\n\nMounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.\n\nExample\n\n```yaml\nbuilders:\n  - custom:\n      command: [ make, SRC1=/src/local, SRC2=/src/foo ]\n      mounts:\n        - from: foo\n          destination: /src/foo\n```\n\nExample (shorthand for mounting the local build context at `/src`)\n\n```yaml\nbuilders:\n  - custom:\n      command: [ make, SRC1=/src/local, SRC2=/src/foo ]\n      mounts: [ /src ]\n```",
+      "description" : "Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `local` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that changes to files under source mounts are discarded after each builder command completes.\n\nMounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.\n\nExample\n\n```yaml\nbuilders:\n  - custom:\n      command: \"make -C /src/foo install\"\n      mounts:\n        - from: foo\n          destination: /src/foo\n```\n\nExample (shorthand for mounting another variant, image or `local`)\n\n```yaml\nbuilders:\n  - custom:\n      command: \"make install\"\n      mounts: [ local ]\n```",
       "items" : {
         "oneOf": [ {
           "type" : "string"
@@ -363,7 +363,7 @@
             },
             "destination" : {
               "type" : "string",
-              "description" : "Destination path in the build container where the root of the `from` filesystem will be mounted."
+              "description" : "Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory."
             },
             "source" : {
               "type" : "string",

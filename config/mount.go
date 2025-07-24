@@ -30,12 +30,11 @@ func (mcs MountsConfig) RunOptions() []build.RunOption {
 }
 
 // UnmarshalJSON implements json.Unmarshaler to handle both shorthand (just
-// each destination path) and longhand configuration.
+// the `from` context) and longhand configuration.
 func (mcs *MountsConfig) UnmarshalJSON(unmarshal []byte) error {
-	mcs2, err := unmarshalShorthand[MountsConfig](unmarshal, func(destination string) MountConfig {
+	mcs2, err := unmarshalShorthand[MountsConfig](unmarshal, func(context string) MountConfig {
 		return MountConfig{
-			From:        build.LocalContextKeyword,
-			Destination: destination,
+			From: context,
 		}
 	})
 
@@ -51,7 +50,7 @@ func (mcs *MountsConfig) UnmarshalJSON(unmarshal []byte) error {
 // [BuilderConfig] during execution.
 type MountConfig struct {
 	From        string `json:"from"`
-	Destination string `json:"destination" validate:"required"`
+	Destination string `json:"destination" validate:"omitempty"`
 	Source      string `json:"source" validate:"omitempty"`
 }
 
@@ -62,7 +61,7 @@ func (mc MountConfig) RunOptions() []build.RunOption {
 			From:        mc.From,
 			Destination: mc.Destination,
 			Source:      mc.Source,
-			Readonly:    true,
+			Readonly:    false,
 		},
 	}
 }

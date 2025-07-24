@@ -191,7 +191,7 @@ Only one of `script` or `command` may be used for a given builder.
 ### mounts
 `.builder.mounts` _array&lt;object|string&gt;_
 
-Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `local` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that changes to files under source mounts are discarded after each builder command completes.
 
 Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
 
@@ -200,19 +200,19 @@ Example
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      command: "make -C /src/foo install"
       mounts:
         - from: foo
           destination: /src/foo
 ```
 
-Example (shorthand for mounting the local build context at `/src`)
+Example (shorthand for mounting another variant, image or `local`)
 
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
-      mounts: [ /src ]
+      command: "make install"
+      mounts: [ local ]
 ```
 
 
@@ -225,7 +225,7 @@ builders:
 #### destination
 `.builder.mounts[].destination` _string_
 
-Destination path in the build container where the root of the `from` filesystem will be mounted.
+Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
 #### from
 `.builder.mounts[].from` _string_
@@ -246,7 +246,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -254,7 +254,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -414,7 +414,7 @@ Only one of `script` or `command` may be used for a given builder.
 #### mounts
 `.builders[].custom.mounts` _array&lt;object|string&gt;_
 
-Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `local` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that changes to files under source mounts are discarded after each builder command completes.
 
 Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
 
@@ -423,19 +423,19 @@ Example
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      command: "make -C /src/foo install"
       mounts:
         - from: foo
           destination: /src/foo
 ```
 
-Example (shorthand for mounting the local build context at `/src`)
+Example (shorthand for mounting another variant, image or `local`)
 
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
-      mounts: [ /src ]
+      command: "make install"
+      mounts: [ local ]
 ```
 
 
@@ -448,7 +448,7 @@ builders:
 #### destination
 `.builders[].custom.mounts[].destination` _string_
 
-Destination path in the build container where the root of the `from` filesystem will be mounted.
+Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
 #### from
 `.builders[].custom.mounts[].from` _string_
@@ -469,7 +469,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -477,7 +477,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -569,7 +569,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -577,7 +577,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -646,7 +646,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -654,7 +654,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -735,7 +735,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -743,7 +743,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -852,7 +852,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -860,7 +860,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -926,7 +926,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -934,7 +934,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -1012,7 +1012,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -1020,7 +1020,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -1303,7 +1303,7 @@ Only one of `script` or `command` may be used for a given builder.
 #### mounts
 `.variants.*.builder.mounts` _array&lt;object|string&gt;_
 
-Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `local` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that changes to files under source mounts are discarded after each builder command completes.
 
 Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
 
@@ -1312,19 +1312,19 @@ Example
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      command: "make -C /src/foo install"
       mounts:
         - from: foo
           destination: /src/foo
 ```
 
-Example (shorthand for mounting the local build context at `/src`)
+Example (shorthand for mounting another variant, image or `local`)
 
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
-      mounts: [ /src ]
+      command: "make install"
+      mounts: [ local ]
 ```
 
 
@@ -1337,7 +1337,7 @@ builders:
 #### destination
 `.variants.*.builder.mounts[].destination` _string_
 
-Destination path in the build container where the root of the `from` filesystem will be mounted.
+Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
 #### from
 `.variants.*.builder.mounts[].from` _string_
@@ -1358,7 +1358,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -1366,7 +1366,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -1526,7 +1526,7 @@ Only one of `script` or `command` may be used for a given builder.
 #### mounts
 `.variants.*.builders[].custom.mounts` _array&lt;object|string&gt;_
 
-Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `"local"` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that all mounts are read-only.
+Mount a number of filesystems from either the local build context, other variants or images. Each mount should specify the name of the variant or image (or `local` for the local build context), a `destination` path, and optionally the `source` path within the filesystem to use as the root of the mount. Note that changes to files under source mounts are discarded after each builder command completes.
 
 Mounts are most useful when you need files from some other filesystem for a build process but do not want the files in the resulting image.
 
@@ -1535,19 +1535,19 @@ Example
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
+      command: "make -C /src/foo install"
       mounts:
         - from: foo
           destination: /src/foo
 ```
 
-Example (shorthand for mounting the local build context at `/src`)
+Example (shorthand for mounting another variant, image or `local`)
 
 ```yaml
 builders:
   - custom:
-      command: [ make, SRC1=/src/local, SRC2=/src/foo ]
-      mounts: [ /src ]
+      command: "make install"
+      mounts: [ local ]
 ```
 
 
@@ -1560,7 +1560,7 @@ builders:
 #### destination
 `.variants.*.builders[].custom.mounts[].destination` _string_
 
-Destination path in the build container where the root of the `from` filesystem will be mounted.
+Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
 #### from
 `.variants.*.builders[].custom.mounts[].from` _string_
@@ -1581,7 +1581,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -1589,7 +1589,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -1681,7 +1681,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -1689,7 +1689,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -1758,7 +1758,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -1766,7 +1766,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -1847,7 +1847,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -1855,7 +1855,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -2029,7 +2029,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -2037,7 +2037,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -2103,7 +2103,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -2111,7 +2111,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
@@ -2189,7 +2189,7 @@ Example (shorthand)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements: [config.json, Makefile, src/] # copy files/directories to the same paths in the image
 ```
 
@@ -2197,7 +2197,7 @@ Example (longhand/advanced)
 
 ```yaml
 builder:
-  command: ["some", "build", "command"]
+  command: "some build command"
   requirements:
     - from: local
       source: config.production.json
