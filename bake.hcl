@@ -8,19 +8,8 @@ variable "TAG" {
   description = "The tag to use for published images."
 }
 
-// It would be better to simply inherit the bake build context, but there is
-// currently a bug that prevents preservation of the .git directory when the
-// bake context is a remote git repo URL.
-//
-// See https://github.com/docker/buildx/pull/3338
-//
-variable "BUILD_CONTEXT" {
-  default = "."
-  description = "The main build context."
-}
-
 target "common" {
-  context = BUILD_CONTEXT
+  context = "."
   dockerfile = ".pipeline/blubber.yaml"
 
   args = {
