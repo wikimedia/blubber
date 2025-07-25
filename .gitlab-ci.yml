@@ -33,6 +33,7 @@ workflow:
   rules:
     - !reference [.workflow-mr, rules]
     - !reference [.workflow-release, rules]
+    - !reference [.workflow-docs, rules]
 
 # Build/run tests and build the buildkit gateway and acceptance test runner
 # all in one go. Doing this as a single job with bake ensures efficient image
