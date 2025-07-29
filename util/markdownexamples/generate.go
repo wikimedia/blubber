@@ -14,9 +14,10 @@ const (
 )
 
 var (
-	showHelp      = getopt.BoolLong("help", 'h', "show help/usage")
-	sourceURL     = getopt.StringLong("source-url", 's', "./", "project source base URL")
-	workdirLinkRe = regexp.MustCompile(`"([^"]+)" (as a working directory)`)
+	showHelp        = getopt.BoolLong("help", 'h', "show help/usage")
+	sourceURL       = getopt.StringLong("source-url", 's', "./", "project source base URL")
+	workdirLinkRe   = regexp.MustCompile(`"([^"]+)" (as a working directory)`)
+	blubberConfigRe = regexp.MustCompile("(?ms)^```\n(version:.+?)\n```$")
 )
 
 func main() {
@@ -42,11 +43,14 @@ func main() {
 
 		buf := new(bytes.Buffer)
 		convert.FeatureFile(featureFile, buf)
+		md := buf.Bytes()
 
 		// Link paths in `Given "examples/foo" as a working directory` examples
-		os.Stdout.Write(workdirLinkRe.ReplaceAll(
-			buf.Bytes(),
-			[]byte(`[$1](`+(*sourceURL)+`$1) $2`),
-		))
+		md = workdirLinkRe.ReplaceAll(md, []byte(`[$1](`+(*sourceURL)+`$1) $2`))
+
+		// Add yaml syntax highlighting to example blubber config
+		md = blubberConfigRe.ReplaceAll(md, []byte("```yaml\n$1\n```"))
+
+		os.Stdout.Write(md)
 	}
 }
