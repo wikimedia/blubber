@@ -7,16 +7,17 @@ import (
 // CommonConfig holds the configuration fields common to both the root config
 // and each configured variant.
 type CommonConfig struct {
-	Base       string         `json:"base" validate:"omitempty,imageref"`                                                                     // name/path to base image
-	Apt        AptConfig      `json:"apt"`                                                                                                    // APT related
-	Builders   BuildersConfig `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=node php python builder,dive"` // Builders related
-	Node       NodeConfig     `json:"node"`                                                                                                   // Node related
-	Php        PhpConfig      `json:"php"`                                                                                                    // Php related
-	Python     PythonConfig   `json:"python"`                                                                                                 // Python related
-	Builder    BuilderConfig  `json:"builder"`                                                                                                // Builder related
-	Lives      LivesConfig    `json:"lives"`                                                                                                  // application owner/dir
-	Runs       RunsConfig     `json:"runs"`                                                                                                   // runtime environment
-	EntryPoint []string       `json:"entrypoint"`                                                                                             // entry-point executable
+	Base       string          `json:"base" validate:"omitempty,imageref"`
+	Arguments  ArgumentsConfig `json:"arguments" validate:"envvars"`
+	Apt        AptConfig       `json:"apt"`
+	Builders   BuildersConfig  `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=node php python builder,dive"`
+	Node       NodeConfig      `json:"node"`
+	Php        PhpConfig       `json:"php"`
+	Python     PythonConfig    `json:"python"`
+	Builder    BuilderConfig   `json:"builder"`
+	Lives      LivesConfig     `json:"lives"`
+	Runs       RunsConfig      `json:"runs"`
+	EntryPoint []string        `json:"entrypoint"`
 }
 
 // Dependencies returns variant dependencies.
@@ -43,6 +44,7 @@ func (cc *CommonConfig) Merge(cc2 CommonConfig) {
 		cc.Base = cc2.Base
 	}
 
+	cc.Arguments.Merge(cc2.Arguments)
 	cc.Apt.Merge(cc2.Apt)
 	cc.Builders.Merge(cc2.Builders)
 	cc.Node.Merge(cc2.Node)
@@ -62,7 +64,15 @@ func (cc *CommonConfig) Merge(cc2 CommonConfig) {
 // injected.
 func (cc *CommonConfig) PhaseCompileableConfig() []build.PhaseCompileable {
 	return []build.PhaseCompileable{
-		cc.Apt, cc.Builders, cc.Node, cc.Php, cc.Python, cc.Builder, cc.Lives, cc.Runs,
+		cc.Arguments,
+		cc.Apt,
+		cc.Builders,
+		cc.Node,
+		cc.Php,
+		cc.Python,
+		cc.Builder,
+		cc.Lives,
+		cc.Runs,
 	}
 }
 

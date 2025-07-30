@@ -161,6 +161,11 @@
             }
           }
         },
+        "arguments": {
+          "type" : "object",
+          "description" : "Build argument names and default values. Values may be passed in at build time. Final build arguments (defaults merged with build-time values) are exposed as environment variables and effect only certain configuration fields such as builder commands and scripts.\n\nSee the description of each field for whether it supports environment and build argument expansion.\n\nNote that build arguments become environment variables in the resulting image configuration and should not be used to store sensitive values.",
+          "additionalProperties" : true
+        },
         "builder" : {
           "$ref" : "#/$defs/v4.CustomBuilder"
         },
@@ -286,12 +291,12 @@
             }
           }, {
             "type" : "string",
-            "description" : "Arbitrary build command, for example `\"make build\"`.\n\nOnly one of `script` or `command` may be used for a given builder."
+            "description" : "Arbitrary build command, for example `\"make build\"`.\n\nOnly one of `script` or `command` may be used for a given builder.\n\nSupports environment variables and build arguments."
           } ]
         },
         "script" : {
           "type" : "string",
-          "description" : "Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.\n\nNote that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.\n\nExample\n\n```yaml\nbuilder:\n  requirements: [targets]\n  script: |\n    #!/bin/bash\n    for target in $(cat targets); do\n      make $target\n    done\n```\n\nOnly one of `script` or `command` may be used for a given builder."
+          "description" : "Content of a build script to execute. The script may contain its own shebang (`#!`) line to specify the interpreter. If no shebang is provided, `#!/bin/sh` will be used.\n\nNote that the script will not be included in the resulting image. It is written to its own scratch filesystem and only mounted temporarily during execution.\n\nExample\n\n```yaml\nbuilder:\n  requirements: [targets]\n  script: |\n    #!/bin/bash\n    for target in $(cat targets); do\n      make $target\n    done\n```\n\nOnly one of `script` or `command` may be used for a given builder. Supports environment variables and build arguments."
         },
         "requirements" : {
           "$ref" : "#/$defs/v4.Requirements"
@@ -367,11 +372,11 @@
             },
             "destination" : {
               "type" : "string",
-              "description" : "Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory."
+              "description" : "Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.\n\nSupports environment variables and build arguments."
             },
             "source" : {
               "type" : "string",
-              "description" : "Path within the `from` filesystem to use as the root directory of the mount."
+              "description" : "Path within the `from` filesystem to use as the root directory of the mount.\n\nSupports environment variables and build arguments."
             }
           }
         } ]
@@ -388,7 +393,7 @@
           "properties" : {
             "destination" : {
               "type" : "string",
-              "description" : "Destination path in the build container where the cache filesystem will be mounted."
+              "description" : "Destination path in the build container where the cache filesystem will be mounted.\n\nSupports environment variables and build arguments."
             },
             "id" : {
               "type" : "string",

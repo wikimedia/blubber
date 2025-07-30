@@ -63,6 +63,7 @@ export default defineConfig({
               {text: 'Copying from variants', link: '/examples/05-copying-from-other-variants'},
               {text: 'Python builder', link: '/examples/06-python-builder'},
               {text: 'NodeJS builder', link: '/examples/07-node-builder'}
+              {text: 'Build arguments', link: '/examples/08-build-arguments'}
             ]
           }
         ],

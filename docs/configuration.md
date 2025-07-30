@@ -100,6 +100,13 @@ ASCII encoded public key(s) with which to verify the source. See [Debian source.
 
 APT source URL.
 
+## arguments
+`.arguments` _object_
+
+Build argument names and default values. Values may be passed in at build time. Final build arguments (defaults merged with build-time values) are exposed as environment variables and effect only certain configuration fields such as builder commands and scripts.
+
+See the description of each field for whether it supports environment and build argument expansion.
+
 ## base
 `.base` _null|string_
 
@@ -165,6 +172,8 @@ Level of access between concurrent build processes. This depends on the underlyi
 
 Destination path in the build container where the cache filesystem will be mounted.
 
+Supports environment variables and build arguments.
+
 #### id
 `.builder.caches[].id` _string_
 
@@ -187,6 +196,8 @@ Only one of `script` or `command` may be used for a given builder.
 Arbitrary build command, for example `"make build"`.
 
 Only one of `script` or `command` may be used for a given builder.
+
+Supports environment variables and build arguments.
 
 ### mounts
 `.builder.mounts` _array&lt;object|string&gt;_
@@ -227,6 +238,8 @@ builders:
 
 Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
+Supports environment variables and build arguments.
+
 #### from
 `.builder.mounts[].from` _string_
 
@@ -236,6 +249,8 @@ Variant or image filesystem to mount. Set to `local` to mount the local build co
 `.builder.mounts[].source` _string_
 
 Path within the `from` filesystem to use as the root directory of the mount.
+
+Supports environment variables and build arguments.
 
 ### requirements
 `.builder.requirements` _array&lt;object|string&gt;_
@@ -317,7 +332,7 @@ builder:
     done
 ```
 
-Only one of `script` or `command` may be used for a given builder.
+Only one of `script` or `command` may be used for a given builder. Supports environment variables and build arguments.
 
 ## builders
 `.builders` _array&lt;object&gt;_
@@ -388,6 +403,8 @@ Level of access between concurrent build processes. This depends on the underlyi
 
 Destination path in the build container where the cache filesystem will be mounted.
 
+Supports environment variables and build arguments.
+
 #### id
 `.builders[].custom.caches[].id` _string_
 
@@ -410,6 +427,8 @@ Only one of `script` or `command` may be used for a given builder.
 Arbitrary build command, for example `"make build"`.
 
 Only one of `script` or `command` may be used for a given builder.
+
+Supports environment variables and build arguments.
 
 #### mounts
 `.builders[].custom.mounts` _array&lt;object|string&gt;_
@@ -450,6 +469,8 @@ builders:
 
 Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
+Supports environment variables and build arguments.
+
 #### from
 `.builders[].custom.mounts[].from` _string_
 
@@ -459,6 +480,8 @@ Variant or image filesystem to mount. Set to `local` to mount the local build co
 `.builders[].custom.mounts[].source` _string_
 
 Path within the `from` filesystem to use as the root directory of the mount.
+
+Supports environment variables and build arguments.
 
 #### requirements
 `.builders[].custom.requirements` _array&lt;object|string&gt;_
@@ -540,7 +563,7 @@ builder:
     done
 ```
 
-Only one of `script` or `command` may be used for a given builder.
+Only one of `script` or `command` may be used for a given builder. Supports environment variables and build arguments.
 
 ### builders[]
 `.builders[]` _object_
@@ -1217,6 +1240,13 @@ ASCII encoded public key(s) with which to verify the source. See [Debian source.
 
 APT source URL.
 
+#### arguments
+`.variants.*.arguments` _object_
+
+Build argument names and default values. Values may be passed in at build time. Final build arguments (defaults merged with build-time values) are exposed as environment variables and effect only certain configuration fields such as builder commands and scripts.
+
+See the description of each field for whether it supports environment and build argument expansion.
+
 #### base
 `.variants.*.base` _null|string_
 
@@ -1282,6 +1312,8 @@ Level of access between concurrent build processes. This depends on the underlyi
 
 Destination path in the build container where the cache filesystem will be mounted.
 
+Supports environment variables and build arguments.
+
 #### id
 `.variants.*.builder.caches[].id` _string_
 
@@ -1304,6 +1336,8 @@ Only one of `script` or `command` may be used for a given builder.
 Arbitrary build command, for example `"make build"`.
 
 Only one of `script` or `command` may be used for a given builder.
+
+Supports environment variables and build arguments.
 
 #### mounts
 `.variants.*.builder.mounts` _array&lt;object|string&gt;_
@@ -1344,6 +1378,8 @@ builders:
 
 Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
+Supports environment variables and build arguments.
+
 #### from
 `.variants.*.builder.mounts[].from` _string_
 
@@ -1353,6 +1389,8 @@ Variant or image filesystem to mount. Set to `local` to mount the local build co
 `.variants.*.builder.mounts[].source` _string_
 
 Path within the `from` filesystem to use as the root directory of the mount.
+
+Supports environment variables and build arguments.
 
 #### requirements
 `.variants.*.builder.requirements` _array&lt;object|string&gt;_
@@ -1434,7 +1472,7 @@ builder:
     done
 ```
 
-Only one of `script` or `command` may be used for a given builder.
+Only one of `script` or `command` may be used for a given builder. Supports environment variables and build arguments.
 
 #### builders
 `.variants.*.builders` _array&lt;object&gt;_
@@ -1505,6 +1543,8 @@ Level of access between concurrent build processes. This depends on the underlyi
 
 Destination path in the build container where the cache filesystem will be mounted.
 
+Supports environment variables and build arguments.
+
 #### id
 `.variants.*.builders[].custom.caches[].id` _string_
 
@@ -1527,6 +1567,8 @@ Only one of `script` or `command` may be used for a given builder.
 Arbitrary build command, for example `"make build"`.
 
 Only one of `script` or `command` may be used for a given builder.
+
+Supports environment variables and build arguments.
 
 #### mounts
 `.variants.*.builders[].custom.mounts` _array&lt;object|string&gt;_
@@ -1567,6 +1609,8 @@ builders:
 
 Destination path in the build container where the root of the `from` filesystem will be mounted. Defaults to the working directory.
 
+Supports environment variables and build arguments.
+
 #### from
 `.variants.*.builders[].custom.mounts[].from` _string_
 
@@ -1576,6 +1620,8 @@ Variant or image filesystem to mount. Set to `local` to mount the local build co
 `.variants.*.builders[].custom.mounts[].source` _string_
 
 Path within the `from` filesystem to use as the root directory of the mount.
+
+Supports environment variables and build arguments.
 
 #### requirements
 `.variants.*.builders[].custom.requirements` _array&lt;object|string&gt;_
@@ -1657,7 +1703,7 @@ builder:
     done
 ```
 
-Only one of `script` or `command` may be used for a given builder.
+Only one of `script` or `command` may be used for a given builder. Supports environment variables and build arguments.
 
 #### builders[]
 `.variants.*.builders[]` _object_

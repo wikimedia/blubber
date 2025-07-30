@@ -104,5 +104,5 @@ test: unit lint
 examples: examples.test
 	BLUBBER_RUN_EXAMPLES=1 ./examples.test
 
-examples.test:
+examples.test: examples_test.go
 	$(GO_TEST) -c -o ./$@ -v -timeout 30m ./examples_test.go

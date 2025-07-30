@@ -40,7 +40,8 @@ const (
 func defineSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^"([\w-\./]+)" as a working directory`, createWorkingDirectory)
 	ctx.Step(`^this "([\w-\.]+)"(?: (file|executable))?`, createFile)
-	ctx.Step(`^you build (and run )?the "([\w-\.]+)" variant`, buildVariant)
+	ctx.Step(`^you build (and run )?the "([\w-\.]+)" variant$`, buildVariant)
+	ctx.Step(`^you build (and run )?the "([\w-\.]+)" variant with the following build arguments$`, buildVariantWithArguments)
 	ctx.Step(`^the image will (not )?have the following files in "([^"]*)"$`, theImageHasTheFollowingFilesIn)
 	ctx.Step(`^the image will (not )?have the following files in the default working directory$`, theImageHasTheFollowingFilesInDefaultWorkingDir)
 	ctx.Step(`^the image will have the (user|group) "([^"]*)" with (?:UID|GID) (\d+)$`, theImageHasTheEntity)
@@ -135,7 +136,21 @@ func createFile(ctx context.Context, file, fileType string, content []byte) (con
 }
 
 func buildVariant(ctx context.Context, andRun string, variant string) (context.Context, error) {
+	return buildVariantWithArguments(ctx, andRun, variant, nil)
+}
+
+func buildVariantWithArguments(ctx context.Context, andRun string, variant string, argsTable *godog.Table) (context.Context, error) {
 	runVariant := andRun != ""
+	buildArgs := map[string]string{}
+
+	if argsTable != nil {
+		for _, row := range argsTable.Rows {
+			if len(row.Cells) != 2 {
+				return ctx, errors.New("build args table must contain a name and value column")
+			}
+			buildArgs[row.Cells[0].Value] = row.Cells[1].Value
+		}
+	}
 
 	return withCtxValue[*workingDirectory](ctx, wdKey, func(wd *workingDirectory) (context.Context, error) {
 		var err error
@@ -167,15 +182,21 @@ func buildVariant(ctx context.Context, andRun string, variant string) (context.C
 
 		ctx = context.WithValue(ctx, imageTarfileKey, tmptar)
 
+		attrs := map[string]string{
+			"source":   blubberImage,
+			"filename": "blubber.yaml",
+			"variant":  variant,
+			"no-cache": "",
+			"platform": "linux/amd64",
+		}
+
+		for k, v := range buildArgs {
+			attrs["build-arg:"+k] = v
+		}
+
 		solveOpt := bkclient.SolveOpt{
-			Frontend: "gateway.v0",
-			FrontendAttrs: map[string]string{
-				"source":   blubberImage,
-				"filename": "blubber.yaml",
-				"variant":  variant,
-				"no-cache": "",
-				"platform": "linux/amd64",
-			},
+			Frontend:      "gateway.v0",
+			FrontendAttrs: attrs,
 			LocalDirs: map[string]string{
 				"context":    wd.Path,
 				"dockerfile": wd.Path,
