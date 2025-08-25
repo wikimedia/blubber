@@ -1,4 +1,28 @@
 
+<a name="v1.4.0"></a>
+## [v1.4.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.3.0...v1.4.0)
+
+> 2025-08-25
+
+### Caches
+
+* Fix formatting of `caches` examples in schema
+
+### Docs
+
+* Refactor README to focus on common usage patterns
+* Syntax highlight blubber config in examples
+* Generate markdown docs from examples
+
+### Mounts
+
+* New read/write behavior and shorthand configuration
+
+### Runs
+
+* Allow users to change the default runtime directory
+
+
 <a name="v1.3.0"></a>
 ## [v1.3.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.2.0...v1.3.0)
 
@@ -213,11 +237,6 @@
 ### Builders
 
 * Fix indentation in test
-
-### Chglog
-
-* Map all *.go commit labels to plain labels
-* Map node.go label to Node
 
 ### Node
 
