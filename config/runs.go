@@ -8,8 +8,9 @@ import (
 // runtime environment.
 type RunsConfig struct {
 	UserConfig  `json:",inline"`
-	Insecurely  Flag              `json:"insecurely"`                     // runs user owns application files
-	Environment map[string]string `json:"environment" validate:"envvars"` // environment variables
+	Environment map[string]string `json:"environment" validate:"envvars"`  // environment variables
+	In          string            `json:"in" validate:"omitempty,abspath"` // runtime directory
+	Insecurely  Flag              `json:"insecurely"`                      // runs user owns application files
 }
 
 // Merge takes another RunsConfig and overwrites this struct's fields. All
@@ -18,6 +19,10 @@ type RunsConfig struct {
 func (run *RunsConfig) Merge(run2 RunsConfig) {
 	run.UserConfig.Merge(run2.UserConfig)
 	run.Insecurely.Merge(run2.Insecurely)
+
+	if run2.In != "" {
+		run.In = run2.In
+	}
 
 	if run.Environment == nil {
 		run.Environment = make(map[string]string)
@@ -56,6 +61,12 @@ func (run RunsConfig) InstructionsForPhase(phase build.Phase) []build.Instructio
 		if len(run.Environment) > 0 {
 			return []build.Instruction{
 				build.Env{run.Environment},
+			}
+		}
+	case build.PhasePostInstall:
+		if run.In != "" {
+			return []build.Instruction{
+				build.WorkingDirectory{run.In},
 			}
 		}
 	}

@@ -45,6 +45,7 @@ func defineSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the image will (not )?have the following files in the default working directory$`, theImageHasTheFollowingFilesInDefaultWorkingDir)
 	ctx.Step(`^the image will have the (user|group) "([^"]*)" with (?:UID|GID) (\d+)$`, theImageHasTheEntity)
 	ctx.Step(`^the image runtime user will be "([^"]*)"$`, theImageRuntimeUserIs)
+	ctx.Step(`^the image runtime directory will be "([^"]*)"$`, theImageRuntimeDirectoryIs)
 	ctx.Step(`^the image entrypoint will be "([^"]*)"$`, theImageEntrypointIs)
 	ctx.Step(`^the image will include environment variables$`, theImageEnvironmentContains)
 	ctx.Step(`^the image will not include default arguments$`, theImageCmdIsNullOrEmpty)
@@ -388,6 +389,16 @@ func theImageRuntimeUserIs(ctx context.Context, user string) (context.Context, e
 	return withImage(ctx, func(image *ociv1.Image) (context.Context, error) {
 		if image.Config.User != user {
 			return ctx, errors.Errorf("expected image user to be %s but got %s", user, image.Config.User)
+		}
+
+		return ctx, nil
+	})
+}
+
+func theImageRuntimeDirectoryIs(ctx context.Context, dir string) (context.Context, error) {
+	return withImage(ctx, func(image *ociv1.Image) (context.Context, error) {
+		if image.Config.WorkingDir != dir {
+			return ctx, errors.Errorf("expected image runtime directory to be %s but got %s", dir, image.Config.WorkingDir)
 		}
 
 		return ctx, nil

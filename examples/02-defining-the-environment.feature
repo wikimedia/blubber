@@ -112,3 +112,19 @@ Feature: Defining the build and runtime environment
     Then the image will include environment variables
       | FOO=bar |
       | BAZ=qux |
+
+  @set1
+  Scenario: Changing the default runtime directory
+    Given this "blubber.yaml"
+      """
+      version: v4
+      runs:
+        in: /some/other/directory
+      variants:
+        hello:
+          base: debian:bullseye
+          copies: [local]
+          entrypoint: [./hello.sh]
+      """
+    When you build the "hello" variant
+    Then the image runtime directory will be "/some/other/directory"

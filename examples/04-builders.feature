@@ -48,7 +48,7 @@ Feature: Builders
     Then the image will have the following files in the default working directory
       | hello-world-go |
 
-  @set1 @debug
+  @set1
   Scenario: Defining inline builder scripts
     Given "examples/hello-world-go" as a working directory
     And this "blubber.yaml"

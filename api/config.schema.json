@@ -189,6 +189,10 @@
               "description" : "Environment variables and values to be set before entrypoint execution.",
               "additionalProperties" : true
             },
+            "in" : {
+              "type" : "string",
+              "description" : "Runtime working directory. The `lives.in` directory is used by default."
+            },
             "insecurely" : {
               "type" : "boolean",
               "description" : "Skip dropping of privileges to the runtime process owner before entrypoint execution. Production variants should have this set to `false`, but other variants may set it to `true` in some circumstances, for example when enabling [caching for ESLint](https://eslint.org/docs/user-guide/command-line-interface#caching)."
@@ -215,7 +219,7 @@
             },
             "in" : {
               "type" : "string",
-              "description" : "Application working directory within the container."
+              "description" : "Working directory used when the variant is built and at runtime unless `runs.in` is specified."
             }
           }
         },

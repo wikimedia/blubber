@@ -821,7 +821,7 @@ Group owner (GID) of application files within the container.
 ### in
 `.lives.in` _string_
 
-Application working directory within the container.
+Working directory used when the variant is built and at runtime unless `runs.in` is specified.
 
 ### uid
 `.lives.uid` _integer_
@@ -1093,6 +1093,11 @@ Environment variables and values to be set before entrypoint execution.
 `.runs.gid` _integer_
 
 Runtime process group (GID) of application entrypoint.
+
+### in
+`.runs.in` _string_
+
+Runtime working directory. The `lives.in` directory is used by default.
 
 ### insecurely
 `.runs.insecurely` _boolean_
@@ -1998,7 +2003,7 @@ Group owner (GID) of application files within the container.
 #### in
 `.variants.*.lives.in` _string_
 
-Application working directory within the container.
+Working directory used when the variant is built and at runtime unless `runs.in` is specified.
 
 #### uid
 `.variants.*.lives.uid` _integer_
@@ -2270,6 +2275,11 @@ Environment variables and values to be set before entrypoint execution.
 `.variants.*.runs.gid` _integer_
 
 Runtime process group (GID) of application entrypoint.
+
+#### in
+`.variants.*.runs.in` _string_
+
+Runtime working directory. The `lives.in` directory is used by default.
 
 #### insecurely
 `.variants.*.runs.insecurely` _boolean_

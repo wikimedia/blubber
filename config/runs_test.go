@@ -4,12 +4,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
 	"gitlab.wikimedia.org/repos/releng/blubber/config"
 )
 
 func TestRunsConfigYAML(t *testing.T) {
+	req := require.New(t)
+
 	cfg, err := config.ReadYAMLConfig([]byte(`---
     version: v4
     base: foo
@@ -19,23 +22,25 @@ func TestRunsConfigYAML(t *testing.T) {
       uid: 666
       gid: 777
       environment: { FOO: bar }
+      in: /some/directory
     variants:
       development: {}`))
 
-	assert.Nil(t, err)
+	req.NoError(err)
 
 	err = config.ExpandIncludesAndCopies(cfg, "development")
-	assert.Nil(t, err)
+	req.NoError(err)
 
 	variant, err := config.GetVariant(cfg, "development")
 
-	assert.Nil(t, err)
+	req.NoError(err)
 
-	assert.Equal(t, "someuser", variant.Runs.As)
-	assert.Equal(t, true, variant.Runs.Insecurely.True)
-	assert.Equal(t, uint(666), variant.Runs.UID)
-	assert.Equal(t, uint(777), variant.Runs.GID)
-	assert.Equal(t, map[string]string{"FOO": "bar"}, variant.Runs.Environment)
+	req.Equal("someuser", variant.Runs.As)
+	req.Equal(true, variant.Runs.Insecurely.True)
+	req.Equal(uint(666), variant.Runs.UID)
+	req.Equal(uint(777), variant.Runs.GID)
+	req.Equal(map[string]string{"FOO": "bar"}, variant.Runs.Environment)
+	req.Equal("/some/directory", variant.Runs.In)
 }
 
 func TestRunsConfigInstructions(t *testing.T) {
@@ -49,6 +54,7 @@ func TestRunsConfigInstructions(t *testing.T) {
 			"fooname": "foovalue",
 			"barname": "barvalue",
 		},
+		In: "/some/directory",
 	}
 
 	t.Run("PhasePrivileged", func(t *testing.T) {
@@ -86,7 +92,12 @@ func TestRunsConfigInstructions(t *testing.T) {
 	})
 
 	t.Run("PhasePostInstall", func(t *testing.T) {
-		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePostInstall))
+		assert.Equal(t,
+			[]build.Instruction{
+				build.WorkingDirectory{"/some/directory"},
+			},
+			cfg.InstructionsForPhase(build.PhasePostInstall),
+		)
 	})
 }
 
