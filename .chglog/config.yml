@@ -16,6 +16,3 @@ options:
     pattern_maps:
       - Type
       - Subject
-  notes:
-    keywords:
-      - BREAKING CHANGE
