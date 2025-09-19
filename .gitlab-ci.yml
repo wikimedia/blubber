@@ -5,7 +5,8 @@ include:
 
 default:
   tags:
-    - kubernetes
+    # foo
+    - gitlab-runners-staging
 
 stages:
   - test
@@ -15,7 +16,7 @@ stages:
 # Test MRs
 .workflow-mr:
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_PIPELINE_SOURCE == 'schedule'
 
 # Create a release for each new version tag
 .workflow-release:
@@ -50,6 +51,8 @@ run-acceptance-tests:
   stage: test
   needs: [test]
   extends: [.workflow-mr, .kokkuri:remote-context]
+  tags:
+    - gitlab-runners-staging-memopt
   image: '${TEST_ACCEPTANCE_IMAGE_REF}'
   variables:
     BLUBBER_TEST_IMAGE: '${TEST_BUILDKIT_IMAGE_REF}'
