@@ -51,6 +51,10 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 		return nil, errors.Wrap(err, "failed to parse build options")
 	}
 
+	// Ensure image metadata resolution occurs via the gateway client and its
+	// buildkitd bridge connection in case registry mirrors are configured.
+	buildOptions.MetaResolver = c
+
 	// Inherit the dockerui client configuration to ensure docker toolchain
 	// compatibility.
 	buildOptions.BuildArgs = bc.Config.BuildArgs
@@ -157,6 +161,10 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 			return ref, &dimg, nil, nil
 		},
 	)
+
+	if err != nil {
+		return nil, err
+	}
 
 	if scanner != nil {
 		err = rb.EachPlatform(ctx, func(ctx context.Context, id string, _ oci.Platform) error {

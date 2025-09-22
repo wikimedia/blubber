@@ -115,6 +115,10 @@ func (target *Target) Initialize(ctx context.Context) error {
 			LogName:  target.Logf("resolving image metadata for %s", resolveName),
 		})
 
+		if err != nil {
+			return errors.Wrap(err, "failed to resolve image config")
+		}
+
 		// The return of a new ref by ResolveImageConfig is a new behavior as of
 		// buildkit v0.14.0. It isn't clear exactly why this is needed, but the
 		// following overwriting of ref is based on the dockerfile frontend
