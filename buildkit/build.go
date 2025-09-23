@@ -61,6 +61,9 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 	buildOptions.Labels = bc.Config.Labels
 	buildOptions.TargetPlatforms = bc.Config.TargetPlatforms
 
+	// Ensure --no-cache client options work
+	buildOptions.NoCache = bc.IsNoCache
+
 	if len(bc.Config.BuildPlatforms) > 0 {
 		buildOptions.BuildPlatform = bc.Config.BuildPlatforms[0]
 	}

@@ -147,10 +147,18 @@ func (target *Target) Initialize(ctx context.Context) error {
 		target.image = &img
 		target.image.Created = nil
 
-		target.state = llb.Image(
-			target.Base,
+		imageOpts := []llb.ImageOption{
 			llb.Platform(target.Platform()),
 			target.Describef("%s %s", emojiExternal, target.Base),
+		}
+
+		if target.noCache() {
+			imageOpts = append(imageOpts, llb.IgnoreCache)
+		}
+
+		target.state = llb.Image(
+			target.Base,
+			imageOpts...,
 		)
 	}
 
@@ -322,15 +330,27 @@ func (target *Target) copy(sources []string, destination string, from string, op
 		}
 	}
 
+	if target.noCache() {
+		fileOpts = append(fileOpts, llb.IgnoreCache)
+	}
+
 	target.state = target.state.File(fa, fileOpts...)
 	return nil
 }
 
 // Mkfile creates a single file with the given content.
 func (target *Target) Mkfile(path string, mode os.FileMode, data []byte, opts ...llb.MkfileOption) error {
+	fileOpts := []llb.ConstraintsOpt{
+		target.Describef("%s %+v", emojiFile, path),
+	}
+
+	if target.noCache() {
+		fileOpts = append(fileOpts, llb.IgnoreCache)
+	}
+
 	target.state = target.state.File(
 		llb.Mkfile(path, mode, data, opts...),
-		target.Describef("%s %+v", emojiFile, path),
+		fileOpts...,
 	)
 	return nil
 }
@@ -467,10 +487,18 @@ func (target *Target) NamedContext(name string) llb.State {
 		return dep.state
 	}
 
-	return llb.Image(
-		name,
+	imageOpts := []llb.ImageOption{
 		llb.Platform(target.Platform()),
 		target.Describef("%s %s", emojiExternal, name),
+	}
+
+	if target.noCache() {
+		imageOpts = append(imageOpts, llb.IgnoreCache)
+	}
+
+	return llb.Image(
+		name,
+		imageOpts...,
 	)
 }
 
@@ -594,6 +622,11 @@ func (target *Target) Scan(scanner Scanner) (result.Attestation[*llb.State], err
 	return scanner(target.state, depStates)
 }
 
+// noCache returns whether caching for this target is disabled.
+func (target *Target) noCache() bool {
+	return target.Options.NoCache(target.Name)
+}
+
 // run is a common dispatch for all llb.State.Run operations, ensuring certain
 // core behaviors such as the inclusion of proxy settings from build
 // arguments.
@@ -602,6 +635,10 @@ func (target *Target) run(runOpts ...llb.RunOption) error {
 
 	if pe != nil {
 		runOpts = append(runOpts, llb.WithProxy(*pe))
+	}
+
+	if target.noCache() {
+		runOpts = append(runOpts, llb.IgnoreCache)
 	}
 
 	target.state = target.state.Run(runOpts...).Root()

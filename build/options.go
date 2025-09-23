@@ -36,6 +36,10 @@ type Options struct {
 
 	// Target platforms
 	TargetPlatforms []oci.Platform
+
+	// Function that returns whether or not to disable caching for a given named
+	// target.
+	NoCache CacheDisabler
 }
 
 // NewOptions creates a new Options with default values assigned
@@ -47,6 +51,7 @@ func NewOptions() *Options {
 			localCtx := llb.Local(defaultBuildContext, llb.SharedKeyHint(defaultBuildContext))
 			return &localCtx, nil
 		},
+		NoCache:         func(_ string) bool { return false },
 		BuildPlatform:   defaultPlatform,
 		MetaResolver:    imagemetaresolver.Default(),
 		TargetPlatforms: []oci.Platform{defaultPlatform},
