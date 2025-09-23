@@ -94,6 +94,8 @@ variants:
     runs:
       environment:
         BLUBBER_RUN_EXAMPLES: "1"
+        BLUBBER_TEST_IMAGE: "registry:5000/blubber/buildkit:latest"
+        BUILDKIT_HOST: "tcp://buildkitd:1234"
     copies:
       - from: examples
         source: ./examples.test

@@ -1,6 +1,6 @@
 # Contributing to Blubber
 
-`blubber` is an open source project maintained by Wikimedia Foundation's
+Blubber is an open source project maintained by Wikimedia Foundation's
 Release Engineering Team and developed primarily to support a continuous
 delivery pipeline for MediaWiki and related applications. We will, however,
 consider any contribution that advances the project in a way that is valuable
@@ -8,110 +8,149 @@ to both users inside and outside of WMF and our communities.
 
 ## Requirements
 
- 1. `go` >= 1.19 and related tools
+ 1. If you have not yet contributed to a Wikimedia project, head over to the
+    [Wikimedia Developer Portal](https://developer.wikimedia.org/contribute/overview/)
+    and read the Code of Conduct and other relevant materials.
+ 2. Create a [developer account](https://wikitech.wikimedia.org/wiki/Help:Create_a_Wikimedia_developer_account)
+    which you will use clone the [Blubber repo](https://gitlab.wikimedia.org/repos/releng/blubber)
+    and submit your changes as a merge request.
+ 3. `go` >= 1.21 and related tools
     * To install on rpm style systems: `sudo dnf install golang golang-godoc`
     * To install on apt style systems: `sudo apt install golang golang-golang-x-tools`
     * To install on macOS use [Homebrew](https://brew.sh) and run:
       `brew install go`
     * You can run `go version` to check the golang version.
     * If your distro's go package is too old or unavailable,
-      [download](https://golang.org/dl/) a newer golang version.
- 2. An account at [gerrit.wikimedia.org](https://gerrit.wikimedia.org)
-    * See the [guide](https://www.mediawiki.org/wiki/Gerrit/Getting_started)
-      on mediawiki.org for setup instructions.
- 3. (optional) `gox` is used for cross-compiling binary releases.
-    * To install `gox` use `go get github.com/mitchellh/gox`.
- 4. (optional) `golint` is used in `make lint` for code checking.
-    * To install `golint` use `go get -u golang.org/x/lint/golint`
-    * More info at: https://github.com/golang/lint
+      [download](https://go.dev/doc/install) a newer golang version.
+ 4. The `docker` and `docker buildx` clients.
+    * See upstream documentation for the [various ways to install buildx](https://github.com/docker/buildx?tab=readme-ov-file#installing).
 
 ## Get the source
 
-Use `go get` to install the source from our Git repo into `src` under your
-`GOPATH`. By default, this will be `~/go/src`.
+Clone the repo from `https://gitlab.wikimedia.org/repos/releng/blubber.git`.
 
-    go get gitlab.wikimedia.org/repos/releng/blubber
+```console
+$ git clone https://gitlab.wikimedia.org/repos/releng/blubber.git ~/src/blubber
+$ cd ~/src/blubber
+```
 
-Symlink it to a different directory if you'd prefer not to work from your
-`GOPATH`. For example:
+Verify a working toolchain by building Blubber prior to making changes.
 
-    cd ~/Projects
-    ln -s ~/go/src/gitlab.wikimedia.org/repos/releng/blubber
-    cd blubber # yay.
+```console
+[~/src/blubber]$ docker buildx build -f bake.hcl
+```
 
-## Have a read through the documentation
+If you plan to compile or debug on your host machine, ensure you can build
+directly from the `Makefile`.
 
-If you haven't already seen the [README.md](README.md), check it out.
+```console
+[~/src/blubber]$ make
+```
 
-Run `godoc -http :9999` and peruse the HTML generated from inline docs
-at `localhost:9999/pkg/gitlab.wikimedia.org/repos/releng/blubber`.
+## Make your changes
+
+Blubber's source code is organized into the following directories/packages:
+
+ - `api`: Contains the JSON Schema used to validate and document
+   configuration. If you are adding a feature, you will likely need to
+   amend the schema with extra fields and their validation rules.
+ - `build`: Types that represent generic build instructions and functions that
+   compile Blubber build types to BuildKit LLB.
+ - `buildkit`: BuildKit frontend gateway implementation responsible for
+   handling Blubber based image builds. It contains the main entrypoint for
+   the gRPC gateway process (`buildkit.Build`).
+ - `cmd`: Main CLI/process entrypoints.
+ - `config`: Types for all supported configuration. Each type is responsible
+   for implementing `build.PhaseCompileable` to emit build instructions. If
+   you are adding a feature, you will likely be making changes here.
+ - `docs`: Contains the Vitepress based user documentation portal.
+ - `examples`: Examples used by the acceptance test runner and as sources for
+   user documentation. New features should have at least one example/scenario.
+ - `util`: Util Go packages. Modules developed here should be broken out into
+   separate repos as they mature.
 
 ## Running tests and linters
 
-Tests and linters for packages/files you've changed will automatically run
-when you submit your changes to Gerrit for review. You can also run them
-locally using the `Makefile`:
+After you have made your changes, run the unit tests and linters to ensure
+basic correctness.
 
-    make lint # to run all linters
-    make unit # or all unit tests
-    make test # or all linters and unit tests
+```console
+[~/src/blubber]$ docker buildx bake -f bake.hcl test
+```
 
-    go test -run TestFuncName ./... # to run a single test function
+## More thorough testing of the BuildKit frontend
 
-Alternatively you can run the test inside a Blubber built image
-(`.pipeline/blubber.yaml`) using our Docker build-kit:
+To run acceptance tests or test/debug Blubber's BuildKit frontend, you will
+need your own `buildkitd` instance and an acccessible OCI registry.
+The easiest way to achieve this setup is to run both locally using Docker.
 
-    make test-docker
+```console
+$ docker network create blubber
+$ docker run -d --name buildkitd -p 1234:1234 --privileged --network blubber moby/buildkit:latest --addr tcp://0.0.0.0:1234
+$ docker run -d --name registry -p 5000:5000 --network blubber registry:2
+$ docker buildx create --use --name blubber --driver remote tcp://0.0.0.0:1234
+```
+
+### Running the acceptance tests
+
+(See above for ensuring a local registry and `buildkitd`.)
+
+If you are developing or testing a new feature that has a corresponding
+acceptance test under the [examples](./examples) directory, you can run the
+suite locally to ensure it passes.
+
+First, build the `buildkit` and `acceptance` images and publish them to your
+local registry.
+
+```console
+[~/src/blubber]$ docker buildx bake -f bake.hcl --load buildkit acceptance
+```
+
+(The `--load` is important here as it imports the resulting images into the
+local Docker daemon's image store.)
+
+Now run the acceptance test suite.
+
+```console
+[~/src/blubber]$ docker run --rm --pull never --network blubber registry:5000/blubber/acceptance
+```
+
+### Manually testing a blubber.yaml against local changes
+
+(See above for ensuring a local registry and `buildkitd`.)
+
+To manually test a `blubber.yaml` configuration against your local changes,
+first build and publish the Blubber `buildkit` gateway image.
+
+```console
+[~/src/blubber]$ docker buildx bake -f bake.hcl buildkit
+```
+
+Add a `syntax` line to your `blubber.yaml`.
+
+```yaml
+# syntax=registry:5000/blubber/buildkit:latest
+version: v4
+variants:
+  foo:
+    # [...]
+```
+
+Build a variant from your `blubber.yaml`.
+
+```console
+[~/your/test/dir]$ docker buildx build -f blubber.yaml --target foo .
+```
+
+To see debugging information, you can use `docker buildx --debug ...` and/or
+tail the `buildkitd` logs.
+
+```console
+$ docker logs -f buildkitd
+```
 
 ## Getting your changes reviewed and merged
 
-Push your changes to Gerrit for review. See the
-[guide](https://www.mediawiki.org/wiki/Gerrit/Tutorial#How_to_submit_a_patch)
-on mediawiki.org on how to correctly prepare and submit a patch.
-
-## Releases
-
-The `release` target of the `Makefile` in this repository uses `gox` to
-cross-compile binary releases of Blubber.
-
-    make release
-
-## Testing and debugging the BuildKit frontend
-
-Debugging the gRPC BuildKit gateway (`cmd/blubber-buildkit`) can be difficult
-as stack traces do not surface from the user-facing tools like `docker build`
-or `buildctl`. The easiest way to get access to the gateway's logging is to
-start `buildkitd` in a container and use `docker logs -f` to tail its logs
-while building.
-
-Start `buildkitd` in a Docker container.
-
-    docker run -d --name buildkitd --privileged moby/buildkit:latest
-    export BUILDKIT_HOST=docker-container://buildkitd
-
-Build the buildkit gateway image and tag it for distribution to a
-registry accessible by `buildkitd`.
-
-    ./blubber .pipeline/blubber.yaml buildkit \
-      | docker build -t my-docker-io-account/blubber-buildkit -f - .
-
-Publish the gateway image. (Requires that you first auth with `docker login`.)
-
-    docker push my-docker-io-account/blubber-buildkit
-
-Tail `buildkitd` logs in a terminal.
-
-    docker logs -f buildkitd
-
-Build a configuration using `buildctl` and the published gateway image.
-
-    buildctl build \
-        --frontend gateway.v0 \
-        --opt source=my-docker-io-account/blubber-buildkit \
-        --local context=. \
-        --local dockerfile=. \
-        --opt filename=.pipeline/blubber.yaml \
-        --opt variant=test
-
-If a fatal occurs, you should now see the full error and stack trace in the
-Docker logs.
+Push your changes to GitLab for review. Refer to the
+[workflow guide](https://www.mediawiki.org/wiki/GitLab/Workflows/Making_a_merge_request)
+for details.
