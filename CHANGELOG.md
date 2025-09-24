@@ -1,4 +1,28 @@
 
+<a name="v1.5.0"></a>
+## [v1.5.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.4.1...v1.5.0)
+
+> 2025-09-24
+
+### Arguments
+
+* Support build arguments
+
+### BuildKit
+
+* Support `--no-cache` client options
+* Ensure image metadata resolution occurs via buildkitd
+
+### Docs
+
+* Fix docs config and run `build-documentation` against MRs
+* Update `CONTRIBUTING.md`
+
+### Examples
+
+* Balance sets of acceptance tests
+
+
 <a name="v1.4.1"></a>
 ## [v1.4.1](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.4.0...v1.4.1)
 
