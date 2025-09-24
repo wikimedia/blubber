@@ -110,7 +110,7 @@ Feature: Builders
     Then the image will not have the following files in the default working directory
       | README.md |
 
-  @set3
+  @set1
   Scenario: Using caches to speed up builds
     Given "examples/hello-world-go" as a working directory
     And this "blubber.yaml"
