@@ -75,7 +75,7 @@ build-and-publish-frontend:
 # Build documentation
 build-documentation:
   stage: build-publish-docs
-  extends: [.workflow-docs, .kokkuri:bake, .kokkuri:remote-context, .docpub:build-docs]
+  extends: [.workflow-docs, .workflow-mr, .kokkuri:bake, .kokkuri:remote-context, .docpub:build-docs]
   variables:
     BUILD_TARGETS: docs
     DOCS_DIR: dist/docs

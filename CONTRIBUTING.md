@@ -96,8 +96,8 @@ $ docker buildx create --use --name blubber --driver remote tcp://0.0.0.0:1234
 (See above for ensuring a local registry and `buildkitd`.)
 
 If you are developing or testing a new feature that has a corresponding
-acceptance test under the [examples](./examples) directory, you can run the
-suite locally to ensure it passes.
+acceptance test under the `examples` directory, you can run the suite locally
+to ensure it passes.
 
 First, build the `buildkit` and `acceptance` images and publish them to your
 local registry.
