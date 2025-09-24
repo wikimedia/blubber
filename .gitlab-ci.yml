@@ -64,13 +64,10 @@ run-acceptance-tests:
 # an MR is merged to an experimental branch.
 build-and-publish-frontend:
   stage: publish
-  extends: [.workflow-release, .kokkuri:build-and-publish-image, .kokkuri:remote-context]
+  extends: [.workflow-release, .kokkuri:bake, .kokkuri:remote-context]
   variables:
-    BUILD_VARIANT: buildkit
-    BUILD_TARGET_PLATFORMS: linux/amd64,linux/arm64
-    PUBLISH_IMAGE_NAME: '${CI_PROJECT_PATH}/buildkit'
-    PUBLISH_PROVENANCE: 'yes'
-    BUILDCTL_BUILD_FLAGS: '--opt build-arg:BUILDKIT_CONTEXT_KEEP_GIT_DIR=1'
+    BUILD_TARGETS: buildkit
+    TAG: '${CI_COMMIT_TAG}'
 
 # Build documentation
 build-documentation:

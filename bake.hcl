@@ -13,6 +13,10 @@ target "common" {
   dockerfile = ".pipeline/blubber.yaml"
 
   args = {
+    # Declare the syntax as a build arg so bake on trusted runners works
+    # without proxying through the dockerfile frontend. This should be kept in
+    # sync with the syntax declared in .pipeline/blubber.yaml
+    BUILDKIT_SYNTAX = "docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.5.0"
     BUILDKIT_CONTEXT_KEEP_GIT_DIR = "1"
   }
 }
@@ -58,6 +62,7 @@ target "buildkit" {
   inherits = ["common"]
   target = "buildkit"
   platforms = ["linux/amd64", "linux/arm64"]
+  attest = ["type=provenance,mode=max"]
   tags = ["${REGISTRY}/buildkit:${TAG}"]
   output = [ "type=registry" ]
 }
