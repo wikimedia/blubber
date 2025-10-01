@@ -61,33 +61,19 @@ variants:
     runs:
       insecurely: true
 
-  lint:
+  make:
     includes: [test]
+    arguments:
+      MAKE_TARGET: ""
     builders:
       - custom:
-          command: "make lint"
-          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
-
-  unit:
-    includes: [test]
-    builders:
-      - custom:
-          command: "make unit"
-          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
-
-  ensure-docs:
-    includes: [test]
-    builders:
-      - custom:
-          command: "make ensure-docs"
+          command: "make ${MAKE_TARGET}"
           caches: ["${GOCACHE}", "${GOPATH}/pkg"]
 
   examples:
-    includes: [build, project]
-    builders:
-      - custom:
-          command: "make examples.test"
-          caches: ["${GOCACHE}", "${GOPATH}/pkg"]
+    includes: [make]
+    arguments:
+      MAKE_TARGET: "examples.test"
 
   acceptance:
     includes: [debian]

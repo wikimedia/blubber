@@ -35,19 +35,16 @@ group "test" {
   ]
 }
 
-target "lint" {
+target "make" {
   inherits = ["common"]
-  target = "lint"
-}
-
-target "unit" {
-  inherits = ["common"]
-  target = "unit"
-}
-
-target "ensure-docs" {
-  inherits = ["common"]
-  target = "ensure-docs"
+  name = make_target
+  target = "make"
+  args = {
+    MAKE_TARGET = make_target
+  }
+  matrix = {
+    make_target = ["lint", "unit", "ensure-docs"]
+  }
 }
 
 target "acceptance" {
