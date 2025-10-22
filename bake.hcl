@@ -8,6 +8,18 @@ variable "TAG" {
   description = "The tag to use for published images."
 }
 
+function "versiontags" {
+  # A set of tags for the given variant name, using REGISTRY as a prefix and
+  # interpreting TAG as a hierarchical version string (e.g. v1.2.3) whereby
+  # a tag will be included for each distinct part of the hierarchy (e.g. v1,
+  # v1.2, v1.2.3).
+  params = [ variant ]
+  result = [
+    for i in range(length(split(".", TAG))) :
+    join("", ["${REGISTRY}/${variant}:", join(".", slice(split(".", TAG), 0, i + 1))])
+  ]
+}
+
 target "common" {
   context = "."
   dockerfile = ".pipeline/blubber.yaml"
@@ -51,7 +63,7 @@ target "acceptance" {
   inherits = ["common"]
   target = "acceptance"
   platforms = ["linux/amd64"]
-  tags = ["${REGISTRY}/acceptance:${TAG}"]
+  tags = versiontags("acceptance")
   output = [ "type=registry" ]
 }
 
@@ -60,7 +72,7 @@ target "buildkit" {
   target = "buildkit"
   platforms = ["linux/amd64", "linux/arm64"]
   attest = ["type=provenance,mode=max"]
-  tags = ["${REGISTRY}/buildkit:${TAG}"]
+  tags = versiontags("buildkit")
   output = [ "type=registry" ]
 }
 
