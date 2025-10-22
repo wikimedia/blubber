@@ -1,4 +1,16 @@
 
+<a name="v1.5.1"></a>
+## [v1.5.1](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v0.0.0-test.0...v1.5.1)
+
+> 2025-10-21
+
+
+<a name="v0.0.0-test.0"></a>
+## [v0.0.0-test.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.5.0...v0.0.0-test.0)
+
+> 2025-09-24
+
+
 <a name="v1.5.0"></a>
 ## [v1.5.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.4.1...v1.5.0)
 
