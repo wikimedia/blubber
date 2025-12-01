@@ -17,11 +17,9 @@ import (
 	"github.com/docker/distribution/reference"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/client/llb/sourceresolver"
-	"github.com/moby/buildkit/solver/result"
 	"github.com/moby/buildkit/util/system"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
 
 	"gitlab.wikimedia.org/repos/releng/blubber/meta"
 )
@@ -41,21 +39,21 @@ const (
 )
 
 // Target is used during compilation to keep track of build arguments, the
-// compiled LLB state, image configuration, and dependent targets.
+// compiled LLB state, image configuration.
 type Target struct {
-	Name         string
-	Base         string
-	Image        *TargetImage
-	Options      *Options
-	state        llb.State
-	image        *oci.Image
-	platform     *oci.Platform
-	dependencies *TargetGroup
-	user         string
+	Name     string
+	Base     string
+	Image    *TargetImage
+	Options  Options
+	state    llb.State
+	image    *oci.Image
+	platform *oci.Platform
+	user     string
+	ctx      context.Context
 }
 
 // NewTarget constructs a [Target] using the given arguments and defaults
-func NewTarget(name string, base string, platform *oci.Platform, options *Options) *Target {
+func NewTarget(name string, base string, platform *oci.Platform, options Options) *Target {
 	state := llb.NewState(nil)
 
 	target := &Target{
@@ -64,10 +62,10 @@ func NewTarget(name string, base string, platform *oci.Platform, options *Option
 		state:    state,
 		platform: platform,
 		Options:  options,
+		ctx:      context.TODO(),
 	}
 	target.image = newImage(target.Platform())
 	target.Image = &TargetImage{target: target}
-	target.dependencies = &TargetGroup{target}
 
 	return target
 }
@@ -96,70 +94,19 @@ func (target *Target) BuildEnv() map[string]string {
 // Initialize performs preprocessing steps, resolving the base image config,
 // adding build-time environment variables, etc.
 func (target *Target) Initialize(ctx context.Context) error {
+	target.ctx = ctx
+
 	if target.Base != "" {
-		ref, err := reference.ParseNormalizedNamed(target.Base)
-
+		state, img, err := target.NamedContext(target.Base, ContextOpt{})
 		if err != nil {
-			return errors.Wrapf(err, "failed to parse stage name %q", target.Base)
+			return err
 		}
 
-		// Note this is based on implementation in upstream's Dockerfile2LLB
-		// TODO figure out why removing a specific digest is necessary when
-		// resolving an image. Perhaps it's to allow the resolver to find the right
-		// platform-specific image in what could be a manifest list?
-		resolveName := reference.TagNameOnly(ref).String()
-		platform := target.Platform()
+		target.state = state
 
-		mutRef, digest, config, err := target.Options.MetaResolver.ResolveImageConfig(ctx, resolveName, sourceresolver.Opt{
-			Platform: &platform,
-			LogName:  target.Logf("resolving image metadata for %s", resolveName),
-		})
-
-		if err != nil {
-			return errors.Wrap(err, "failed to resolve image config")
+		if img != nil {
+			target.image = img
 		}
-
-		// The return of a new ref by ResolveImageConfig is a new behavior as of
-		// buildkit v0.14.0. It isn't clear exactly why this is needed, but the
-		// following overwriting of ref is based on the dockerfile frontend
-		if ref.String() != mutRef {
-			ref, err = reference.ParseNormalizedNamed(mutRef)
-			if err != nil {
-				return errors.Wrapf(err, "failed to parse ref %q", mutRef)
-			}
-		}
-
-		if digest != "" {
-			refWithDigest, err := reference.WithDigest(ref, digest)
-
-			if err != nil {
-				return errors.Wrap(err, "failed to get digest from ref")
-			}
-
-			target.Base = refWithDigest.String()
-		}
-
-		var img oci.Image
-		if err := json.Unmarshal(config, &img); err != nil {
-			return errors.Wrap(err, "failed to parse image config")
-		}
-
-		target.image = &img
-		target.image.Created = nil
-
-		imageOpts := []llb.ImageOption{
-			llb.Platform(target.Platform()),
-			target.Describef("%s %s", emojiExternal, target.Base),
-		}
-
-		if target.noCache() {
-			imageOpts = append(imageOpts, llb.IgnoreCache)
-		}
-
-		target.state = llb.Image(
-			target.Base,
-			imageOpts...,
-		)
 	}
 
 	// Set up our initial state using meta data from the image config. This
@@ -251,7 +198,7 @@ func (target *Target) DescribeExecf(msg string, values ...interface{}) llb.Const
 
 // BuildContext returns the llb.State for the main build context
 func (target *Target) BuildContext() (*llb.State, error) {
-	return target.Options.BuildContext(context.TODO())
+	return target.Options.BuildContext(target.ctx)
 }
 
 // CopyFromBuildContext copies one or more sources from the main build context
@@ -306,7 +253,10 @@ func (target *Target) copy(sources []string, destination string, from string, op
 			target.Describef("%s {%s}%+v -> %+v", emojiImage, from, sources, destination),
 		)
 
-		namedCtxState := target.NamedContext(from)
+		namedCtxState, _, err := target.NamedContext(from, ContextOpt{})
+		if err != nil {
+			return err
+		}
 		fromState = &namedCtxState
 	}
 
@@ -466,29 +416,109 @@ func (target *Target) ExpandEnv(subject string) string {
 	})
 }
 
-// NamedContext looks in the target's dependencies for an entry with the given
-// name and returns its [llb.State]. If no dependency with the given name is
-// found, the name is assumed to be an image ref. If the name is "local", the
-// main build context is used.
+// NamedContext returns the llb.State for a named build context.
 //
-// TODO if a NamedContextResolver were implemented (similar to
-// [ContextResolver], we could delegate to that. This would allow the buildkit
-// gateway to in turn delegate to [dockerui.Client.NamedContext].
-func (target *Target) NamedContext(name string) llb.State {
+// It resolves from any of these sources with the following priority:
+//
+//  1. The "local" (main) build context
+//  2. A named context provided by the caller
+//  3. An image
+func (target *Target) NamedContext(name string, opt ContextOpt) (llb.State, *oci.Image, error) {
+	var zeroState llb.State
+
+	if opt.Platform == nil {
+		defaultPlatform := target.Platform()
+		opt.Platform = &defaultPlatform
+	}
+
 	if name == LocalContextKeyword {
 		mainCtx, err := target.BuildContext()
 		if err != nil {
-			return *mainCtx
+			return zeroState, nil, err
+		}
+
+		return *mainCtx, nil, nil
+	}
+
+	if target.Options.NamedContext != nil {
+		state, img, err := target.Options.NamedContext(target.ctx, name, opt)
+		if err != nil {
+			return zeroState, nil, err
+		}
+
+		if state != nil {
+			return *state, img, nil
 		}
 	}
 
-	dep, ok := target.dependencies.Find(name)
-	if ok {
-		return dep.state
+	state, img, err := target.resolveImage(name, opt.Platform)
+	if err != nil {
+		return zeroState, nil, err
 	}
 
+	return *state, img, err
+}
+
+func (target *Target) resolveImage(name string, p *oci.Platform) (*llb.State, *oci.Image, error) {
+	platform := target.Platform()
+	if p != nil {
+		platform = *p
+	}
+
+	ref, err := reference.ParseNormalizedNamed(name)
+
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "failed to parse stage name %q", name)
+	}
+
+	// Note this is based on implementation in upstream's Dockerfile2LLB
+	// TODO figure out why removing a specific digest is necessary when
+	// resolving an image. Perhaps it's to allow the resolver to find the right
+	// platform-specific image in what could be a manifest list?
+	resolveName := reference.TagNameOnly(ref).String()
+
+	mutRef, digest, config, err := target.Options.MetaResolver.ResolveImageConfig(
+		target.ctx,
+		resolveName,
+		sourceresolver.Opt{
+			Platform: &platform,
+			LogName:  target.Logf("resolving image metadata for %s", resolveName),
+		},
+	)
+
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to resolve image config")
+	}
+
+	// The return of a new ref by ResolveImageConfig is a new behavior as of
+	// buildkit v0.14.0. It isn't clear exactly why this is needed, but the
+	// following overwriting of ref is based on the dockerfile frontend
+	if ref.String() != mutRef {
+		ref, err = reference.ParseNormalizedNamed(mutRef)
+		if err != nil {
+			return nil, nil, errors.Wrapf(err, "failed to parse ref %q", mutRef)
+		}
+	}
+
+	if digest != "" {
+		refWithDigest, err := reference.WithDigest(ref, digest)
+
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to get digest from ref")
+		}
+
+		name = refWithDigest.String()
+	}
+
+	var img oci.Image
+	if err := json.Unmarshal(config, &img); err != nil {
+		return nil, nil, errors.Wrap(err, "failed to parse image config")
+	}
+
+	img.Created = nil
+
 	imageOpts := []llb.ImageOption{
-		llb.Platform(target.Platform()),
+		llb.Platform(platform),
 		target.Describef("%s %s", emojiExternal, name),
 	}
 
@@ -496,15 +526,18 @@ func (target *Target) NamedContext(name string) llb.State {
 		imageOpts = append(imageOpts, llb.IgnoreCache)
 	}
 
-	return llb.Image(
-		name,
-		imageOpts...,
-	)
+	image := llb.Image(name, imageOpts...)
+	return &image, &img, nil
 }
 
 // Logf formats logging messages for this target
 func (target *Target) Logf(msg string, values ...interface{}) string {
-	padding := strings.Repeat(" ", target.dependencies.MaxNameLength()-target.NameLength())
+	nameLength := target.NameLength()
+
+	padding := ""
+	if target.Options.NameLogWidth > nameLength {
+		padding = strings.Repeat(" ", target.Options.NameLogWidth-nameLength)
+	}
 
 	v := append([]interface{}{}, target, padding)
 	v = append(v, values...)
@@ -521,6 +554,11 @@ func (target *Target) Marshal(ctx context.Context) (*llb.Definition, *oci.Image,
 	}
 
 	return def, target.image, nil
+}
+
+// State returns the current [llb.State].
+func (target *Target) State() llb.State {
+	return target.state
 }
 
 // WriteTo marshals the target state to protobuf and writes it to the given
@@ -610,18 +648,6 @@ func (target *Target) RunEntrypoint(args []string, env map[string]string) error 
 	return target.run(runOpts...)
 }
 
-// Scan passes the given Scanner the llb.State for this target and all of its
-// dependencies.
-func (target *Target) Scan(scanner Scanner) (result.Attestation[*llb.State], error) {
-	depStates := make(map[string]llb.State, len(*target.dependencies))
-
-	for _, dep := range *target.dependencies {
-		depStates[dep.Name] = dep.state
-	}
-
-	return scanner(target.state, depStates)
-}
-
 // noCache returns whether caching for this target is disabled.
 func (target *Target) noCache() bool {
 	return target.Options.NoCache(target.Name)
@@ -680,61 +706,6 @@ func (target *Target) proxyEnv() *llb.ProxyEnv {
 	}
 
 	return nil
-}
-
-// TargetGroup provides interfaces for building multiple dependent targets.
-type TargetGroup []*Target
-
-// NewTarget creates a new [Target] and sets its dependencies to this
-// [TargetGroup].
-func (tg *TargetGroup) NewTarget(name string, base string, platform *oci.Platform, options *Options) *Target {
-	target := NewTarget(name, base, platform, options)
-	target.dependencies = tg
-
-	*tg = append(*tg, target)
-
-	return target
-}
-
-// Find returns the target matching the given name or nil if none by that name
-// are found.
-func (tg *TargetGroup) Find(name string) (*Target, bool) {
-	for _, t := range *tg {
-		if t.Name == name {
-			return t, true
-		}
-	}
-	return nil, false
-}
-
-// InitializeAll calls [Target.Initialize] on all targets in the group.
-func (tg *TargetGroup) InitializeAll(ctx context.Context) error {
-	eg, ctx := errgroup.WithContext(ctx)
-
-	for _, t := range *tg {
-		func(target *Target) {
-			eg.Go(func() error {
-				return target.Initialize(ctx)
-			})
-		}(t)
-	}
-
-	return eg.Wait()
-}
-
-// MaxNameLength returns the length of the longest name in the target group.
-func (tg *TargetGroup) MaxNameLength() int {
-	max := 0
-
-	for _, target := range *tg {
-		l := target.NameLength()
-
-		if l > max {
-			max = l
-		}
-	}
-
-	return max
 }
 
 func newImage(platform oci.Platform) *oci.Image {

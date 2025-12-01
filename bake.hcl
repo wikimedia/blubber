@@ -73,6 +73,13 @@ target "buildkit" {
   platforms = ["linux/amd64", "linux/arm64"]
   attest = ["type=provenance,mode=max"]
   tags = versiontags("buildkit")
+  labels = {
+    "moby.buildkit.frontend.caps" = join(",", [
+        "moby.buildkit.frontend.inputs",
+        "moby.buildkit.frontend.contexts",
+        "moby.buildkit.frontend.gitquerystring",
+    ]),
+  }
   output = [ "type=registry" ]
 }
 

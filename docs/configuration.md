@@ -107,10 +107,12 @@ Build argument names and default values. Values may be passed in at build time. 
 
 See the description of each field for whether it supports environment and build argument expansion.
 
+Note that build arguments become environment variables in the resulting image configuration and should not be used to store sensitive values.
+
 ## base
 `.base` _null|string_
 
-Base image on which the new image will be built; a list of available images can be found by querying the [Wikimedia Docker Registry](https://docker-registry.wikimedia.org/).
+Base build context for the variant. This may be another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), or an image.
 
 ## builder
 `.builder` _object_
@@ -243,7 +245,7 @@ Supports environment variables and build arguments.
 #### from
 `.builder.mounts[].from` _string_
 
-Variant or image filesystem to mount. Set to `local` to mount the local build context.
+Build context to mount. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to mount the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context).
 
 #### source
 `.builder.mounts[].source` _string_
@@ -306,7 +308,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.builder.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.builder.requirements[].source` _string_
@@ -474,7 +476,7 @@ Supports environment variables and build arguments.
 #### from
 `.builders[].custom.mounts[].from` _string_
 
-Variant or image filesystem to mount. Set to `local` to mount the local build context.
+Build context to mount. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to mount the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context).
 
 #### source
 `.builders[].custom.mounts[].source` _string_
@@ -537,7 +539,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.builders[].custom.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.builders[].custom.requirements[].source` _string_
@@ -637,7 +639,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.builders[].node.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.builders[].node.requirements[].source` _string_
@@ -714,7 +716,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.builders[].php.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.builders[].php.requirements[].source` _string_
@@ -803,7 +805,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.builders[].python.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.builders[].python.requirements[].source` _string_
@@ -920,7 +922,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.node.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.node.requirements[].source` _string_
@@ -994,7 +996,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.php.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.php.requirements[].source` _string_
@@ -1080,7 +1082,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.python.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.python.requirements[].source` _string_
@@ -1247,10 +1249,12 @@ Build argument names and default values. Values may be passed in at build time. 
 
 See the description of each field for whether it supports environment and build argument expansion.
 
+Note that build arguments become environment variables in the resulting image configuration and should not be used to store sensitive values.
+
 #### base
 `.variants.*.base` _null|string_
 
-Base image on which the new image will be built; a list of available images can be found by querying the [Wikimedia Docker Registry](https://docker-registry.wikimedia.org/).
+Base build context for the variant. This may be another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), or an image.
 
 #### builder
 `.variants.*.builder` _object_
@@ -1383,7 +1387,7 @@ Supports environment variables and build arguments.
 #### from
 `.variants.*.builder.mounts[].from` _string_
 
-Variant or image filesystem to mount. Set to `local` to mount the local build context.
+Build context to mount. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to mount the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context).
 
 #### source
 `.variants.*.builder.mounts[].source` _string_
@@ -1446,7 +1450,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.builder.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.builder.requirements[].source` _string_
@@ -1614,7 +1618,7 @@ Supports environment variables and build arguments.
 #### from
 `.variants.*.builders[].custom.mounts[].from` _string_
 
-Variant or image filesystem to mount. Set to `local` to mount the local build context.
+Build context to mount. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to mount the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context).
 
 #### source
 `.variants.*.builders[].custom.mounts[].source` _string_
@@ -1677,7 +1681,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.builders[].custom.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.builders[].custom.requirements[].source` _string_
@@ -1777,7 +1781,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.builders[].node.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.builders[].node.requirements[].source` _string_
@@ -1854,7 +1858,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.builders[].php.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.builders[].php.requirements[].source` _string_
@@ -1943,7 +1947,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.builders[].python.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.builders[].python.requirements[].source` _string_
@@ -1990,7 +1994,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.copies[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.copies[].source` _string_
@@ -2125,7 +2129,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.node.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.node.requirements[].source` _string_
@@ -2199,7 +2203,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.php.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.php.requirements[].source` _string_
@@ -2285,7 +2289,7 @@ A valid glob pattern (e.g. `**/*.swp` or `!**/only-these`).
 #### from
 `.variants.*.python.requirements[].from` _null|string_
 
-Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem.
+Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied.
 
 #### source
 `.variants.*.python.requirements[].source` _string_

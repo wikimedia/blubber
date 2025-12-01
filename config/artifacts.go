@@ -16,7 +16,7 @@ import (
 // binaries or production only source files over into a smaller image that
 // contains only production dependencies.
 type ArtifactsConfig struct {
-	From        string   `json:"from" validate:"required,artifactfrom"`
+	From        string   `json:"from" validate:"required,context"`
 	Source      string   `json:"source" validate:"requiredwith=destination,relativelocal"`
 	Destination string   `json:"destination"`
 	Exclude     []string `json:"exclude"`
