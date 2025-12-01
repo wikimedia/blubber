@@ -109,6 +109,16 @@ func (vc *VariantConfig) InstructionsForPhase(phase build.Phase) []build.Instruc
 	return instructions
 }
 
+// BaseRef returns the base ref, implementing [build.TargetCompileable].
+func (vc *VariantConfig) BaseRef() string {
+	return vc.Base
+}
+
+// Name returns the variant name, implementing [build.TargetCompileable].
+func (vc *VariantConfig) Name() string {
+	return vc.name
+}
+
 func (vc *VariantConfig) userForPhase(phase build.Phase) (switchUser string, uid string, gid string) {
 	switch phase {
 	case build.PhasePrivileged:

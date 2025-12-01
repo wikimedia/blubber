@@ -7,7 +7,7 @@ import (
 // CommonConfig holds the configuration fields common to both the root config
 // and each configured variant.
 type CommonConfig struct {
-	Base       string          `json:"base" validate:"omitempty,imageref"`
+	Base       string          `json:"base" validate:"omitempty,context"`
 	Arguments  ArgumentsConfig `json:"arguments" validate:"envvars"`
 	Apt        AptConfig       `json:"apt"`
 	Builders   BuildersConfig  `json:"builders" validate:"uniquetypesexcept=config.BuilderConfig,notallowedwith=node php python builder,dive"`

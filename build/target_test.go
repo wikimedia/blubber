@@ -39,7 +39,7 @@ func TestInitialize(t *testing.T) {
 	)
 	options.Labels["foo.label"] = "foo"
 
-	target := build.NewTarget("foo", "docker-registry.wikimedia.org/foo/base", nil, options)
+	target := build.NewTarget("foo", "docker-registry.wikimedia.org/foo/base", nil, *options)
 
 	req.NoError(target.Initialize(ctx))
 
@@ -292,14 +292,14 @@ func TestLogf(t *testing.T) {
 		req.Equal("[foo] bar: baz", target.Logf("bar: %s", "baz"))
 	})
 
-	t.Run("multiple targets", func(t *testing.T) {
+	t.Run("with NameLogWidth", func(t *testing.T) {
 		req := require.New(t)
-		targets := testtarget.NewTargets("foo", "longname")
+		target := testtarget.NewTarget("foo")
+		target.Options.NameLogWidth = 8
 
-		req.NoError(targets.InitializeAll(ctx))
+		req.NoError(target.Initialize(ctx))
 
-		req.Equal("[foo]      bar: baz", targets[0].Logf("bar: %s", "baz"))
-		req.Equal("[longname] bar: baz", targets[1].Logf("bar: %s", "baz"))
+		req.Equal("[foo]      bar: baz", target.Logf("bar: %s", "baz"))
 	})
 
 	t.Run("multiple platforms", func(t *testing.T) {

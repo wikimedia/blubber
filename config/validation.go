@@ -46,7 +46,7 @@ var (
 
 	humanizedErrors = map[string]string{
 		"abspath":           `{{.Field}}: "{{.Value}}" is not a valid absolute non-root path`,
-		"artifactfrom":      `{{.Field}}: "{{.Value}}" is not a valid image reference or known variant`,
+		"context":           `{{.Field}}: "{{.Value}}" is not a valid build context (variant, image, target, etc.)`,
 		"currentversion":    `{{.Field}}: config version "{{.Value}}" is unsupported`,
 		"debiancomponent":   `{{.Field}}: "{{.Value}}" is not a valid Debian component name`,
 		"debianpackage":     `{{.Field}}: "{{.Value}}" is not a valid Debian package name`,
@@ -69,10 +69,10 @@ var (
 	}
 
 	validatorAliases = map[string]string{
+		"context":        "variantref|imageref",
 		"currentversion": "eq=" + CurrentVersion,
 		"nodeenv":        "alphanum",
 		"username":       "hostname,ne=root",
-		"artifactfrom":   "variantref|imageref",
 	}
 
 	validatorFuncs = map[string]validator.FuncCtx{
@@ -277,7 +277,11 @@ func isTrue(_ context.Context, fl validator.FieldLevel) bool {
 }
 
 func isVariantReference(ctx context.Context, fl validator.FieldLevel) bool {
-	cfg := ctx.Value(rootCfgCtx).(Config)
+	cfg, ok := ctx.Value(rootCfgCtx).(Config)
+	if !ok {
+		return false
+	}
+
 	ref := fl.Field().String()
 
 	if ref == LocalArtifactKeyword {

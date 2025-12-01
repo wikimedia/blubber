@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 
 	"github.com/ghodss/yaml"
+	"github.com/pkg/errors"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 	"gitlab.wikimedia.org/repos/releng/blubber/api"
 )
@@ -125,7 +126,12 @@ func buildCopiesDepGraph(config *Config) {
 func GetVariant(config *Config, name string) (*VariantConfig, error) {
 	variant := NewVariantConfig(name)
 
-	variant.Merge(config.Variants[name])
+	vcfg, ok := config.Variants[name]
+	if !ok {
+		return nil, errors.Errorf("unknown variant %s", name)
+	}
+
+	variant.Merge(vcfg)
 
 	return variant, nil
 }

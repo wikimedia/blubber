@@ -179,7 +179,7 @@
         },
         "base" : {
           "type" : [ "string", "null" ],
-          "description" : "Base image on which the new image will be built; a list of available images can be found by querying the [Wikimedia Docker Registry](https://docker-registry.wikimedia.org/)."
+          "description" : "Base build context for the variant. This may be another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), or an image."
         },
         "runs" : {
           "type" : "object",
@@ -345,7 +345,7 @@
       "properties" : {
         "from" : {
           "type" : [ "string", "null" ],
-          "description" : "Variant from which to copy files. Set to `local` to copy build-context files that match the `source` pattern, or another variant name to copy files that match the `source` pattern from the variant's filesystem."
+          "description" : "Build context from which to copy files. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to copy from the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context). Only files that match the `source` pattern and do not match the `exclude` pattern will be copied. If no `source` is defined, all files from the build context are copied."
         },
         "source" : {
           "type" : "string",
@@ -376,7 +376,7 @@
           "properties" : {
             "from": {
               "type" : "string",
-              "description" : "Variant or image filesystem to mount. Set to `local` to mount the local build context."
+              "description" : "Build context to mount. You can reference another variant, a [named context](https://docs.docker.com/build/concepts/context/#named-contexts), an image, or `local` to mount the main [build context](https://docs.docker.com/build/concepts/context/#what-is-a-build-context)."
             },
             "destination" : {
               "type" : "string",

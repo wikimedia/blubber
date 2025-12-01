@@ -76,6 +76,32 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 		return bc.MainContext(ctx)
 	}
 
+	buildOptions.NamedContext = func(ctx context.Context, name string, opt build.ContextOpt) (*llb.State, *oci.Image, error) {
+		if opt.Platform == nil {
+			opt.Platform = &buildOptions.BuildPlatform
+		}
+
+		nc, err := bc.NamedContext(name, dockerui.ContextOpt{Platform: opt.Platform})
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if nc == nil {
+			return nil, nil, nil
+		}
+
+		state, dockerImage, err := nc.Load(ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if dockerImage != nil {
+			return state, &dockerImage.Image, nil
+		}
+
+		return state, nil, nil
+	}
+
 	cfg, err := readBlubberConfig(ctx, bc)
 
 	if err != nil {
@@ -112,7 +138,7 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 		}
 	}
 
-	scanTargets := sync.Map{}
+	scanResults := sync.Map{}
 
 	rb, err := bc.Build(
 		ctx,
@@ -122,13 +148,30 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 			*dockerspec.DockerOCIImage,
 			error,
 		) {
-			target, err := Compile(ctx, buildOptions, cfg, platform)
+			if platform == nil {
+				p := platforms.DefaultSpec()
+				platform = &p
+			}
+
+			compileables, err := cfg.VariantCompileables(buildOptions.Variant)
+			if err != nil {
+				return nil, nil, nil, errors.Wrapf(err, "failed to get compileables for variant %s", buildOptions.Variant)
+			}
+
+			buildResult, err := build.Compile(ctx, compileables, *buildOptions.Options, *platform)
 
 			if err != nil {
 				return nil, nil, nil, errors.Wrap(err, "failed to compile target")
 			}
 
-			def, img, err := target.Marshal(ctx)
+			if buildOptions.RunEntrypoint {
+				err := buildResult.Target.RunEntrypoint(buildOptions.EntrypointArgs, buildOptions.RunEnvironment)
+				if err != nil {
+					return nil, nil, nil, errors.Wrap(err, "failed to compile target entrypoint")
+				}
+			}
+
+			def, img, err := buildResult.Target.Marshal(ctx)
 
 			if err != nil {
 				return nil, nil, nil, errors.Wrap(err, "failed to marshal target")
@@ -159,7 +202,7 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 			if platform != nil {
 				p = *platform
 			}
-			scanTargets.Store(platforms.Format(platforms.Normalize(p)), target)
+			scanResults.Store(platforms.Format(platforms.Normalize(p)), buildResult)
 
 			return ref, &dimg, nil, nil
 		},
@@ -171,20 +214,22 @@ func Build(ctx context.Context, c client.Client) (*client.Result, error) {
 
 	if scanner != nil {
 		err = rb.EachPlatform(ctx, func(ctx context.Context, id string, _ oci.Platform) error {
-			v, ok := scanTargets.Load(id)
+			v, ok := scanResults.Load(id)
 			if !ok {
-				return errors.Errorf("no scan targets for %s", id)
+				return errors.Errorf("no scannable result for %s", id)
 			}
 
-			target, ok := v.(*build.Target)
+			buildResult, ok := v.(*build.Result)
 			if !ok {
-				return errors.Errorf("invalid scan targets for %T", v)
+				return errors.Errorf("invalid scan result for %T", v)
 			}
 
-			att, err := target.Scan(func(core llb.State, dependencies map[string]llb.State) (result.Attestation[*llb.State], error) {
-				return scanner(ctx, id, core, dependencies)
-			})
+			depStates := make(map[string]llb.State, len(buildResult.Dependencies))
+			for _, target := range buildResult.Dependencies {
+				depStates[target.Name] = target.State()
+			}
 
+			att, err := scanner(ctx, id, buildResult.Target.State(), depStates)
 			if err != nil {
 				return err
 			}
