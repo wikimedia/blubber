@@ -308,7 +308,7 @@ func TestPythonConfigInstructionsWithPoetry(t *testing.T) {
 			{From: "local", Source: "pyproject.toml"},
 			{From: "local", Source: "poetry.lock"},
 		},
-		Poetry: config.PoetryConfig{Version: "==10.0.1"},
+		Poetry: config.PoetryConfig{Version: "==1.0.1"},
 	}
 
 	t.Run("PhasePreInstall", func(t *testing.T) {
@@ -321,7 +321,7 @@ func TestPythonConfigInstructionsWithPoetry(t *testing.T) {
 					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
 					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
 				build.Env{Definitions: map[string]string{"POETRY_VIRTUALENVS_PATH": "/opt/lib/poetry"}},
-				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "poetry==10.0.1"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "poetry==1.0.1"}},
 				build.Run{Command: "mkdir -p", Arguments: []string{"/opt/lib/poetry"}},
 				build.Run{Command: "poetry", Arguments: []string{"install", "--no-root", "--no-dev"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
@@ -336,6 +336,68 @@ func TestPythonConfigInstructionsWithPoetry(t *testing.T) {
 		assert.Equal(t,
 			[]build.Instruction{},
 			cfg.InstructionsForPhase(build.PhasePostInstall),
+		)
+	})
+}
+
+func TestPythonConfigWithPoetry2Only(t *testing.T) {
+	cfg := config.PythonConfig{
+		Version: "python3",
+		Requirements: config.RequirementsConfig{
+			{From: "local", Source: "pyproject.toml"},
+			{From: "local", Source: "poetry.lock"},
+		},
+		Poetry: config.PoetryConfig{
+			Version: "==2.2.1",
+			Only:    "main",
+		},
+	}
+
+	t.Run("PhasePreInstall", func(t *testing.T) {
+		assert.Equal(t,
+			[]build.Instruction{
+				build.Copy{Sources: []string{"pyproject.toml", "poetry.lock"}, Destination: "./", Exclude: []string{}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
+				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
+				build.RunAll{Runs: []build.Run{
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.Env{Definitions: map[string]string{"POETRY_VIRTUALENVS_PATH": "/opt/lib/poetry"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "poetry==2.2.1"}},
+				build.Run{Command: "mkdir -p", Arguments: []string{"/opt/lib/poetry"}},
+				build.Run{Command: "poetry", Arguments: []string{"install", "--no-root", "--only", "main"}}},
+			cfg.InstructionsForPhase(build.PhasePreInstall),
+		)
+	})
+}
+
+func TestPythonConfigWithPoetry2Without(t *testing.T) {
+	cfg := config.PythonConfig{
+		Version: "python3",
+		Requirements: config.RequirementsConfig{
+			{From: "local", Source: "pyproject.toml"},
+			{From: "local", Source: "poetry.lock"},
+		},
+		Poetry: config.PoetryConfig{
+			Version: "==2.2.1",
+			Without: "dev,test",
+		},
+	}
+
+	t.Run("PhasePreInstall", func(t *testing.T) {
+		assert.Equal(t,
+			[]build.Instruction{
+				build.Copy{Sources: []string{"pyproject.toml", "poetry.lock"}, Destination: "./", Exclude: []string{}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
+				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
+				build.RunAll{Runs: []build.Run{
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.Env{Definitions: map[string]string{"POETRY_VIRTUALENVS_PATH": "/opt/lib/poetry"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "poetry==2.2.1"}},
+				build.Run{Command: "mkdir -p", Arguments: []string{"/opt/lib/poetry"}},
+				build.Run{Command: "poetry", Arguments: []string{"install", "--no-root", "--without", "dev,test"}}},
+			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
 	})
 }

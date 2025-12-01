@@ -55,7 +55,15 @@
             },
             "devel" : {
               "type" : "boolean",
-              "description" : "Whether to install development dependencies or not when using Poetry."
+              "description" : "Whether to install development dependencies or not when using Poetry 1.x."
+            },
+            "only" : {
+              "type" : "string",
+              "description" : "Poetry 2.x dependency groups to install (e.g. `main` or `main,docs`). Translates to `--only main,docs`. Not compatible with `devel` field."
+            },
+            "without" : {
+              "type" : "string",
+              "description" : "Poetry 2.x dependency groups to exclude (e.g. `dev` or `dev,test`). Translates to `--without dev,test`. Not compatible with `devel` field."
             }
           }
         }
@@ -405,7 +413,7 @@
             }
           }
         } ]
-      } 
+      }
     },
     "v4.Config" : {
       "allOf" : [ {

@@ -35,6 +35,8 @@ type PythonConfig struct {
 type PoetryConfig struct {
 	Version string `json:"version" validate:"omitempty,pypkgver"`
 	Devel   Flag   `json:"devel"`
+	Only    string `json:"only" validate:"omitempty"`
+	Without string `json:"without" validate:"omitempty"`
 }
 
 // Dependencies returns variant dependencies.
@@ -67,6 +69,12 @@ func (pc *PoetryConfig) Merge(pc2 PoetryConfig) {
 		pc.Version = pc2.Version
 	}
 	pc.Devel.Merge(pc2.Devel)
+	if pc2.Only != "" {
+		pc.Only = pc2.Only
+	}
+	if pc2.Without != "" {
+		pc.Without = pc2.Without
+	}
 }
 
 // InstructionsForPhase injects instructions into the build related to Python
@@ -125,9 +133,20 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 
 		if pc.usePoetry() {
 			cmd := []string{"install", "--no-root"}
-			if !pc.Poetry.Devel.True {
+
+			// Poetry 2.x
+			if pc.Poetry.Only != "" {
+				cmd = append(cmd, "--only", pc.Poetry.Only)
+			}
+			if pc.Poetry.Without != "" {
+				cmd = append(cmd, "--without", pc.Poetry.Without)
+			}
+
+			// Poetry 1.x
+			if pc.Poetry.Only == "" && pc.Poetry.Without == "" && !pc.Poetry.Devel.True {
 				cmd = append(cmd, "--no-dev")
 			}
+
 			ins = append(ins, build.CreateDirectory(PythonPoetryVenvs))
 			ins = append(ins, build.Run{"poetry", cmd})
 		} else {

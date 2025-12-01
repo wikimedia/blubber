@@ -65,3 +65,45 @@ Feature: Python builder
       """
     When you build and run the "hello" variant
     Then the entrypoint will have run successfully
+
+  @set2
+  Scenario: Installing Python application dependencies via Poetry 2 with only main
+    Given this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        hello:
+          base: python:3.10-bullseye
+          builders:
+            - python:
+                version: python3
+                poetry:
+                  version: ==2.0.1
+                  only: main
+                requirements: [pyproject.toml, poetry.lock]
+          copies: [local]
+          entrypoint: [poetry, run, python3, hello.py]
+      """
+    When you build and run the "hello" variant
+    Then the entrypoint will have run successfully
+
+  @set2
+  Scenario: Installing Python application dependencies via Poetry 2 without dev group
+    Given this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        hello:
+          base: python:3.10-bullseye
+          builders:
+            - python:
+                version: python3
+                poetry:
+                  version: ==2.0.1
+                  without: dev
+                requirements: [pyproject.toml, poetry.lock]
+          copies: [local]
+          entrypoint: [poetry, run, python3, hello.py]
+      """
+    When you build and run the "hello" variant
+    Then the entrypoint will have run successfully
