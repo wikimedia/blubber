@@ -107,6 +107,8 @@ Build argument names and default values. Values may be passed in at build time. 
 
 See the description of each field for whether it supports environment and build argument expansion.
 
+Note that build arguments become environment variables in the resulting image configuration and should not be used to store sensitive values.
+
 ## base
 `.base` _null|string_
 
@@ -742,12 +744,22 @@ Configuration related to installation of pip dependencies using [Poetry](https:/
 #### devel
 `.builders[].python.poetry.devel` _boolean_
 
-Whether to install development dependencies or not when using Poetry.
+Whether to install development dependencies or not when using Poetry 1.x.
+
+#### only
+`.builders[].python.poetry.only` _string_
+
+Poetry 2.x dependency groups to install (e.g. `main` or `main,docs`). Translates to `--only main,docs`. Not compatible with `devel` field.
 
 #### version
 `.builders[].python.poetry.version` _string_
 
 Version constraint for installing Poetry package.
+
+#### without
+`.builders[].python.poetry.without` _string_
+
+Poetry 2.x dependency groups to exclude (e.g. `dev` or `dev,test`). Translates to `--without dev,test`. Not compatible with `devel` field.
 
 #### requirements
 `.builders[].python.requirements` _array&lt;object|string&gt;_
@@ -1019,12 +1031,22 @@ Configuration related to installation of pip dependencies using [Poetry](https:/
 #### devel
 `.python.poetry.devel` _boolean_
 
-Whether to install development dependencies or not when using Poetry.
+Whether to install development dependencies or not when using Poetry 1.x.
+
+#### only
+`.python.poetry.only` _string_
+
+Poetry 2.x dependency groups to install (e.g. `main` or `main,docs`). Translates to `--only main,docs`. Not compatible with `devel` field.
 
 #### version
 `.python.poetry.version` _string_
 
 Version constraint for installing Poetry package.
+
+#### without
+`.python.poetry.without` _string_
+
+Poetry 2.x dependency groups to exclude (e.g. `dev` or `dev,test`). Translates to `--without dev,test`. Not compatible with `devel` field.
 
 ### requirements
 `.python.requirements` _array&lt;object|string&gt;_
@@ -1246,6 +1268,8 @@ APT source URL.
 Build argument names and default values. Values may be passed in at build time. Final build arguments (defaults merged with build-time values) are exposed as environment variables and effect only certain configuration fields such as builder commands and scripts.
 
 See the description of each field for whether it supports environment and build argument expansion.
+
+Note that build arguments become environment variables in the resulting image configuration and should not be used to store sensitive values.
 
 #### base
 `.variants.*.base` _null|string_
@@ -1882,12 +1906,22 @@ Configuration related to installation of pip dependencies using [Poetry](https:/
 #### devel
 `.variants.*.builders[].python.poetry.devel` _boolean_
 
-Whether to install development dependencies or not when using Poetry.
+Whether to install development dependencies or not when using Poetry 1.x.
+
+#### only
+`.variants.*.builders[].python.poetry.only` _string_
+
+Poetry 2.x dependency groups to install (e.g. `main` or `main,docs`). Translates to `--only main,docs`. Not compatible with `devel` field.
 
 #### version
 `.variants.*.builders[].python.poetry.version` _string_
 
 Version constraint for installing Poetry package.
+
+#### without
+`.variants.*.builders[].python.poetry.without` _string_
+
+Poetry 2.x dependency groups to exclude (e.g. `dev` or `dev,test`). Translates to `--without dev,test`. Not compatible with `devel` field.
 
 #### requirements
 `.variants.*.builders[].python.requirements` _array&lt;object|string&gt;_
@@ -2224,12 +2258,22 @@ Configuration related to installation of pip dependencies using [Poetry](https:/
 #### devel
 `.variants.*.python.poetry.devel` _boolean_
 
-Whether to install development dependencies or not when using Poetry.
+Whether to install development dependencies or not when using Poetry 1.x.
+
+#### only
+`.variants.*.python.poetry.only` _string_
+
+Poetry 2.x dependency groups to install (e.g. `main` or `main,docs`). Translates to `--only main,docs`. Not compatible with `devel` field.
 
 #### version
 `.variants.*.python.poetry.version` _string_
 
 Version constraint for installing Poetry package.
+
+#### without
+`.variants.*.python.poetry.without` _string_
+
+Poetry 2.x dependency groups to exclude (e.g. `dev` or `dev,test`). Translates to `--without dev,test`. Not compatible with `devel` field.
 
 #### requirements
 `.variants.*.python.requirements` _array&lt;object|string&gt;_
