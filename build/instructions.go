@@ -71,7 +71,7 @@ func (ra RunAll) Compile(target *Target) error {
 // RunOption is any type that can be reduced to a single [llb.RunOption].
 type RunOption interface {
 	// RunOption returns an [llb.RunOption] for the given target.
-	RunOption(*Target) llb.RunOption
+	RunOption(*Target) (llb.RunOption, error)
 }
 
 // RunAllWithOptions is a concrete build instruction that executes a number of
@@ -91,7 +91,12 @@ func (ra RunAllWithOptions) Compile(target *Target) error {
 
 	opts := make([]llb.RunOption, len(ra.Options))
 	for i, ro := range ra.Options {
-		opts[i] = ro.RunOption(target)
+		opt, err := ro.RunOption(target)
+		if err != nil {
+			return err
+		}
+
+		opts[i] = opt
 	}
 
 	return target.RunAll(runs, opts...)
@@ -107,7 +112,12 @@ type RunScript struct {
 func (rs RunScript) Compile(target *Target) error {
 	opts := make([]llb.RunOption, len(rs.Options))
 	for i, ro := range rs.Options {
-		opts[i] = ro.RunOption(target)
+		opt, err := ro.RunOption(target)
+		if err != nil {
+			return err
+		}
+
+		opts[i] = opt
 	}
 
 	return target.RunScript(rs.Script, opts...)

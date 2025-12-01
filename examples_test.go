@@ -42,6 +42,7 @@ func defineSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^this "([\w-\.]+)"(?: (file|executable))?`, createFile)
 	ctx.Step(`^you build (and run )?the "([\w-\.]+)" variant$`, buildVariant)
 	ctx.Step(`^you build (and run )?the "([\w-\.]+)" variant with the following build arguments$`, buildVariantWithArguments)
+	ctx.Step(`^you build (and run )?the "([\w-\.]+)" variant with the following build contexts$`, buildVariantWithContexts)
 	ctx.Step(`^the image will (not )?have the following files in "([^"]*)"$`, theImageHasTheFollowingFilesIn)
 	ctx.Step(`^the image will (not )?have the following files in the default working directory$`, theImageHasTheFollowingFilesInDefaultWorkingDir)
 	ctx.Step(`^the image will have the (user|group) "([^"]*)" with (?:UID|GID) (\d+)$`, theImageHasTheEntity)
@@ -105,14 +106,14 @@ func noop(ctx context.Context) (context.Context, error) {
 }
 
 func createWorkingDirectory(ctx context.Context, srcDir string) (context.Context, error) {
-	wd, err := newWorkingDirectory()
+	dir, err := newWorkingDirectory()
 
 	if err != nil {
 		return ctx, err
 	}
 
-	ctx = context.WithValue(ctx, wdKey, wd)
-	err = wd.CopyFrom(srcDir)
+	ctx = context.WithValue(ctx, wdKey, dir)
+	err = dir.CopyFrom(srcDir)
 
 	if err != nil {
 		return ctx, errors.Wrapf(err, "failed to create a new working directory from %s", srcDir)
@@ -136,21 +137,49 @@ func createFile(ctx context.Context, file, fileType string, content []byte) (con
 }
 
 func buildVariant(ctx context.Context, andRun string, variant string) (context.Context, error) {
-	return buildVariantWithArguments(ctx, andRun, variant, nil)
+	return buildVariantWith(ctx, andRun, variant, func(_ *bkclient.SolveOpt) error {
+		return nil
+	})
 }
 
-func buildVariantWithArguments(ctx context.Context, andRun string, variant string, argsTable *godog.Table) (context.Context, error) {
-	runVariant := andRun != ""
-	buildArgs := map[string]string{}
-
-	if argsTable != nil {
-		for _, row := range argsTable.Rows {
-			if len(row.Cells) != 2 {
-				return ctx, errors.New("build args table must contain a name and value column")
-			}
-			buildArgs[row.Cells[0].Value] = row.Cells[1].Value
-		}
+func buildVariantWithArguments(ctx context.Context, andRun string, variant string, table *godog.Table) (context.Context, error) {
+	if err := validateNameValueTable(table); err != nil {
+		return ctx, err
 	}
+
+	return buildVariantWith(ctx, andRun, variant, func(opt *bkclient.SolveOpt) error {
+		for _, row := range table.Rows {
+			opt.FrontendAttrs["build-arg:"+row.Cells[0].Value] = row.Cells[1].Value
+		}
+
+		return nil
+	})
+}
+
+func buildVariantWithContexts(ctx context.Context, andRun string, variant string, table *godog.Table) (context.Context, error) {
+	if err := validateNameValueTable(table); err != nil {
+		return ctx, err
+	}
+
+	return buildVariantWith(ctx, andRun, variant, func(opt *bkclient.SolveOpt) error {
+		for _, row := range table.Rows {
+			name := row.Cells[0].Value
+			path := row.Cells[1].Value
+
+			if strings.Contains(path, ":") {
+				opt.FrontendAttrs["context:"+name] = path
+			} else {
+				opt.FrontendAttrs["context:"+name] = "local:" + name
+				opt.LocalDirs[name] = path
+			}
+		}
+
+		return nil
+	})
+}
+
+func buildVariantWith(ctx context.Context, andRun string, variant string, optFn func(*bkclient.SolveOpt) error) (context.Context, error) {
+	runVariant := andRun != ""
 
 	return withCtxValue[*workingDirectory](ctx, wdKey, func(wd *workingDirectory) (context.Context, error) {
 		var err error
@@ -182,21 +211,15 @@ func buildVariantWithArguments(ctx context.Context, andRun string, variant strin
 
 		ctx = context.WithValue(ctx, imageTarfileKey, tmptar)
 
-		attrs := map[string]string{
-			"source":   blubberImage,
-			"filename": "blubber.yaml",
-			"variant":  variant,
-			"no-cache": "",
-			"platform": "linux/amd64",
-		}
-
-		for k, v := range buildArgs {
-			attrs["build-arg:"+k] = v
-		}
-
 		solveOpt := bkclient.SolveOpt{
-			Frontend:      "gateway.v0",
-			FrontendAttrs: attrs,
+			Frontend: "gateway.v0",
+			FrontendAttrs: map[string]string{
+				"source":   blubberImage,
+				"filename": "blubber.yaml",
+				"variant":  variant,
+				"no-cache": "",
+				"platform": "linux/amd64",
+			},
 			LocalDirs: map[string]string{
 				"context":    wd.Path,
 				"dockerfile": wd.Path,
@@ -214,6 +237,8 @@ func buildVariantWithArguments(ctx context.Context, andRun string, variant strin
 		if runVariant {
 			solveOpt.FrontendAttrs["run-variant"] = "true"
 		}
+
+		optFn(&solveOpt)
 
 		_, err = client.Build(ctx, solveOpt, "buildctl", func(ctx context.Context, c gateway.Client) (*gateway.Result, error) {
 			return c.Solve(ctx, gateway.SolveRequest{
@@ -634,4 +659,18 @@ func parseEnvs(env []string) map[string]string {
 	}
 
 	return m
+}
+
+func validateNameValueTable(table *godog.Table) error {
+	if table == nil {
+		return errors.New("a table must be provided with this step")
+	}
+
+	for _, row := range table.Rows {
+		if len(row.Cells) != 2 {
+			return errors.New("the table provided with this step must contain a name and value column")
+		}
+	}
+
+	return nil
 }

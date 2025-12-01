@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"gitlab.wikimedia.org/repos/releng/blubber/config"
 )
@@ -50,5 +51,34 @@ func TestConfigValidation(t *testing.T) {
 				assert.Equal(t, `variants: contains a bad variant name`, msg)
 			}
 		})
+	})
+}
+
+func TestVariantCompileables(t *testing.T) {
+	t.Run("base references", func(t *testing.T) {
+		req := require.New(t)
+
+		cfg := &config.Config{
+			VersionConfig: config.VersionConfig{
+				Version: "v4",
+			},
+			Variants: map[string]config.VariantConfig{
+				"repo": {
+					CommonConfig: config.CommonConfig{Base: "local"},
+				},
+				"foo": {
+					CommonConfig: config.CommonConfig{Base: "repo"},
+				},
+			},
+		}
+
+		req.NoError(config.ExpandIncludesAndCopies(cfg, "foo"))
+
+		compileables, err := cfg.VariantCompileables("foo")
+
+		req.NoError(err)
+		req.Contains(compileables, "foo")
+		req.Contains(compileables, "repo")
+		req.Len(compileables, 2)
 	})
 }

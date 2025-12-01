@@ -31,6 +31,7 @@ BINARIES = blubber blubber-buildkit
 
 FEATURE_FILES := $(wildcard examples/*.feature)
 FEATURE_DOCS := $(patsubst examples/%.feature,examples/%.md,$(FEATURE_FILES))
+ONLY_EXAMPLES ?=
 
 all: code $(BINARIES)
 
@@ -131,7 +132,7 @@ dev-frontend:
 .PHONY: acceptance
 acceptance: dev-frontend
 	docker buildx bake -f bake.hcl --set acceptance.output=type=docker acceptance
-	docker run --rm --pull never --network $(DEV_NETWORK) $(DEV_REGISTRY)/acceptance
+	docker run --rm --pull never --network $(DEV_NETWORK) -e BLUBBER_ONLY_EXAMPLES=$(ONLY_EXAMPLES) $(DEV_REGISTRY)/acceptance
 
 .PHONY: blubber-buildkit-docker
 blubber-buildkit-docker:

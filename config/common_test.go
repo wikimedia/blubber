@@ -62,7 +62,7 @@ func TestCommonConfigValidation(t *testing.T) {
 			if assert.True(t, config.IsValidationError(err)) {
 				msg := config.HumanizeValidationError(err)
 
-				assert.Equal(t, `base: "foo fighter" is not a valid image reference`, msg)
+				assert.Equal(t, `base: "foo fighter" is not a valid build context (variant, image, target, etc.)`, msg)
 			}
 		})
 	})

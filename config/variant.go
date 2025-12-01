@@ -22,10 +22,16 @@ type VariantConfig struct {
 
 // Dependencies returns variant dependencies.
 func (vc *VariantConfig) Dependencies() []string {
-	return append(
+	deps := append(
 		vc.Copies.Dependencies(),
 		vc.CommonConfig.Dependencies()...,
 	)
+
+	if vc.Base != "" && vc.Base != build.LocalContextKeyword {
+		deps = append(deps, vc.Base)
+	}
+
+	return deps
 }
 
 // Merge takes another VariantConfig and overwrites this struct's fields.
@@ -107,6 +113,16 @@ func (vc *VariantConfig) InstructionsForPhase(phase build.Phase) []build.Instruc
 	}
 
 	return instructions
+}
+
+// BaseRef returns the base ref, implementing [build.TargetCompileable].
+func (vc *VariantConfig) BaseRef() string {
+	return vc.Base
+}
+
+// Name returns the variant name, implementing [build.TargetCompileable].
+func (vc *VariantConfig) Name() string {
+	return vc.name
 }
 
 func (vc *VariantConfig) userForPhase(phase build.Phase) (switchUser string, uid string, gid string) {

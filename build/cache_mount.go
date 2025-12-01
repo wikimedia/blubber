@@ -23,7 +23,7 @@ type CacheMount struct {
 }
 
 // RunOption returns an [llb.RunOption] for this cache mount.
-func (cm CacheMount) RunOption(target *Target) llb.RunOption {
+func (cm CacheMount) RunOption(target *Target) (llb.RunOption, error) {
 	id := cm.ID
 	if id == "" {
 		id = target.ExpandEnv(cm.Destination)
@@ -83,5 +83,5 @@ func (cm CacheMount) RunOption(target *Target) llb.RunOption {
 		target.ExpandEnv(cm.Destination),
 		state,
 		opts...,
-	)
+	), nil
 }
