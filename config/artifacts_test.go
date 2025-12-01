@@ -228,7 +228,7 @@ func TestArtifactsConfigValidation(t *testing.T) {
 			if assert.True(t, config.IsValidationError(err)) {
 				msg := config.HumanizeValidationError(err)
 
-				assert.Equal(t, `from: "foo bar" is not a valid image reference or known variant`, msg)
+				assert.Equal(t, `from: "foo bar" is not a valid build context (variant, image, target, etc.)`, msg)
 			}
 		})
 	})

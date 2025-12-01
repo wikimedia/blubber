@@ -1,5 +1,7 @@
 package build
 
+import oci "github.com/opencontainers/image-spec/specs-go/v1"
+
 // TargetImage wraps a [Target] and provides builder style methods for altering its
 // internal image configuration.
 type TargetImage struct {
@@ -58,6 +60,11 @@ func (img *TargetImage) AddLabels(labels map[string]string) *TargetImage {
 	}
 
 	return img
+}
+
+// OCI returns an [oci.Image] from the underlying target.
+func (img *TargetImage) OCI() *oci.Image {
+	return img.target.image
 }
 
 func replaceEnv(env []string, name, value string) []string {

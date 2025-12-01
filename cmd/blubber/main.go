@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/containerd/platforms"
 	"github.com/pborman/getopt/v2"
 
 	"gitlab.wikimedia.org/repos/releng/blubber/build"
@@ -108,14 +109,18 @@ func main() {
 	}
 	opts.Variant = variant
 
-	target, err := buildkit.Compile(ctx, &opts, cfg, nil)
-
+	compileables, err := cfg.VariantCompileables(variant)
 	if err != nil {
-		log.Printf("Error compiling config: %v\n", err)
+		log.Printf("Error compiling variant %s: %v\n", variant, err)
+	}
+
+	result, err := build.Compile(ctx, compileables, *opts.Options, platforms.DefaultSpec())
+	if err != nil {
+		log.Printf("Error compiling variant %s: %v\n", variant, err)
 		os.Exit(3)
 	}
 
-	err = target.WriteTo(ctx, os.Stdout)
+	err = result.Target.WriteTo(ctx, os.Stdout)
 
 	if err != nil {
 		log.Printf("Error marshaling target: %v\n", err)

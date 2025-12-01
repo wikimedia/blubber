@@ -14,7 +14,7 @@ const (
 	PhasePostInstall                   // fifth, after application files and artifacts are copied
 )
 
-// PhaseCompileable defines and interface that all configuration types should
+// PhaseCompileable defines an interface that all configuration types should
 // implement if they want to inject build instructions into any of the defined
 // build phases.
 type PhaseCompileable interface {

@@ -3,6 +3,7 @@ module gitlab.wikimedia.org/repos/releng/blubber
 require (
 	github.com/atsushinee/go-markdown-generator v0.0.0-20231027094725-92d26ffbe778
 	github.com/containerd/containerd v1.7.23
+	github.com/containerd/platforms v1.0.0-rc.1
 	github.com/containers/image/v5 v5.25.0
 	github.com/cucumber/godog v0.14.1
 	github.com/distribution/distribution v2.8.1+incompatible
@@ -46,7 +47,6 @@ require (
 	github.com/containerd/fifo v1.1.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/nydus-snapshotter v0.15.0 // indirect
-	github.com/containerd/platforms v1.0.0-rc.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
 	github.com/containerd/ttrpc v1.2.7 // indirect
 	github.com/containerd/typeurl/v2 v2.2.3 // indirect

@@ -79,10 +79,11 @@ func TestVariantDependencies(t *testing.T) {
 			},
 		},
 	}
+	vcfg.Base = "dep6"
 
 	assert.Equal(
 		t,
-		[]string{"dep0", "dep1", "dep2", "dep3", "dep4", "dep5"},
+		[]string{"dep0", "dep1", "dep2", "dep3", "dep4", "dep5", "dep6"},
 		vcfg.Dependencies(),
 	)
 }

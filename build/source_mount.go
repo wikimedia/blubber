@@ -12,7 +12,7 @@ type SourceMount struct {
 }
 
 // RunOption returns an [llb.RunOption] for this source mount.
-func (sm SourceMount) RunOption(target *Target) llb.RunOption {
+func (sm SourceMount) RunOption(target *Target) (llb.RunOption, error) {
 	mopts := []llb.MountOption{}
 
 	if sm.Source != "" {
@@ -28,9 +28,14 @@ func (sm SourceMount) RunOption(target *Target) llb.RunOption {
 		destination = sm.Destination
 	}
 
+	state, _, err := target.NamedContext(sm.From, ContextOpt{})
+	if err != nil {
+		return nil, err
+	}
+
 	return llb.AddMount(
 		target.ExpandEnv(destination),
-		target.NamedContext(sm.From),
+		state,
 		mopts...,
-	)
+	), nil
 }

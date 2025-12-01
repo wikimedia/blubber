@@ -16,8 +16,11 @@ const (
 
 // Options stores options to configure the build process.
 type Options struct {
-	// Function that returns the initial llb.State for the main build context.
+	// BuildContext returns the initial llb.State for the main build context.
 	BuildContext ContextResolver
+
+	// NamedContext returns the initial llb.State for the given build context.
+	NamedContext NamedContextResolver
 
 	// The target variant
 	Variant string
@@ -40,6 +43,9 @@ type Options struct {
 	// Function that returns whether or not to disable caching for a given named
 	// target.
 	NoCache CacheDisabler
+
+	// NameLogWidth is used to pad target names when logging.
+	NameLogWidth int
 }
 
 // NewOptions creates a new Options with default values assigned
@@ -50,6 +56,9 @@ func NewOptions() *Options {
 		BuildContext: func(ctx context.Context) (*llb.State, error) {
 			localCtx := llb.Local(defaultBuildContext, llb.SharedKeyHint(defaultBuildContext))
 			return &localCtx, nil
+		},
+		NamedContext: func(_ context.Context, _ string, _ ContextOpt) (*llb.State, *oci.Image, error) {
+			return nil, nil, nil
 		},
 		NoCache:         func(_ string) bool { return false },
 		BuildPlatform:   defaultPlatform,
