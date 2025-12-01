@@ -66,7 +66,7 @@ Feature: Python builder
     When you build and run the "hello" variant
     Then the entrypoint will have run successfully
 
-  @set2
+  @set3
   Scenario: Installing Python application dependencies via Poetry 2 with only main
     Given this "blubber.yaml"
       """
@@ -87,7 +87,7 @@ Feature: Python builder
     When you build and run the "hello" variant
     Then the entrypoint will have run successfully
 
-  @set2
+  @set4
   Scenario: Installing Python application dependencies via Poetry 2 without dev group
     Given this "blubber.yaml"
       """
