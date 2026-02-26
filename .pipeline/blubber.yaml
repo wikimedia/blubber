@@ -8,7 +8,7 @@ variants:
     base: docker-registry.wikimedia.org/golang1.22:1.22-20260222
 
   nodejs:
-    base: docker-registry.wikimedia.org/nodejs20-slim:0.0.1-20260222
+    base: docker-registry.wikimedia.org/nodejs22-slim:0.0.1-20260222
 
   project:
     builders:
