@@ -22,7 +22,7 @@ A Blubber configuration starts with a `syntax` line and a `version`
 declaration.
 
 ```yaml
-# syntax = docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.6.0
+# syntax = docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.7.0
 version: v4
 variants:
   my-variant:

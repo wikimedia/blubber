@@ -1,4 +1,23 @@
 
+<a name="v1.7.0"></a>
+## [v1.7.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.6.0...v1.7.0)
+
+> 2026-02-26
+
+### Build
+
+* Switch our own buildkit to 1.6.0 now we're released
+
+### Examples
+
+* Reassign `[@set](https://gitlab.wikimedia.org/set){n}` tags to balance CI time
+
+### Python
+
+* Allow configuration of the venv path
+* Generate missing python API docs
+
+
 <a name="v1.6.0"></a>
 ## [v1.6.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.5.1...v1.6.0)
 
