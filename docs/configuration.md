@@ -827,6 +827,11 @@ Path of files/directories to copy.
 
 Whether to inject the --system-site-packages flag into the venv setup command.
 
+#### venv
+`.builders[].python.venv` _string_
+
+Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`.
+
 #### version
 `.builders[].python.version` _string_
 
@@ -1113,6 +1118,11 @@ Path of files/directories to copy.
 `.python.use-system-site-packages` _boolean_
 
 Whether to inject the --system-site-packages flag into the venv setup command.
+
+### venv
+`.python.venv` _string_
+
+Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`.
 
 ### version
 `.python.version` _string_
@@ -1989,6 +1999,11 @@ Path of files/directories to copy.
 
 Whether to inject the --system-site-packages flag into the venv setup command.
 
+#### venv
+`.variants.*.builders[].python.venv` _string_
+
+Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`.
+
 #### version
 `.variants.*.builders[].python.version` _string_
 
@@ -2340,6 +2355,11 @@ Path of files/directories to copy.
 `.variants.*.python.use-system-site-packages` _boolean_
 
 Whether to inject the --system-site-packages flag into the venv setup command.
+
+#### venv
+`.variants.*.python.venv` _string_
+
+Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`.
 
 #### version
 `.variants.*.python.version` _string_

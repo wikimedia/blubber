@@ -7,8 +7,8 @@ import (
 // PythonPoetryVenvs is the path where Poetry will create virtual environments.
 const PythonPoetryVenvs = LocalLibPrefix + "/poetry"
 
-// PythonVenv is the path of the virtualenv that will be created if use-virtualenv is true.
-const PythonVenv = LocalLibPrefix + "/venv"
+// DefaultPythonVenv is the default path of the virtualenv managed by Blubber.
+const DefaultPythonVenv = LocalLibPrefix + "/venv"
 
 // PythonConfig holds configuration fields related to pre-installation of project
 // dependencies via PIP.
@@ -28,6 +28,9 @@ type PythonConfig struct {
 
 	// Specify a specific version of tox to install (T346226)
 	ToxVersion string `json:"tox-version"`
+
+	// Specify an existing venv path
+	Venv string `json:"venv"`
 }
 
 // PoetryConfig holds configuration fields related to installation of project
@@ -60,6 +63,10 @@ func (pc *PythonConfig) Merge(pc2 PythonConfig) {
 
 	if pc2.ToxVersion != "" {
 		pc.ToxVersion = pc2.ToxVersion
+	}
+
+	if pc2.Venv != "" {
+		pc.Venv = pc2.Venv
 	}
 }
 
@@ -118,7 +125,12 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 
 	switch phase {
 	case build.PhasePreInstall:
-		venvSetupCmd := []string{"-m", "venv", PythonVenv}
+		venv := pc.Venv
+		if venv == "" {
+			venv = DefaultPythonVenv
+		}
+
+		venvSetupCmd := []string{"-m", "venv", venv}
 		if pc.UseSystemSitePackages.True {
 			venvSetupCmd = append(venvSetupCmd, "--system-site-packages")
 		}
@@ -126,8 +138,8 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 
 		// "Activate" the virtualenv
 		ins = append(ins, build.Env{map[string]string{
-			"VIRTUAL_ENV": PythonVenv,
-			"PATH":        PythonVenv + "/bin:$PATH",
+			"VIRTUAL_ENV": venv,
+			"PATH":        venv + "/bin:$PATH",
 		}})
 		ins = append(ins, pc.setupPipAndPoetry()...)
 

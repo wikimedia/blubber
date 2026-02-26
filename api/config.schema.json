@@ -66,6 +66,10 @@
               "description" : "Poetry 2.x dependency groups to exclude (e.g. `dev` or `dev,test`). Translates to `--without dev,test`. Not compatible with `devel` field."
             }
           }
+        },
+        "venv": {
+          "type" : "string",
+          "description" : "Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`."
         }
       }
     },
