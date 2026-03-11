@@ -43,7 +43,6 @@ group "test" {
   targets = [
     "lint",
     "unit",
-    "ensure-docs",
   ]
 }
 
@@ -55,7 +54,7 @@ target "make" {
     MAKE_TARGET = make_target
   }
   matrix = {
-    make_target = ["lint", "unit", "ensure-docs"]
+    make_target = ["lint", "unit"]
   }
 }
 

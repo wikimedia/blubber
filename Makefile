@@ -51,10 +51,6 @@ docs: docs/configuration.md
 docs/configuration.md: api/config.schema.json
 	go run ./util/markdownschema $< > $@
 
-.PHONY: ensure-docs
-ensure-docs:
-	$(MAKE) -q docs
-
 .PHONY: example-docs
 example-docs: $(FEATURE_DOCS)
 $(FEATURE_DOCS): examples/%.md: examples/%.feature

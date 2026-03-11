@@ -108,6 +108,11 @@ variants:
         destination: /etc/ssl/certs/ca-certificates.crt
     entrypoint: [/blubber-buildkit]
 
+  configuration-docs:
+    includes: [make]
+    arguments:
+      MAKE_TARGET: "docs"
+
   example-docs:
     includes: [build]
     builders:
@@ -126,6 +131,9 @@ variants:
             - from: local
               source: ./docs/
               destination: ./
+            - from: configuration-docs
+              source: ./docs/configuration.md
+              destination: ./configuration.md
             - from: example-docs
               source: ./examples/
               destination: ./examples/

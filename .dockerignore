@@ -7,3 +7,4 @@ _release
 /*.test
 /dist
 /examples.test
+/docs/configuration.md
