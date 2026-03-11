@@ -46,6 +46,28 @@ Feature: Python builder
     When you build and run the "hello" variant
     Then the entrypoint will have run successfully
 
+  @set1
+  Scenario: Installing specific versions of core Python packages
+    Given this "blubber.yaml"
+      """
+      version: v4
+      variants:
+        hello:
+          base: python:3.14-trixie
+          builders:
+            - python:
+                version: python3
+                requirements: [requirements.txt]
+                pip-version: "~=26.0"
+                setuptools-version: "~=81.0"
+                tox-version: "4.49.1"
+                wheel-version: "~=0.46.3"
+          copies: [local]
+          entrypoint: [python3, hello.py]
+      """
+    When you build and run the "hello" variant
+    Then the entrypoint will have run successfully
+
   @set2
   Scenario: Installing Python application dependencies via Poetry
     Given this "blubber.yaml"

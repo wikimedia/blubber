@@ -22,7 +22,10 @@ func TestPythonConfigYAMLMerge(t *testing.T) {
         python:
           version: python3
           requirements: [other-requirements.txt, requirements-test.txt]
+          pip-version: ">=26.0.1,==26.*"
+          setuptools-version: "<=81.0.0"
           tox-version: 4.11.2
+          wheel-version: "~=0.46"
           use-system-site-packages: true`))
 
 	if assert.NoError(t, err) {
@@ -43,7 +46,10 @@ func TestPythonConfigYAMLMerge(t *testing.T) {
 			}, variant.Python.Requirements)
 			assert.Equal(t, "python3", variant.Python.Version)
 			assert.Equal(t, true, variant.Python.UseSystemSitePackages.True)
+			assert.Equal(t, ">=26.0.1,==26.*", variant.Python.PipVersion)
+			assert.Equal(t, "<=81.0.0", variant.Python.SetuptoolsVersion)
 			assert.Equal(t, "4.11.2", variant.Python.ToxVersion)
+			assert.Equal(t, "~=0.46", variant.Python.WheelVersion)
 		}
 	}
 }
@@ -140,6 +146,39 @@ func TestPythonConfigInstructionsEmptyRequirementsWithVersion(t *testing.T) {
 					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
 					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall))
+	})
+
+	t.Run("PhasePostInstall", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePostInstall))
+	})
+}
+
+func TestPythonConfigInstructionsPythonPackageVersions(t *testing.T) {
+	cfg := config.PythonConfig{
+		Version:           "python3",
+		Requirements:      config.RequirementsConfig{},
+		PipVersion:        "~=26.0",
+		SetuptoolsVersion: "~=81.0",
+		ToxVersion:        "4.49.1",
+		WheelVersion:      "~=0.46.3",
+	}
+
+	t.Run("PhasePrivileged", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePrivileged))
+	})
+
+	t.Run("PhasePrivilegeDropped", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePrivilegeDropped))
+	})
+
+	t.Run("PhasePreInstall", func(t *testing.T) {
+		assert.Contains(t,
+			cfg.InstructionsForPhase(build.PhasePreInstall),
+			build.RunAll{Runs: []build.Run{
+				{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools~=81.0"}},
+				{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel~=0.46.3", "tox==4.49.1", "pip~=26.0"}}},
+			},
+		)
 	})
 
 	t.Run("PhasePostInstall", func(t *testing.T) {

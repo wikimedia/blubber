@@ -70,6 +70,22 @@
         "venv": {
           "type" : "string",
           "description" : "Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`."
+        },
+        "pip-version": {
+          "type" : "string",
+          "description" : "Install a specific version of pip when core Python package dependencies are installed, either a bare version specifier (e.g. `1.2.3`) or a valid [Python package version specifier](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers) (e.g. `>=1.2.3,<=2`)."
+        },
+        "setuptools-version": {
+          "type" : "string",
+          "description" : "Install a specific version of setuptools when core Python package dependencies are installed, either a bare version specifier (e.g. `1.2.3`) or a valid [Python package version specifier](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers) (e.g. `>=1.2.3,<=2`)."
+        },
+        "tox-version": {
+          "type" : "string",
+          "description" : "Install a specific version of tox when core Python package dependencies are installed, either a bare version specifier (e.g. `1.2.3`) or a valid [Python package version specifier](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers) (e.g. `>=1.2.3,<=2`)."
+        },
+        "wheel-version": {
+          "type" : "string",
+          "description" : "Install a specific version of wheel when core Python package dependencies are installed, either a bare version specifier (e.g. `1.2.3`) or a valid [Python package version specifier](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers) (e.g. `>=1.2.3,<=2`)."
         }
       }
     },

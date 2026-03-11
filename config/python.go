@@ -10,6 +10,10 @@ const PythonPoetryVenvs = LocalLibPrefix + "/poetry"
 // DefaultPythonVenv is the default path of the virtualenv managed by Blubber.
 const DefaultPythonVenv = LocalLibPrefix + "/venv"
 
+// DefaultPythonSetuptoolsVersion defines the default version specifier for
+// setuptools.
+const DefaultPythonSetuptoolsVersion = "!=60.9.0"
+
 // PythonConfig holds configuration fields related to pre-installation of project
 // dependencies via PIP.
 type PythonConfig struct {
@@ -23,14 +27,23 @@ type PythonConfig struct {
 
 	UseNoDepsFlag Flag `json:"no-deps"`
 
+	// Specify a specific version of pip to install (T418253)
+	PipVersion string `json:"pip-version"`
+
 	// Use Poetry for package management
 	Poetry PoetryConfig `json:"poetry"`
+
+	// Specify a specific version of setuptools to install (T418253)
+	SetuptoolsVersion string `json:"setuptools-version"`
 
 	// Specify a specific version of tox to install (T346226)
 	ToxVersion string `json:"tox-version"`
 
 	// Specify an existing venv path
 	Venv string `json:"venv"`
+
+	// Specify a specific version of wheel to install (T418253)
+	WheelVersion string `json:"wheel-version"`
 }
 
 // PoetryConfig holds configuration fields related to installation of project
@@ -61,8 +74,20 @@ func (pc *PythonConfig) Merge(pc2 PythonConfig) {
 		pc.Requirements = pc2.Requirements
 	}
 
+	if pc2.PipVersion != "" {
+		pc.PipVersion = pc2.PipVersion
+	}
+
+	if pc2.SetuptoolsVersion != "" {
+		pc.SetuptoolsVersion = pc2.SetuptoolsVersion
+	}
+
 	if pc2.ToxVersion != "" {
 		pc.ToxVersion = pc2.ToxVersion
+	}
+
+	if pc2.WheelVersion != "" {
+		pc.WheelVersion = pc2.WheelVersion
 	}
 
 	if pc2.Venv != "" {
@@ -196,8 +221,8 @@ func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
 	ins := []build.Instruction{}
 
 	ins = append(ins, build.RunAll{[]build.Run{
-		{pc.version(), []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
-		{pc.version(), []string{"-m", "pip", "install", "-U", "wheel", pc.toxPackage(), pc.pipPackage()}},
+		{pc.version(), []string{"-m", "pip", "install", "-U", pc.setuptoolsPackage()}},
+		{pc.version(), []string{"-m", "pip", "install", "-U", pc.wheelPackage(), pc.toxPackage(), pc.pipPackage()}},
 	}})
 
 	if pc.usePoetry() {
@@ -206,7 +231,7 @@ func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
 		}})
 		ins = append(ins, build.Run{
 			pc.version(), []string{
-				"-m", "pip", "install", "-U", "poetry" + pc.Poetry.Version,
+				"-m", "pip", "install", "-U", pc.poetryPackage(),
 			},
 		})
 	}
@@ -231,11 +256,11 @@ func (pc PythonConfig) RequirementsArgs() []string {
 }
 
 func (pc PythonConfig) pipPackage() string {
-	if pc.version()[0:7] == "python2" {
+	if pc.PipVersion == "" && pc.version()[0:7] == "python2" {
 		return "pip<21"
 	}
 
-	return "pip"
+	return "pip" + pyVersionSpecifier(pc.PipVersion)
 }
 
 func (pc PythonConfig) version() string {
@@ -250,10 +275,32 @@ func (pc PythonConfig) usePoetry() bool {
 	return pc.Poetry.Version != ""
 }
 
-func (pc PythonConfig) toxPackage() string {
-	if pc.ToxVersion == "" {
-		return "tox"
+func (pc PythonConfig) poetryPackage() string {
+	return "poetry" + pyVersionSpecifier(pc.Poetry.Version)
+}
+
+func (pc PythonConfig) setuptoolsPackage() string {
+	if pc.SetuptoolsVersion == "" {
+		return "setuptools" + DefaultPythonSetuptoolsVersion
 	}
 
-	return "tox==" + pc.ToxVersion
+	return "setuptools" + pyVersionSpecifier(pc.SetuptoolsVersion)
+}
+
+func (pc PythonConfig) toxPackage() string {
+	return "tox" + pyVersionSpecifier(pc.ToxVersion)
+}
+
+func (pc PythonConfig) wheelPackage() string {
+	return "wheel" + pyVersionSpecifier(pc.WheelVersion)
+}
+
+// pyVersionSpecifier converts bare numeric versions to "=={version}" and
+// assumes all else to be a valid Python package version requirement.
+func pyVersionSpecifier(version string) string {
+	if version != "" && '0' <= version[0] && version[0] <= '9' {
+		return "==" + version
+	}
+
+	return version
 }
