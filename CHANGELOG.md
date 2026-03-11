@@ -1,4 +1,14 @@
 
+<a name="v1.8.0"></a>
+## [v1.8.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.7.0...v1.8.0)
+
+> 2026-03-11
+
+### Python
+
+* Specify versions of core Python package dependencies
+
+
 <a name="v1.7.0"></a>
 ## [v1.7.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.6.0...v1.7.0)
 
