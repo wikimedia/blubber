@@ -462,7 +462,7 @@ func TestPythonConfigInstructionsWithUv(t *testing.T) {
 					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
 				build.Env{Definitions: map[string]string{"UV_PROJECT_ENVIRONMENT": "/opt/lib/venv"}},
 				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "uv==0.11.28"}},
-				build.Run{Command: "uv", Arguments: []string{"sync", "--frozen", "--no-group", "dev", "--no-group", "docs"}}},
+				build.Run{Command: "uv", Arguments: []string{"sync", "--frozen", "--inexact", "--no-group", "dev", "--no-group", "docs"}}},
 			cfg.InstructionsForPhase(build.PhasePreInstall),
 		)
 	})

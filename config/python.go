@@ -218,8 +218,11 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			} else {
 				// Install using `uv sync`. --frozen fails the build if
 				// uv.lock is out of date rather than re-resolving and
-				// rewriting the lockfile inside the image.
-				cmd = append(cmd, "sync", "--frozen")
+				// rewriting the lockfile inside the image. --inexact stops
+				// uv from uninstalling packages absent from the lockfile,
+				// preserving the tooling (e.g. tox) Blubber installs into
+				// the shared venv, in line with the pip and Poetry paths.
+				cmd = append(cmd, "sync", "--frozen", "--inexact")
 				for _, group := range pc.Uv.NoGroup {
 					cmd = append(cmd, "--no-group", group)
 				}
