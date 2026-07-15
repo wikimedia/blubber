@@ -10,6 +10,9 @@ const PythonPoetryVenvs = LocalLibPrefix + "/poetry"
 // DefaultPythonVenv is the default path of the virtualenv managed by Blubber.
 const DefaultPythonVenv = LocalLibPrefix + "/venv"
 
+// PythonUvVenvs is the path where uv will create virtual environments.
+const PythonUvVenvs = LocalLibPrefix + "/uv"
+
 // DefaultPythonSetuptoolsVersion defines the default version specifier for
 // setuptools.
 const DefaultPythonSetuptoolsVersion = "!=60.9.0"
@@ -33,6 +36,9 @@ type PythonConfig struct {
 	// Use Poetry for package management
 	Poetry PoetryConfig `json:"poetry"`
 
+	// Use uv for package management
+	Uv UvConfig `json:"uv"`
+
 	// Specify a specific version of setuptools to install (T418253)
 	SetuptoolsVersion string `json:"setuptools-version"`
 
@@ -55,6 +61,14 @@ type PoetryConfig struct {
 	Without string `json:"without" validate:"omitempty"`
 }
 
+// UvConfig holds configuration fields related to installation of project
+// dependencies via uv.
+type UvConfig struct {
+	Version string   `json:"version" validate:"omitempty,pypkgver"`
+	NoGroup []string `json:"no-group"`
+	UvPip   Flag     `json:"uvpip"`
+}
+
 // Dependencies returns variant dependencies.
 func (pc PythonConfig) Dependencies() []string {
 	return pc.Requirements.Dependencies()
@@ -66,6 +80,7 @@ func (pc *PythonConfig) Merge(pc2 PythonConfig) {
 	pc.UseSystemSitePackages.Merge(pc2.UseSystemSitePackages)
 	pc.UseNoDepsFlag.Merge(pc2.UseNoDepsFlag)
 	pc.Poetry.Merge(pc2.Poetry)
+	pc.Uv.Merge(pc2.Uv)
 	if pc2.Version != "" {
 		pc.Version = pc2.Version
 	}
@@ -107,6 +122,15 @@ func (pc *PoetryConfig) Merge(pc2 PoetryConfig) {
 	if pc2.Without != "" {
 		pc.Without = pc2.Without
 	}
+}
+
+// Merge two UvConfig structs.
+func (pc *UvConfig) Merge(pc2 UvConfig) {
+	if pc2.Version != "" {
+		pc.Version = pc2.Version
+	}
+	pc.NoGroup = pc2.NoGroup
+	pc.UvPip.Merge(pc2.UvPip)
 }
 
 // InstructionsForPhase injects instructions into the build related to Python
@@ -166,9 +190,10 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 			"VIRTUAL_ENV": venv,
 			"PATH":        venv + "/bin:$PATH",
 		}})
-		ins = append(ins, pc.setupPipAndPoetry()...)
+		ins = append(ins, pc.setupPipAndPoetryAndUv()...)
 
-		if pc.usePoetry() {
+		switch {
+		case pc.usePoetry():
 			cmd := []string{"install", "--no-root"}
 
 			// Poetry 2.x
@@ -186,7 +211,26 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 
 			ins = append(ins, build.CreateDirectory(PythonPoetryVenvs))
 			ins = append(ins, build.Run{"poetry", cmd})
-		} else {
+
+		case pc.useUv():
+			var cmd []string
+
+			if pc.Uv.UvPip.True {
+				// Install using `uv pip install -r <requirements>`
+				cmd = append(cmd, "pip", "install")
+				cmd = append(cmd, pc.RequirementsArgs()...)
+			} else {
+				// Install using `uv sync`
+				cmd = append(cmd, "sync")
+				for _, group := range pc.Uv.NoGroup {
+					cmd = append(cmd, "--no-group", group)
+				}
+			}
+
+			ins = append(ins, build.CreateDirectory(PythonUvVenvs))
+			ins = append(ins, build.Run{"uv", cmd})
+
+		default:
 			args := pc.RequirementsArgs()
 			if args != nil {
 				installCmd := []string{"-m", "pip", "install"}
@@ -217,7 +261,7 @@ func (pc PythonConfig) isEnabled() bool {
 	return pc.Version != "" && pc.Requirements != nil
 }
 
-func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
+func (pc PythonConfig) setupPipAndPoetryAndUv() []build.Instruction {
 	ins := []build.Instruction{}
 
 	ins = append(ins, build.RunAll{[]build.Run{
@@ -232,6 +276,15 @@ func (pc PythonConfig) setupPipAndPoetry() []build.Instruction {
 		ins = append(ins, build.Run{
 			pc.version(), []string{
 				"-m", "pip", "install", "-U", pc.poetryPackage(),
+			},
+		})
+	} else if pc.useUv() {
+		ins = append(ins, build.Env{map[string]string{
+			"UV_VIRTUALENVS_PATH": PythonUvVenvs,
+		}})
+		ins = append(ins, build.Run{
+			pc.version(), []string{
+				"-m", "pip", "install", "-U", pc.uvPackage(),
 			},
 		})
 	}
@@ -277,6 +330,14 @@ func (pc PythonConfig) usePoetry() bool {
 
 func (pc PythonConfig) poetryPackage() string {
 	return "poetry" + pyVersionSpecifier(pc.Poetry.Version)
+}
+
+func (pc PythonConfig) useUv() bool {
+	return pc.Uv.Version != ""
+}
+
+func (pc PythonConfig) uvPackage() string {
+	return "uv" + pyVersionSpecifier(pc.Uv.Version)
 }
 
 func (pc PythonConfig) setuptoolsPackage() string {

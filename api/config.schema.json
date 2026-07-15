@@ -67,6 +67,28 @@
             }
           }
         },
+        "uv" : {
+          "type" : "object",
+          "description" : "Configuration related to installation of dependencies using [uv](https://docs.astral.sh/uv/).",
+          "properties" : {
+            "version" : {
+              "type" : "string",
+              "description" : "Version constraint for installing uv package."
+            },
+            "no-group" : {
+              "type" : "array",
+              "description" : "Dependency groups (as defined in `pyproject.toml`) to exclude when installing with `uv sync`. Translates to `--no-group` arguments.",
+              "items" : {
+                "type" : "string",
+                "description" : "Name of a dependency group to exclude."
+              }
+            },
+            "uvpip" : {
+              "type" : "boolean",
+              "description" : "Whether to install dependencies using `uv pip install -r <requirements>` instead of `uv sync`."
+            }
+          }
+        },
         "venv": {
           "type" : "string",
           "description" : "Use the given path for the Blubber managed venv. If the path already exists, it must be writable by the `lives` `uid`/`gid`."
