@@ -441,6 +441,100 @@ func TestPythonConfigWithPoetry2Without(t *testing.T) {
 	})
 }
 
+func TestPythonConfigInstructionsWithUv(t *testing.T) {
+	cfg := config.PythonConfig{
+		Version: "python3",
+		Requirements: config.RequirementsConfig{
+			{From: "local", Source: "pyproject.toml"},
+			{From: "local", Source: "uv.lock"},
+		},
+		Uv: config.UvConfig{Version: "==0.11.28", NoGroup: []string{"dev", "docs"}},
+	}
+
+	t.Run("PhasePreInstall", func(t *testing.T) {
+		assert.Equal(t,
+			[]build.Instruction{
+				build.Copy{Sources: []string{"pyproject.toml", "uv.lock"}, Destination: "./", Exclude: []string{}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
+				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
+				build.RunAll{Runs: []build.Run{
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.Env{Definitions: map[string]string{"UV_PROJECT_ENVIRONMENT": "/opt/lib/venv"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "uv==0.11.28"}},
+				build.Run{Command: "uv", Arguments: []string{"sync", "--frozen", "--no-group", "dev", "--no-group", "docs"}}},
+			cfg.InstructionsForPhase(build.PhasePreInstall),
+		)
+	})
+
+	t.Run("PhasePrivilegeDropped", func(t *testing.T) {
+		assert.Empty(t, cfg.InstructionsForPhase(build.PhasePrivilegeDropped))
+	})
+
+	t.Run("PhasePostInstall", func(t *testing.T) {
+		assert.Equal(t,
+			[]build.Instruction{},
+			cfg.InstructionsForPhase(build.PhasePostInstall),
+		)
+	})
+}
+
+func TestPythonConfigInstructionsWithUvPip(t *testing.T) {
+	cfg := config.PythonConfig{
+		Version: "python3",
+		Requirements: config.RequirementsConfig{
+			{From: "local", Source: "requirements.txt"},
+		},
+		Uv: config.UvConfig{Version: "==0.11.28", UvPip: config.Flag{True: true}},
+	}
+
+	t.Run("PhasePreInstall", func(t *testing.T) {
+		assert.Equal(t,
+			[]build.Instruction{
+				build.Copy{Sources: []string{"requirements.txt"}, Destination: "./", Exclude: []string{}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "venv", "/opt/lib/venv"}},
+				build.Env{Definitions: map[string]string{"PATH": "/opt/lib/venv/bin:$PATH", "VIRTUAL_ENV": "/opt/lib/venv"}},
+				build.RunAll{Runs: []build.Run{
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "setuptools!=60.9.0"}},
+					{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "wheel", "tox", "pip"}}}},
+				build.Env{Definitions: map[string]string{"UV_PROJECT_ENVIRONMENT": "/opt/lib/venv"}},
+				build.Run{Command: "python3", Arguments: []string{"-m", "pip", "install", "-U", "uv==0.11.28"}},
+				build.Run{Command: "uv", Arguments: []string{"pip", "install", "-r", "requirements.txt"}}},
+			cfg.InstructionsForPhase(build.PhasePreInstall),
+		)
+	})
+}
+
+func TestPythonConfigYAMLMergeUv(t *testing.T) {
+	cfg, err := config.ReadYAMLConfig([]byte(`---
+    version: v4
+    base: foo
+    python:
+      version: python3
+      requirements: [pyproject.toml, uv.lock]
+      uv:
+        version: ==0.11.28
+        no-group: [dev]
+    variants:
+      test:
+        python:
+          uv:
+            uvpip: true`))
+
+	if assert.NoError(t, err) {
+		err = config.ExpandIncludesAndCopies(cfg, "test")
+		assert.Nil(t, err)
+
+		variant, err := config.GetVariant(cfg, "test")
+
+		if assert.NoError(t, err) {
+			assert.Equal(t, "==0.11.28", variant.Python.Uv.Version)
+			assert.Equal(t, []string{"dev"}, variant.Python.Uv.NoGroup)
+			assert.Equal(t, true, variant.Python.Uv.UvPip.True)
+		}
+	}
+}
+
 func TestPythonConfigWithVenv(t *testing.T) {
 	cfg := config.PythonConfig{
 		Version:      "python3",
