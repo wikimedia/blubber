@@ -126,7 +126,9 @@ func (pc *UvConfig) Merge(pc2 UvConfig) {
 	if pc2.Version != "" {
 		pc.Version = pc2.Version
 	}
-	pc.NoGroup = pc2.NoGroup
+	if pc2.NoGroup != nil {
+		pc.NoGroup = pc2.NoGroup
+	}
 	pc.UvPip.Merge(pc2.UvPip)
 }
 
