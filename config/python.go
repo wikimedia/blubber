@@ -214,8 +214,10 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 				cmd = append(cmd, "pip", "install")
 				cmd = append(cmd, pc.RequirementsArgs()...)
 			} else {
-				// Install using `uv sync`
-				cmd = append(cmd, "sync")
+				// Install using `uv sync`. --frozen fails the build if
+				// uv.lock is out of date rather than re-resolving and
+				// rewriting the lockfile inside the image.
+				cmd = append(cmd, "sync", "--frozen")
 				for _, group := range pc.Uv.NoGroup {
 					cmd = append(cmd, "--no-group", group)
 				}
