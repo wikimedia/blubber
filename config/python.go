@@ -10,9 +10,6 @@ const PythonPoetryVenvs = LocalLibPrefix + "/poetry"
 // DefaultPythonVenv is the default path of the virtualenv managed by Blubber.
 const DefaultPythonVenv = LocalLibPrefix + "/venv"
 
-// PythonUvVenvs is the path where uv will create virtual environments.
-const PythonUvVenvs = LocalLibPrefix + "/uv"
-
 // DefaultPythonSetuptoolsVersion defines the default version specifier for
 // setuptools.
 const DefaultPythonSetuptoolsVersion = "!=60.9.0"
@@ -174,10 +171,7 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 
 	switch phase {
 	case build.PhasePreInstall:
-		venv := pc.Venv
-		if venv == "" {
-			venv = DefaultPythonVenv
-		}
+		venv := pc.venvPath()
 
 		venvSetupCmd := []string{"-m", "venv", venv}
 		if pc.UseSystemSitePackages.True {
@@ -227,7 +221,6 @@ func (pc PythonConfig) InstructionsForPhase(phase build.Phase) []build.Instructi
 				}
 			}
 
-			ins = append(ins, build.CreateDirectory(PythonUvVenvs))
 			ins = append(ins, build.Run{"uv", cmd})
 
 		default:
@@ -279,8 +272,11 @@ func (pc PythonConfig) setupPipAndPoetryAndUv() []build.Instruction {
 			},
 		})
 	} else if pc.useUv() {
+		// uv ignores the active virtualenv when syncing a project; point it
+		// at the Blubber managed venv so dependencies land in the same
+		// environment used by the pip and Poetry code paths.
 		ins = append(ins, build.Env{map[string]string{
-			"UV_VIRTUALENVS_PATH": PythonUvVenvs,
+			"UV_PROJECT_ENVIRONMENT": pc.venvPath(),
 		}})
 		ins = append(ins, build.Run{
 			pc.version(), []string{
@@ -322,6 +318,14 @@ func (pc PythonConfig) version() string {
 	}
 
 	return pc.Version
+}
+
+func (pc PythonConfig) venvPath() string {
+	if pc.Venv == "" {
+		return DefaultPythonVenv
+	}
+
+	return pc.Venv
 }
 
 func (pc PythonConfig) usePoetry() bool {
