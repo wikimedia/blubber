@@ -46,9 +46,10 @@ func (nc *NodeConfig) Merge(nc2 NodeConfig) {
 // # PhasePreInstall
 //
 // Installs Node package dependencies declared in requirements files into the
-// application directory. Only production related packages are install if
-// NodeConfig.Env is set to "production" in which case `npm dedupe` is also
-// tried. Installing dependencies during the build.PhasePreInstall phase allows
+// application directory. Only production related packages are installed if
+// NodeConfig.Env is set to "production", in which case `npm dedupe` is also
+// tried. Both get `--omit=dev`, as `npm dedupe` re-computes the full package
+// tree. Installing dependencies during the build.PhasePreInstall phase allows
 // a compiler implementation (e.g. Docker) to produce cache-efficient output
 // so only changes to package.json will invalidate these steps of the image
 // build.
@@ -71,7 +72,7 @@ func (nc NodeConfig) InstructionsForPhase(phase build.Phase) []build.Instruction
 			}
 
 			if nc.Env == "production" {
-				npmInstall.Arguments = []string{"--only=production"}
+				npmInstall.Arguments = []string{"--omit=dev"}
 			}
 
 			ins = append(ins, npmInstall)
@@ -80,14 +81,15 @@ func (nc NodeConfig) InstructionsForPhase(phase build.Phase) []build.Instruction
 				var npmDedupe build.Run
 				if nc.AllowDedupeFailure.True {
 					npmDedupe = build.Run{
-						"npm dedupe || echo %s",
+						"npm dedupe %s || echo %s",
 						[]string{
+							"--omit=dev",
 							"WARNING: npm dedupe failed, " +
 								"continuing anyways",
 						},
 					}
 				} else {
-					npmDedupe = build.Run{"npm dedupe", []string{}}
+					npmDedupe = build.Run{"npm dedupe", []string{"--omit=dev"}}
 				}
 
 				ins = append(ins, npmDedupe)

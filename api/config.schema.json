@@ -464,7 +464,7 @@
       "properties" : {
         "env" : {
           "type" : "string",
-          "description" : "Node environment (e.g. production, etc.). Sets the environment variable `NODE_ENV`. Will pass `npm install --production` and run `npm dedupe` if set to production."
+          "description" : "Node environment (e.g. production, etc.). Sets the environment variable `NODE_ENV`. If set to production, both `npm install` and the subsequent `npm dedupe` are given `--omit=dev`, so no development dependencies are installed."
         },
         "requirements" : {
           "$ref" : "#/$defs/v4.Requirements"
