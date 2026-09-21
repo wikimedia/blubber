@@ -69,7 +69,11 @@ func Compile(
 	}
 
 	if bo != nil && bo.RunEntrypoint {
-		finalTarget.RunEntrypoint(bo.EntrypointArgs, bo.RunEnvironment)
+		err := finalTarget.RunEntrypoint(bo.EntrypointArgs, bo.RunEnvironment)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return finalTarget, nil

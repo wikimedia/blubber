@@ -484,4 +484,17 @@ func TestRunEntrypoint(t *testing.T) {
 		req.Equal("*", execOps[0].Exec.Meta.ProxyEnv.NoProxy)
 		req.Equal("socks://proxy.example:1080", execOps[0].Exec.Meta.ProxyEnv.AllProxy)
 	})
+
+	t.Run("errors when the target has no entrypoint", func(t *testing.T) {
+		var err error
+
+		_, req := testtarget.Setup(t,
+			testtarget.NewTargets("foo"),
+			func(foo *build.Target) {
+				err = foo.RunEntrypoint([]string{"baz"}, map[string]string{})
+			},
+		)
+
+		req.EqualError(err, `cannot run variant "foo": no entrypoint is defined`)
+	})
 }

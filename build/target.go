@@ -591,10 +591,15 @@ func (target *Target) WorkingDirectory(dir string) error {
 	return nil
 }
 
-// RunEntrypoint runs the target's entrypoint
+// RunEntrypoint runs the target's entrypoint, or an error if the
+// target has no entrypoint.
 //
 // Note that caching is always disabled for this operation.
 func (target *Target) RunEntrypoint(args []string, env map[string]string) error {
+	if len(target.image.Config.Entrypoint) == 0 {
+		return errors.Errorf("cannot run variant %q: no entrypoint is defined", target.Name)
+	}
+
 	runOpts := []llb.RunOption{
 		llb.Args(append(target.image.Config.Entrypoint, args...)),
 		disableCacheForOp(),
