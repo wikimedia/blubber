@@ -14,7 +14,7 @@ Feature: Defining the build and runtime environment
       version: v4
       variants:
         hello:
-          base: debian:bullseye
+          base: debian:bookworm
           copies: [local]
           entrypoint: [./hello.sh]
       """
@@ -42,7 +42,7 @@ Feature: Defining the build and runtime environment
         gid: 1235
       variants:
         hello:
-          base: debian:bullseye
+          base: debian:bookworm
           copies: [local]
           entrypoint: [./hello.sh]
       """
@@ -65,7 +65,7 @@ Feature: Defining the build and runtime environment
         gid: 4320
       variants:
         hello:
-          base: debian:bullseye
+          base: debian:bookworm
           copies: [local]
           entrypoint: [./hello.sh]
       """
@@ -86,7 +86,7 @@ Feature: Defining the build and runtime environment
         uid: 4321
       variants:
         hello:
-          base: debian:bullseye
+          base: debian:bookworm
           copies: [local]
           entrypoint: [./hello.sh]
       """
@@ -104,7 +104,7 @@ Feature: Defining the build and runtime environment
           BAZ: qux
       variants:
         hello:
-          base: debian:bullseye
+          base: debian:bookworm
           copies: [local]
           entrypoint: [./hello.sh]
       """
@@ -122,7 +122,7 @@ Feature: Defining the build and runtime environment
         in: /some/other/directory
       variants:
         hello:
-          base: debian:bullseye
+          base: debian:bookworm
           copies: [local]
           entrypoint: [./hello.sh]
       """

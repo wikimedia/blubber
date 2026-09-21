@@ -13,7 +13,7 @@ Feature: Installing packages
       version: v4
       variants:
         build:
-          base: debian:bullseye
+          base: debian:bookworm
           apt:
             packages:
               - gcc
@@ -30,27 +30,27 @@ Feature: Installing packages
       version: v4
       variants:
         build:
-          base: docker-registry.wikimedia.org/golang1.21:1.21-1-20240609
+          base: docker-registry.wikimedia.org/bookworm
           apt:
             sources:
               - url: https://apt.wikimedia.org/wikimedia
-                distribution: bullseye-wikimedia
+                distribution: bookworm-wikimedia
                 components:
-                  - thirdparty/amd-rocm54
+                  - thirdparty/otel-cli
             packages:
-              bullseye-wikimedia: # you may use an explicit distribution/release name like so
-                - fake-libgcc-7-dev
+              bookworm-wikimedia: # you may use an explicit distribution/release name like so
+                - otel-cli
       """
     When you build the "build" variant
-    Then the image will have the following files in "/usr/share/doc/fake-libgcc-7-dev"
-      | copyright     |
+    Then the image will have the following files in "/usr/bin"
+      | otel-cli |
 
   @set3
   Scenario: Provide a public key for an additional APT source
     Given this "blubber.yaml"
       """
       version: v4
-      base: docker-registry.wikimedia.org/bookworm:20250601
+      base: docker-registry.wikimedia.org/bookworm:20260920
       variants:
         build:
           apt:
@@ -78,8 +78,8 @@ Feature: Installing packages
                   NdCFTW7wY0Fb1fWJ+/KTsC4=
                   =J6gs
                   -----END PGP PUBLIC KEY BLOCK-----
-            packages: [dotnet-sdk-8.0]
-          entrypoint: [dotnet, --version]
+            packages: [dotnet-runtime-8.0]
+          entrypoint: [dotnet, --list-runtimes]
       """
     When you build and run the "build" variant
     Then the entrypoint will have run successfully

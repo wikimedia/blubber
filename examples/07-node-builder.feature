@@ -12,7 +12,7 @@ Feature: Node builder
       version: v4
       variants:
         hello:
-          base: node:20-bullseye
+          base: node:20-bookworm
           builders:
             - node:
                 requirements: [package.json, package-lock.json]

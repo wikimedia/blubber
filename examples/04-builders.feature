@@ -12,7 +12,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: debian:bullseye
+          base: debian:bookworm
           apt:
             packages:
               - gcc
@@ -92,7 +92,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: debian:bullseye
+          base: debian:bookworm
           apt:
             packages:
               - gcc

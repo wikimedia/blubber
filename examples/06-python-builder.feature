@@ -12,7 +12,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bullseye
+          base: python:3.10-bookworm
           builders:
             - python:
                 version: python3
@@ -75,7 +75,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bullseye
+          base: python:3.10-bookworm
           builders:
             - python:
                 version: python3
@@ -95,7 +95,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bullseye
+          base: python:3.10-bookworm
           builders:
             - python:
                 version: python3
@@ -116,7 +116,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bullseye
+          base: python:3.10-bookworm
           builders:
             - python:
                 version: python3
