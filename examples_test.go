@@ -243,11 +243,12 @@ func buildVariantWithArguments(ctx context.Context, andRun string, variant strin
 		cache := memoryblobcache.New()
 
 		img, err := ref.NewImage(ctx, sys)
-		defer img.Close()
 
 		if err != nil {
 			return ctx, errors.Wrapf(err, "failed to get image from ref %s", ref.StringWithinTransport())
 		}
+
+		defer img.Close()
 
 		cfg, err := img.OCIConfig(ctx)
 
