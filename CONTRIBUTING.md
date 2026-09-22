@@ -14,7 +14,7 @@ to both users inside and outside of WMF and our communities.
  2. Create a [developer account](https://wikitech.wikimedia.org/wiki/Help:Create_a_Wikimedia_developer_account)
     which you will use clone the [Blubber repo](https://gitlab.wikimedia.org/repos/releng/blubber)
     and submit your changes as a merge request.
- 3. `go` >= 1.21 and related tools
+ 3. `go` >= 1.23.5 and related tools
     * To install on rpm style systems: `sudo dnf install golang golang-godoc`
     * To install on apt style systems: `sudo apt install golang golang-golang-x-tools`
     * To install on macOS use [Homebrew](https://brew.sh) and run:
@@ -29,22 +29,18 @@ to both users inside and outside of WMF and our communities.
 
 Clone the repo from `https://gitlab.wikimedia.org/repos/releng/blubber.git`.
 
-```console
-$ git clone https://gitlab.wikimedia.org/repos/releng/blubber.git ~/src/blubber
-$ cd ~/src/blubber
+```sh
+git clone https://gitlab.wikimedia.org/repos/releng/blubber.git
+cd blubber
 ```
 
-Verify a working toolchain by building Blubber prior to making changes.
+## Test build
 
-```console
-[~/src/blubber]$ docker buildx build -f bake.hcl
-```
+Verify a working toolchain prior to making changes. The target builds on your
+host, then runs the tests and linters in containers.
 
-If you plan to compile or debug on your host machine, ensure you can build
-directly from the `Makefile`.
-
-```console
-[~/src/blubber]$ make
+```sh
+make test-build
 ```
 
 ## Make your changes
@@ -74,22 +70,24 @@ Blubber's source code is organized into the following directories/packages:
 After you have made your changes, run the unit tests and linters to ensure
 basic correctness.
 
-```console
-[~/src/blubber]$ docker buildx bake -f bake.hcl test
+```sh
+docker buildx bake -f bake.hcl test
 ```
 
 ## More thorough testing of the BuildKit frontend
 
+### Setup
+
 To run acceptance tests or test/debug Blubber's BuildKit frontend, you will
-need your own `buildkitd` instance and an acccessible OCI registry.
+need your own `buildkitd` instance and an accessible OCI registry.
 The easiest way to achieve this setup is to run both locally using Docker.
 
-```console
-$ docker network create blubber
-$ docker run -d --name buildkitd -p 1234:1234 --privileged --network blubber moby/buildkit:latest --addr tcp://0.0.0.0:1234
-$ docker run -d --name registry -p 5000:5000 --network blubber registry:2
-$ docker buildx create --use --name blubber --driver remote tcp://0.0.0.0:1234
+```sh
+make dev-env
 ```
+
+`make dev-env-clean` deletes the `buildkitd` and `registry` containers, the
+builder, the network and the images that `make acceptance` built.
 
 ### Running the acceptance tests
 
@@ -99,20 +97,8 @@ If you are developing or testing a new feature that has a corresponding
 acceptance test under the `examples` directory, you can run the suite locally
 to ensure it passes.
 
-First, build the `buildkit` and `acceptance` images and publish them to your
-local registry.
-
-```console
-[~/src/blubber]$ docker buildx bake -f bake.hcl --load buildkit acceptance
-```
-
-(The `--load` is important here as it imports the resulting images into the
-local Docker daemon's image store.)
-
-Now run the acceptance test suite.
-
-```console
-[~/src/blubber]$ docker run --rm --pull never --network blubber registry:5000/blubber/acceptance
+```sh
+make acceptance
 ```
 
 ### Manually testing a blubber.yaml against local changes
@@ -122,8 +108,8 @@ Now run the acceptance test suite.
 To manually test a `blubber.yaml` configuration against your local changes,
 first build and publish the Blubber `buildkit` gateway image.
 
-```console
-[~/src/blubber]$ docker buildx bake -f bake.hcl buildkit
+```sh
+make dev-frontend
 ```
 
 Add a `syntax` line to your `blubber.yaml`.
@@ -136,17 +122,17 @@ variants:
     # [...]
 ```
 
-Build a variant from your `blubber.yaml`.
+From the directory that holds your `blubber.yaml`, build a variant.
 
-```console
-[~/your/test/dir]$ docker buildx build -f blubber.yaml --target foo .
+```sh
+docker buildx build -f blubber.yaml --target foo .
 ```
 
 To see debugging information, you can use `docker buildx --debug ...` and/or
 tail the `buildkitd` logs.
 
-```console
-$ docker logs -f buildkitd
+```sh
+docker logs -f buildkitd
 ```
 
 ## Getting your changes reviewed and merged
