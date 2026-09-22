@@ -1,4 +1,34 @@
 
+<a name="v1.8.1"></a>
+## [v1.8.1](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.8.0...v1.8.1)
+
+> 2026-09-22
+
+### Build
+
+* Error when `run-variant` finds no entrypoint
+
+### CONTRIBUTING
+
+* Update instructions
+
+### Docs
+
+* Do not track `docs/configuration.md`
+
+### Examples
+
+* Check the error before the deferred close
+
+### Makefile
+
+* Add targets for the local development environment
+
+### RELEASE
+
+* Updated text
+
+
 <a name="v1.8.0"></a>
 ## [v1.8.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.7.0...v1.8.0)
 
