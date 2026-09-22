@@ -2,17 +2,21 @@
 #
 # Release a new version of Blubber:
 #
-#  1. Increment value in VERSION (minor by default; pass `-p` to do a
-#     patch release).
+#  1. Increment the value in VERSION (minor by default; pass `-p` to do a
+#     patch release, or `-M` to do a major release).
 #  2. Generate CHANGELOG.md using `git chglog`.
-#  3. Create a commit for the new version and change log.
-#  4. Create a signed version tag.
-#  5. Push new commit and version tag.
+#  3. Show the changes and ask for confirmation.
+#  4. Update the image references in README.md to the new tag.
+#  5. Commit VERSION, CHANGELOG.md, and README.md.
+#  6. Create a signed version tag.
+#  7. Open a merge request for the commit. The merge request merges when the
+#     pipeline succeeds.
+#  8. Push the version tag after the merge request merges.
 #
 set -o errexit -o nounset -o pipefail
 
 usage() {
-  echo "Usage: $0: [-p] [remote] [branch]"
+  echo "Usage: $0 [-M | -p] [remote] [branch]"
   echo " -M  Increment major number (x.0.0) instead of minor number (0.x.0)"
   echo " -p  Increment patch number (0.0.x) instead of minor number (0.x.0)"
   echo " [remote] Remote name ('origin' by default)"
@@ -104,6 +108,11 @@ if [ "$(git rev-list $REMOTE/$TARGET_BRANCH..)" ]; then
     echo "Aborting"
     exit 1
 fi
+
+# Ensure that git-chglog (installed by "make install-tools") is available
+GOBIN="$(go env GOBIN)"
+export GOBIN="${GOBIN:-$(go env GOPATH)/bin}"
+export PATH="$GOBIN:$PATH"
 
 make install-tools
 
