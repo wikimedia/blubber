@@ -86,6 +86,53 @@ lint:
 unit:
 	$(GO_TEST) -cover $(GO_PACKAGES)
 
+# Verify both toolchains. `all` builds on the host, and the bake target
+# builds and tests in containers.
+.PHONY: test-build
+test-build: all
+	docker buildx bake -f bake.hcl test
+
+# Local development environment for the BuildKit frontend. See
+# CONTRIBUTING.md.
+DEV_NETWORK ?= blubber
+DEV_REGISTRY ?= registry:5000/blubber
+DEV_BUILDKIT_ADDR ?= tcp://0.0.0.0:1234
+
+.PHONY: dev-env
+dev-env:
+	docker network inspect $(DEV_NETWORK) >/dev/null 2>&1 || \
+		docker network create $(DEV_NETWORK)
+	docker container inspect registry >/dev/null 2>&1 || \
+		docker run -d --name registry -p 5000:5000 --network $(DEV_NETWORK) registry:2
+	docker container inspect buildkitd >/dev/null 2>&1 || \
+		docker run -d --name buildkitd -p 1234:1234 --privileged --network $(DEV_NETWORK) \
+			-v "$(CURDIR)/dev-buildkitd.toml:/etc/buildkit/buildkitd.toml:ro" \
+			moby/buildkit:latest --addr $(DEV_BUILDKIT_ADDR) --config /etc/buildkit/buildkitd.toml
+	docker buildx inspect $(DEV_NETWORK) >/dev/null 2>&1 || \
+		docker buildx create --name $(DEV_NETWORK) --driver remote $(DEV_BUILDKIT_ADDR)
+	docker buildx use $(DEV_NETWORK)
+
+# The buildkitd container holds the build cache, so its removal reclaims most storage.
+.PHONY: dev-env-clean
+dev-env-clean:
+	-docker rm -f buildkitd registry
+	-docker buildx rm $(DEV_NETWORK)
+	-docker network rm $(DEV_NETWORK)
+	@images=$$(docker images --filter=reference='$(DEV_REGISTRY)/*' -q | sort -u); \
+	[ -z "$$images" ] || docker rmi -f $$images
+
+.PHONY: dev-frontend
+dev-frontend:
+	docker buildx bake -f bake.hcl \
+		--set buildkit.platform=linux/amd64 \
+		--set buildkit.output=type=registry,registry.insecure=true \
+		buildkit
+
+.PHONY: acceptance
+acceptance: dev-frontend
+	docker buildx bake -f bake.hcl --set acceptance.output=type=docker acceptance
+	docker run --rm --pull never --network $(DEV_NETWORK) $(DEV_REGISTRY)/acceptance
+
 .PHONY: blubber-buildkit-docker
 blubber-buildkit-docker:
 	DOCKER_BUILDKIT=1 docker build --pull=false -f .pipeline/blubber.yaml --target buildkit -t localhost/blubber-buildkit .

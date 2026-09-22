@@ -1,0 +1,16 @@
+[registry."registry:5000"]
+  http = true
+  insecure = true
+
+# Without a gc policy, buildkitd holds every layer of every run and fills the
+# Docker filesystem.
+[worker.oci]
+  gc = true
+
+  [[worker.oci.gcpolicy]]
+    keepBytes = "2GB"
+    keepDuration = "48h"
+
+  [[worker.oci.gcpolicy]]
+    all = true
+    keepBytes = "4GB"
