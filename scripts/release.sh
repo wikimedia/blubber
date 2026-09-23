@@ -91,7 +91,7 @@ wait_for_commit() {
   echo "Waiting for commit $commit to merge..."
 
   until commit_has_merged "$commit"; do
-    sleep 5
+    sleep 30
     echo "..."
   done
 
