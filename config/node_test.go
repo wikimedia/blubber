@@ -149,8 +149,8 @@ func TestNodeConfigInstructionsProduction(t *testing.T) {
 			assert.Equal(t,
 				[]build.Instruction{
 					build.Copy{[]string{"package.json", "package-lock.json"}, "./", []string{}},
-					build.Run{"npm install", []string{"--only=production"}},
-					build.Run{"npm dedupe", []string{}},
+					build.Run{"npm install", []string{"--omit=dev"}},
+					build.Run{"npm dedupe", []string{"--omit=dev"}},
 				},
 				cfg.InstructionsForPhase(build.PhasePreInstall),
 			)
@@ -164,8 +164,9 @@ func TestNodeConfigInstructionsProduction(t *testing.T) {
 			assert.Equal(t,
 				[]build.Instruction{
 					build.Copy{[]string{"package.json", "package-lock.json"}, "./", []string{}},
-					build.Run{"npm install", []string{"--only=production"}},
-					build.Run{"npm dedupe || echo %s", []string{
+					build.Run{"npm install", []string{"--omit=dev"}},
+					build.Run{"npm dedupe %s || echo %s", []string{
+						"--omit=dev",
 						"WARNING: npm dedupe failed, continuing anyways",
 					}},
 				},
