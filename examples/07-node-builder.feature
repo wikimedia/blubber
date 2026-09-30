@@ -12,7 +12,7 @@ Feature: Node builder
       version: v4
       variants:
         hello:
-          base: node:20-bookworm
+          base: node:26-trixie
           builders:
             - node:
                 requirements: [package.json, package-lock.json]

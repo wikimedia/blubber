@@ -12,7 +12,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: debian:bookworm
+          base: debian:trixie
           apt:
             packages:
               - gcc
@@ -34,7 +34,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: golang:1.18
+          base: golang:1.27
           builders:
             - custom:
                 requirements: [go.mod, go.sum]
@@ -56,7 +56,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: golang:1.18
+          base: golang:1.27
           runs:
             environment:
               CGO_ENABLED: "0"
@@ -92,7 +92,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: debian:bookworm
+          base: debian:trixie
           apt:
             packages:
               - gcc
@@ -118,7 +118,7 @@ Feature: Builders
       version: v4
       variants:
         build:
-          base: golang:1.18
+          base: golang:1.27
           runs:
             environment:
               GOCACHE: /var/cache/go
@@ -145,7 +145,7 @@ Feature: Builders
       version: v4
       variants:
         assets:
-          base: node:22-bookworm
+          base: node:26-trixie
           lives:
             in: /src
           builders:
@@ -157,7 +157,7 @@ Feature: Builders
                   - ./src/
                 command: "npm run build"
         build:
-          base: golang:1.23
+          base: golang:1.27
           runs:
             environment:
               CGO_ENABLED: "0"

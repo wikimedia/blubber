@@ -12,7 +12,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bookworm
+          base: python:3.14-trixie
           builders:
             - python:
                 version: python3
@@ -30,7 +30,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: docker-registry.wikimedia.org/bookworm
+          base: debian:trixie
           apt:
             packages:
             - python3-venv
@@ -75,7 +75,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bookworm
+          base: python:3.14-trixie
           builders:
             - python:
                 version: python3
@@ -95,7 +95,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bookworm
+          base: python:3.14-trixie
           builders:
             - python:
                 version: python3
@@ -116,7 +116,7 @@ Feature: Python builder
       version: v4
       variants:
         hello:
-          base: python:3.10-bookworm
+          base: python:3.14-trixie
           builders:
             - python:
                 version: python3

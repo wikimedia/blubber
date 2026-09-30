@@ -15,7 +15,7 @@ Feature: Build arguments
       version: v4
       variants:
         make:
-          base: debian:stable
+          base: debian:trixie
           arguments:
             MAKE_TARGET: foo
           apt:

@@ -18,7 +18,7 @@ Feature: Basic usage
       version: v4
       variants:
         hello:
-          base: debian:bookworm    # start with a debian system
+          base: debian:trixie      # start with a debian system
           copies: [local]          # copy our working directory to the default application path
           entrypoint: [./hello.sh] # run ./hello.sh when a container is started using this image
       """
@@ -37,7 +37,7 @@ Feature: Basic usage
       version: v4
       variants:
         hello:
-          base: debian:bookworm
+          base: debian:trixie
           copies: [local]
       """
     And this ".dockerignore"
@@ -57,7 +57,7 @@ Feature: Basic usage
       version: v4
       variants:
         hello:
-          base: debian:bookworm
+          base: debian:trixie
           copies:
             - from: local
               exclude:
@@ -76,7 +76,7 @@ Feature: Basic usage
       version: v4
       variants:
         hello:
-          base: debian:bookworm
+          base: debian:trixie
           copies: [local]
         hey:
           includes: [hello]

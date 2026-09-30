@@ -14,7 +14,7 @@ Feature: Copying from other variants
       version: v4
       variants:
         build:
-          base: golang:1.18
+          base: golang:1.27
           lives:
             in: /src
           builders:

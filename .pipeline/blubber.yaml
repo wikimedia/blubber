@@ -2,13 +2,13 @@
 version: v4
 variants:
   debian:
-    base: docker-registry.wikimedia.org/bookworm:20260920
+    base: docker-registry.wikimedia.org/trixie:20260927
 
   golang:
-    base: docker-registry.wikimedia.org/golang1.24:1.24-20260920
+    base: docker-registry.wikimedia.org/golang1.26:1.26-20260927
 
   nodejs:
-    base: docker-registry.wikimedia.org/nodejs22-slim:22.23.0-1-20260920
+    base: docker-registry.wikimedia.org/nodejs26-slim:26.8.2-20260927
 
   project:
     builders:
