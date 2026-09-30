@@ -1,4 +1,18 @@
 
+<a name="v1.9.0"></a>
+## [v1.9.0](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.8.1...v1.9.0)
+
+> 2026-09-30
+
+### Examples
+
+* Update base images
+
+### Node
+
+* Omit devDependencies from `npm dedupe`
+
+
 <a name="v1.8.1"></a>
 ## [v1.8.1](https://gitlab.wikimedia.org/repos/releng/blubber/compare/v1.8.0...v1.8.1)
 
